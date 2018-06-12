@@ -3,6 +3,7 @@ using System.Data;
 using System.Data.Common;
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 
 namespace UniprotDistributedServer.Controllers
 {
@@ -10,11 +11,19 @@ namespace UniprotDistributedServer.Controllers
     ///This method can catch data from SQL
     public class ValuesController : Controller
     {
+        private IConfiguration _configuration;
+
+        public ValuesController(IConfiguration configuration)
+        {
+            _configuration = configuration;
+        }
+
         // GET api/values
         [HttpGet]
+        [Route("api/get")]
         public IEnumerable<string> Get(string sql)
         {
-            BaseDataAccess DataBase = new BaseDataAccess("Data Source=proteinreader.bioinfo.pbf.hr,8758;Initial Catalog=prot;Integrated Security=False;User Id=tijan;Password=tijan99;MultipleActiveResultSets=True");
+            BaseDataAccess DataBase = new BaseDataAccess(_configuration.GetConnectionString("DefaultConnection"));
 
             List<DbParameter> parameterList = new List<DbParameter>();
             List<string> Result = new List<string>();
