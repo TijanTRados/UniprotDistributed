@@ -7,7 +7,7 @@ using Microsoft.Extensions.Configuration;
 
 namespace UniprotDistributedServer.Controllers
 {
-    [Route("api/get")]
+    [Route("api")]
     ///This method can catch data from SQL
     public class ValuesController : Controller
     {
@@ -20,7 +20,7 @@ namespace UniprotDistributedServer.Controllers
 
         // GET api/values
         [HttpGet]
-        [Route("api/get")]
+        [Route("get")]
         public IEnumerable<string> Get(string sql)
         {
             BaseDataAccess DataBase = new BaseDataAccess(_configuration.GetConnectionString("DefaultConnection"));
@@ -51,25 +51,40 @@ namespace UniprotDistributedServer.Controllers
             return Result;
             //return new string[] { sql, "value1", "value2" };
         }
-    }
 
-    [Route("api/post")]
-    public class PutController : Controller
-    {
-        [HttpPost]
-        public string Post([FromBody]string sql)
-        {
-            return "I've put something new";
-        }
-    }
-
-    [Route("api/info")]
-    public class ConfigController : Controller
-    {
         [HttpGet]
-        public string Get()
+        [Route("info")]
+        public string Load()
         {
-            return "Info";
+            //Read config file
+
+            //Configuration is set up on DefaultConnection string in this case
+            BaseDataAccess DataBase = new BaseDataAccess("Data Source=storage.bioinfo.pbf.hr,8758;Initial Catalog=prot;Integrated Security=False;User Id=tijan;Password=tijan99;MultipleActiveResultSets=True");
+
+            DataSet ConfigData = DataBase.ExecuteFillDataSet("select * from configuration c join configuration_servers s on c.configuration_id = s.configuration_id", null);
+
+            //Setting up the SPLIT command to execute
+            string splitBash = "split -l 100000 --additional-suffix=.csv " + ConfigData.Tables[0].Select("is_master = 1")[0]["load_source_file"] + " " + ConfigData.Tables[0].Select("is_master = 1")[0]["load_mediation_directory"];
+            var escapedArgs = splitBash.Replace("\"", "\\\"");
+
+            var process = new Process()
+            {
+                StartInfo = new ProcessStartInfo
+                {
+                    FileName = "/bin/bash",
+                    Arguments = $"-c \"{escapedArgs}\"",
+                    RedirectStandardOutput = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = true,
+                }
+            };
+
+            return "HEEEEEEEEEEEEJ";
+
+            process.Start();
+            string result = process.StandardOutput.ReadToEnd();
+            process.WaitForExit();
+            return result;
         }
     }
 }
