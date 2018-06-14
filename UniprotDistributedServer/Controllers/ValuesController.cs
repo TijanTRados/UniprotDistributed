@@ -79,8 +79,6 @@ namespace UniprotDistributedServer.Controllers
                 }
             };
 
-            return "HEEEEEEEEEEEEJ";
-
             process.Start();
             string result = process.StandardOutput.ReadToEnd();
             process.WaitForExit();
