@@ -2,6 +2,7 @@
 using System.Data;
 using System.Data.Common;
 using System.Diagnostics;
+using System.IO;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 
@@ -54,7 +55,7 @@ namespace UniprotDistributedServer.Controllers
 
         [HttpGet]
         [Route("info")]
-        public string Load()
+        public string[] Load()
         {
             //Read config file
 
@@ -79,10 +80,16 @@ namespace UniprotDistributedServer.Controllers
                 }
             };
 
+            //Executing the SPLIT command
             process.Start();
             string result = process.StandardOutput.ReadToEnd();
             process.WaitForExit();
-            return result;
+
+
+            //Reading the new files one by one
+            string[] files = Directory.GetFiles(ConfigData.Tables[0].Select("is_master = 1")[0]["load_mediation_directory"].ToString());
+
+            return files;
         }
     }
 }
