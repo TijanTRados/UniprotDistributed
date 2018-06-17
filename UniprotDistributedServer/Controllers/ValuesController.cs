@@ -5,6 +5,7 @@ using System.Data.Common;
 using System.Diagnostics;
 using System.IO;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -16,6 +17,7 @@ namespace UniprotDistributedServer.Controllers
     public class ValuesController : Controller
     {
         private IConfiguration _configuration;
+        private string status;
 
         public ValuesController(IConfiguration configuration)
         {
@@ -58,8 +60,26 @@ namespace UniprotDistributedServer.Controllers
 
         [HttpGet]
         [Route("info")]
-        public string[] Load()
+        public string Info()
         {
+            return status;
+        }
+
+        [HttpGet]
+        [Route("load")]
+        public string Load()
+        {
+            Thread t = new Thread(() => Loader());
+            t.Start();
+            return "Started";
+        }
+
+        /// <summary>
+        /// Process for Loading the data
+        /// </summary>
+        private void Loader()
+        {
+            status = "Load started";
             Stopwatch stopwatch = new Stopwatch();
             List<string> TimeStatistics = new List<string>();
             int[] values = { '1', '1', '1', '1', '1', '2', '2' };
@@ -68,12 +88,13 @@ namespace UniprotDistributedServer.Controllers
             stopwatch.Start();
 
             #region Read Configuration File
+            status = "Reading configuration files";
             //Read config file
             //Configuration is set up on DefaultConnection string in this case
             BaseDataAccess DataBase = new BaseDataAccess("Data Source=storage.bioinfo.pbf.hr,8758;Initial Catalog=prot;Integrated Security=False;User Id=tijan;Password=tijan99;MultipleActiveResultSets=True");
             string MediationDirectory, SourceFile;
 
-            using(DataSet ConfigData = DataBase.ExecuteFillDataSet("select * from configuration c join configuration_servers s on c.configuration_id = s.configuration_id", null))
+            using (DataSet ConfigData = DataBase.ExecuteFillDataSet("select * from configuration c join configuration_servers s on c.configuration_id = s.configuration_id", null))
             {
                 MediationDirectory = ConfigData.Tables[0].Select("is_master = 1")[0]["load_mediation_directory"].ToString();
                 SourceFile = ConfigData.Tables[0].Select("is_master = 1")[0]["load_source_file"].ToString();
@@ -85,6 +106,7 @@ namespace UniprotDistributedServer.Controllers
 
             #region Split the file into pieces
             //Setting and executing the SPLIT command to execute
+            status = "Splitting into pieces";
             string splitBash = "split -l 100000 --additional-suffix=.csv " + SourceFile + " " + MediationDirectory;
             ShellHelper.Bash(splitBash);
 
@@ -94,6 +116,7 @@ namespace UniprotDistributedServer.Controllers
 
             #region Broadcasting the files
             //Reading the new files one by one and doing stuff depending on MASTER/SLAVE
+            status = "Broadcasting the files";
             string[] files = Directory.GetFiles(MediationDirectory);
 
             ShellHelper.Bash("mkdir " + MediationDirectory + "Run/");
@@ -108,8 +131,9 @@ namespace UniprotDistributedServer.Controllers
                     //Copy file to Run/ directory
                     ShellHelper.Bash("cp " + file + " " + MediationDirectory + "Run/");
 
-                } else if (values[randomNumber] == 2)
-                { 
+                }
+                else if (values[randomNumber] == 2)
+                {
                     //Else send a HTTP POST request
                     //Upload("proteinreader.bioinfo.pbf.hr/api/load", param, stream, Bytes);
                 }
@@ -120,6 +144,7 @@ namespace UniprotDistributedServer.Controllers
             #endregion
 
             #region Bulk load
+            status = "Bulk load";
             //Run bulk load
             #endregion
 
@@ -135,7 +160,7 @@ namespace UniprotDistributedServer.Controllers
             }
             #endregion
 
-            return files;
+            status = "Load finished";
         }
 
         //private async Task<System.IO.Stream> Upload(string actionUrl, string paramString, Stream paramFileStream, byte[] paramFileBytes)
