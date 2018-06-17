@@ -182,5 +182,26 @@ namespace UniprotDistributedServer.Controllers
         //        return await response.Content.ReadAsStreamAsync();
         //    }
         //}
+
+        public void testing()
+        {
+            Thread t = new Thread(() => tester());
+            t.Start();
+        }
+
+        private void tester()
+        {
+            status = "Started";
+            Thread.Sleep(5000);
+            status = "Running";
+            Thread.Sleep(5000);
+            status = "Lelelelele";
+            Thread.Sleep(5000);
+            status = "Skoro gotovo";
+            Thread.Sleep(5000);
+            status = "Gotovo jebote život!";
+        }
+
+
     }
 }
