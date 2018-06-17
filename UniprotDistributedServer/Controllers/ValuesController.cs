@@ -188,12 +188,12 @@ namespace UniprotDistributedServer.Controllers
         [Route("test")]
         public string testing()
         {
-            Thread t = new Thread(() => tester(out status));
+            Thread t = new Thread(() => tester());
             t.Start();
             return "Zaprimljeno";
         }
 
-        private void tester(out string status)
+        private void tester()
         {
             status = "Started";
             Thread.Sleep(5000);
