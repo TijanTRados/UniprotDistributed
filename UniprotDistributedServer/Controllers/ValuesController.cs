@@ -7,6 +7,7 @@ using System.IO;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 
@@ -17,7 +18,6 @@ namespace UniprotDistributedServer.Controllers
     public class ValuesController : Controller
     {
         private IConfiguration _configuration;
-        private volatile string status;
 
         public ValuesController(IConfiguration configuration)
         {
@@ -62,7 +62,7 @@ namespace UniprotDistributedServer.Controllers
         [Route("info")]
         public string Info()
         {
-            return status;
+            return HttpContext.Session.GetString("status");
         }
 
         [HttpGet]
@@ -79,7 +79,7 @@ namespace UniprotDistributedServer.Controllers
         /// </summary>
         private void Loader()
         {
-            status = "Load started";
+            //status = "Load started";
             Stopwatch stopwatch = new Stopwatch();
             List<string> TimeStatistics = new List<string>();
             int[] values = { '1', '1', '1', '1', '1', '2', '2' };
@@ -88,7 +88,7 @@ namespace UniprotDistributedServer.Controllers
             stopwatch.Start();
 
             #region Read Configuration File
-            status = "Reading configuration files";
+            //status = "Reading configuration files";
             //Read config file
             //Configuration is set up on DefaultConnection string in this case
             BaseDataAccess DataBase = new BaseDataAccess("Data Source=storage.bioinfo.pbf.hr,8758;Initial Catalog=prot;Integrated Security=False;User Id=tijan;Password=tijan99;MultipleActiveResultSets=True");
@@ -106,7 +106,7 @@ namespace UniprotDistributedServer.Controllers
 
             #region Split the file into pieces
             //Setting and executing the SPLIT command to execute
-            status = "Splitting into pieces";
+            //status = "Splitting into pieces";
             string splitBash = "split -l 100000 --additional-suffix=.csv " + SourceFile + " " + MediationDirectory;
             ShellHelper.Bash(splitBash);
 
@@ -116,7 +116,7 @@ namespace UniprotDistributedServer.Controllers
 
             #region Broadcasting the files
             //Reading the new files one by one and doing stuff depending on MASTER/SLAVE
-            status = "Broadcasting the files";
+            //status = "Broadcasting the files";
             string[] files = Directory.GetFiles(MediationDirectory);
 
             ShellHelper.Bash("mkdir " + MediationDirectory + "Run/");
@@ -144,7 +144,7 @@ namespace UniprotDistributedServer.Controllers
             #endregion
 
             #region Bulk load
-            status = "Bulk load";
+            //status = "Bulk load";
             //Run bulk load
             #endregion
 
@@ -160,7 +160,7 @@ namespace UniprotDistributedServer.Controllers
             }
             #endregion
 
-            status = "Load finished";
+            //status = "Load finished";
         }
 
 
@@ -194,16 +194,18 @@ namespace UniprotDistributedServer.Controllers
         }
 
         private void tester()
-        { 
-            status = "Started";
+        {
+            HttpContext.Session.SetString("status", "Started");
+            //status = "Started";
             Thread.Sleep(5000);
-            status = "Running";
+            HttpContext.Session.SetString("status", "Running....");
+            //status = "Running";
             Thread.Sleep(5000);
-            status = "Lelelelele";
+            //status = "Lelelelele";
             Thread.Sleep(5000);
-            status = "Skoro gotovo";
+            //status = "Skoro gotovo";
             Thread.Sleep(5000);
-            status = "Gotovo jebote život!";
+            //status = "Gotovo jebote život!";
         }
 
     }

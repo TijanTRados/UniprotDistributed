@@ -26,8 +26,13 @@ namespace UniprotDistributedServer
         public void ConfigureServices(IServiceCollection services)
         {
             //services.AddDbContext<Context>(options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
-            services.AddMvc();
+            services.AddMvc().AddSessionStateTempDataProvider();
             services.AddSingleton<IConfiguration>(Configuration);
+
+            // Adds a default in-memory implementation of IDistributedCache.
+            services.AddDistributedMemoryCache();
+
+            services.AddSession();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -38,6 +43,7 @@ namespace UniprotDistributedServer
                 app.UseDeveloperExceptionPage();
             }
 
+            app.UseSession();
             app.UseMvc();
         }
     }
