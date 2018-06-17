@@ -17,7 +17,7 @@ namespace UniprotDistributedServer.Controllers
     public class ValuesController : Controller
     {
         private IConfiguration _configuration;
-        private string status = "None";
+        private volatile string status;
 
         public ValuesController(IConfiguration configuration)
         {
@@ -194,7 +194,7 @@ namespace UniprotDistributedServer.Controllers
         }
 
         private void tester()
-        {
+        { 
             status = "Started";
             Thread.Sleep(5000);
             status = "Running";
