@@ -17,7 +17,7 @@ namespace UniprotDistributedServer.Controllers
     public class ValuesController : Controller
     {
         private IConfiguration _configuration;
-        private string status;
+        private string status = "None";
 
         public ValuesController(IConfiguration configuration)
         {
