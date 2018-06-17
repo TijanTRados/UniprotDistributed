@@ -161,6 +161,7 @@ namespace UniprotDistributedServer.Controllers
             #endregion
 
             status = "Load finished";
+        }
 
 
         //private async Task<System.IO.Stream> Upload(string actionUrl, string paramString, Stream paramFileStream, byte[] paramFileBytes)
@@ -204,7 +205,6 @@ namespace UniprotDistributedServer.Controllers
             Thread.Sleep(5000);
             status = "Gotovo jebote život!";
         }
-    }
 
     }
 }
