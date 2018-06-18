@@ -89,13 +89,14 @@ namespace UniprotDistributedServer.Controllers
             string sourceFile = path;
 
             //Check if the file exists
-            if (ShellHelper.Bash("test -e " + path + " && echo 1 || echo 0").Equals("0"))
+            if (ShellHelper.Bash("test -e " + path + " && echo 1 || echo 0").Equals(0))
             {
                 return DateTime.Now + ": File does not exist";
             } else
             {
                 string workingDirectory = String.Join('/', sourceFile.Split('/').Take(sourceFile.Split('/').Length - 1)) + '/';
 
+                return ShellHelper.Bash("test -e " + path + " && echo 1 || echo 0");
                 return "Working Directory: " + workingDirectory + "\nSource file: " + sourceFile;
 
                 Models.Task task = new Models.Task();
