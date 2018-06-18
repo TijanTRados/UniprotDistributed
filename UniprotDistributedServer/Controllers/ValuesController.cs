@@ -74,6 +74,14 @@ namespace UniprotDistributedServer.Controllers
             
             return DateTime.Now + ": No tasks running.";
         }
+
+        [HttpGet]
+        [Route("load")]
+        public string Load()
+        {
+            //Wrong usage of Load function exception
+            return DateTime.Now + ": Please provide the source file in path variable.\n\nUsing: {server_name}/api/load?path={path_to_source_file}";
+        }
         
         [HttpGet]
         [Route("load")]
