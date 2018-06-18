@@ -4,6 +4,7 @@ using System.Data;
 using System.Data.Common;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
@@ -60,54 +61,82 @@ namespace UniprotDistributedServer.Controllers
 
         [HttpGet]
         [Route("info")]
-        public string Info()
+        public string Info(string guid)
         {
-            return HttpContext.Session.GetString("status");
+            if (Startup.taskList.Count > 0)
+            {
+                Models.Task task = Startup.taskList[0];
+                if (task != null)
+                {
+                    return task.Status;
+                }
+            }
+            
+            return DateTime.Now + ": No tasks running.";
         }
-
+        
         [HttpGet]
         [Route("load")]
-        public string Load()
+        public string Load(string path)
         {
-            Thread t = new Thread(() => Loader());
-            t.Start();
-            return "Started";
+            if (path == null) return "";
+
+            if (Startup.taskList.Count >= 1)
+            {
+                return DateTime.Now + ": Load already running.\n" + Startup.taskList[0].Status;
+            }
+
+            string sourceFile = path;
+
+            //Check if the file exists
+            try
+            {
+                ShellHelper.Bash("test -e " + path);
+            }
+            catch (Exception ex)
+            {
+                return DateTime.Now + ": " + ex.Message;
+            }
+
+            string workingDirectory = String.Join('/', sourceFile.Split('/').Take(sourceFile.Split('/').Length - 1)) + '/';
+
+
+            Models.Task task = new Models.Task();
+            //task.Thread = new Thread(() => Loader(task, sourceFile, workingDirectory));
+            //task.Thread.Start();
+            Startup.taskList.Add(task);
+
+            return task.Status;
+
+            //Na kraju metode Loader() moras staviti taskList.Delete(task);
+            //prvi nacin je da odmah prosljediš sam sebe
+            //task.Thread = new Thread(() => Loader(task));
+            //ili
+            //prosljediš GUID pa ga tako obrises
+
+
+            //Zasto ti je ovo najbolja opcija?
+            //jer imaš onda kontrolu nad svim procesima
+            //ako ti se desi greska u metodi neces znati za to ili jos gore moze te zapeti metoda u infinitive
+            //loop i neces je imat kako zaustaviti ovako imas cijelo vrijeme listu svih trenutacnih threadova i to je to
         }
 
         /// <summary>
         /// Process for Loading the data
         /// </summary>
-        private void Loader()
+        private void Loader(Models.Task task, string sourceFile, string workingDirectory)
         {
-            //status = "Load started";
             Stopwatch stopwatch = new Stopwatch();
             List<string> TimeStatistics = new List<string>();
             int[] values = { '1', '1', '1', '1', '1', '2', '2' };
 
-            TimeStatistics.Add("New measure: \n");
+            TimeStatistics.Add("\n\nNew measure: \n");
             stopwatch.Start();
-
-            #region Read Configuration File
-            //status = "Reading configuration files";
-            //Read config file
-            //Configuration is set up on DefaultConnection string in this case
-            BaseDataAccess DataBase = new BaseDataAccess("Data Source=storage.bioinfo.pbf.hr,8758;Initial Catalog=prot;Integrated Security=False;User Id=tijan;Password=tijan99;MultipleActiveResultSets=True");
-            string MediationDirectory, SourceFile;
-
-            using (DataSet ConfigData = DataBase.ExecuteFillDataSet("select * from configuration c join configuration_servers s on c.configuration_id = s.configuration_id", null))
-            {
-                MediationDirectory = ConfigData.Tables[0].Select("is_master = 1")[0]["load_mediation_directory"].ToString();
-                SourceFile = ConfigData.Tables[0].Select("is_master = 1")[0]["load_source_file"].ToString();
-            }
-
-            TimeStatistics.Add("Loading the configuration: " + stopwatch.Elapsed);
-            stopwatch.Restart();
-            #endregion
 
             #region Split the file into pieces
             //Setting and executing the SPLIT command to execute
             //status = "Splitting into pieces";
-            string splitBash = "split -l 100000 --additional-suffix=.csv " + SourceFile + " " + MediationDirectory;
+            string splitBash = "split -l 100000 --additional-suffix=.csv " + sourceFile + " " + workingDirectory;
             ShellHelper.Bash(splitBash);
 
             TimeStatistics.Add("Splitting the file into 100 000 line ones: " + stopwatch.Elapsed);
@@ -117,9 +146,9 @@ namespace UniprotDistributedServer.Controllers
             #region Broadcasting the files
             //Reading the new files one by one and doing stuff depending on MASTER/SLAVE
             //status = "Broadcasting the files";
-            string[] files = Directory.GetFiles(MediationDirectory);
+            string[] files = Directory.GetFiles(workingDirectory);
 
-            ShellHelper.Bash("mkdir " + MediationDirectory + "Run/");
+            ShellHelper.Bash("mkdir " + workingDirectory + "Run/");
 
             foreach (string file in files)
             {
@@ -129,7 +158,7 @@ namespace UniprotDistributedServer.Controllers
                 if (values[randomNumber] == 1)
                 {
                     //Copy file to Run/ directory
-                    ShellHelper.Bash("cp " + file + " " + MediationDirectory + "Run/");
+                    ShellHelper.Bash("cp " + file + " " + workingDirectory + "Run/");
 
                 }
                 else if (values[randomNumber] == 2)
@@ -151,7 +180,7 @@ namespace UniprotDistributedServer.Controllers
             #region Log the Time stats
             //Writing time stats to log file
             using (System.IO.StreamWriter file =
-            new System.IO.StreamWriter(MediationDirectory + "log.txt", true))
+            new System.IO.StreamWriter(workingDirectory + "log.txt", true))
             {
                 foreach (string line in TimeStatistics)
                 {
@@ -184,29 +213,38 @@ namespace UniprotDistributedServer.Controllers
         //    }
         //}
 
+        #region TEST
         [HttpGet]
         [Route("test")]
         public string testing()
         {
-            Thread t = new Thread(() => tester());
+            Thread t = new Thread(() => tester(null));
             t.Start();
             return "Zaprimljeno";
         }
 
-        private void tester()
+        private void tester(Models.Task task)
         {
-            HttpContext.Session.SetString("status", "Started");
+            //Koja se ne spaja na bazu ni nipt
+            task.Status = "Prvi dio";
+           
             //status = "Started";
             Thread.Sleep(5000);
-            HttpContext.Session.SetString("status", "Running....");
+            task.Status = "Drugi dio";
             //status = "Running";
             Thread.Sleep(5000);
+            task.Status = "Treći";
             //status = "Lelelelele";
             Thread.Sleep(5000);
+            task.Status = "Četvrtiiii";
             //status = "Skoro gotovo";
             Thread.Sleep(5000);
             //status = "Gotovo jebote život!";
+            task.Status = "Gotovo";
+            Thread.Sleep(10000);
+            Startup.taskList.Remove(task);
         }
+        #endregion
 
     }
 }

@@ -15,6 +15,8 @@ namespace UniprotDistributedServer
 {
     public class Startup
     {
+        public static List<Models.Task> taskList = new List<Models.Task>();
+
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -26,7 +28,7 @@ namespace UniprotDistributedServer
         public void ConfigureServices(IServiceCollection services)
         {
             //services.AddDbContext<Context>(options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
-            services.AddMvc().AddSessionStateTempDataProvider();
+            services.AddMvc();
             services.AddSingleton<IConfiguration>(Configuration);
 
             // Adds a default in-memory implementation of IDistributedCache.

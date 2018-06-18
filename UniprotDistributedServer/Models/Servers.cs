@@ -7,9 +7,9 @@ namespace UniprotDistributedServer.Models
 {
     public class Servers
     {
-        public int id { get; set; }
-        public string name { get; set; }
-
+        public string connection_string { get; set; } 
+        public int value { get; set; }
+        public string working_directory { get; set; }
 
     }
 }
