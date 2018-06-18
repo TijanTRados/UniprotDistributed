@@ -89,36 +89,22 @@ namespace UniprotDistributedServer.Controllers
             string sourceFile = path;
 
             //Check if the file exists
-            try
+            if (ShellHelper.Bash("test -e " + path + " && echo 1 || echo 0").Equals("0"))
             {
-                ShellHelper.Bash("test -e " + path);
-            }
-            catch (Exception ex)
+                return DateTime.Now + ": File does not exist";
+            } else
             {
-                return DateTime.Now + ": " + ex.Message;
+                string workingDirectory = String.Join('/', sourceFile.Split('/').Take(sourceFile.Split('/').Length - 1)) + '/';
+
+                return "Working Directory: " + workingDirectory + "\nSource file: " + sourceFile;
+
+                Models.Task task = new Models.Task();
+                //task.Thread = new Thread(() => Loader(task, sourceFile, workingDirectory));
+                //task.Thread.Start();
+                Startup.taskList.Add(task);
+
+                return task.Status;
             }
-
-            string workingDirectory = String.Join('/', sourceFile.Split('/').Take(sourceFile.Split('/').Length - 1)) + '/';
-
-
-            Models.Task task = new Models.Task();
-            //task.Thread = new Thread(() => Loader(task, sourceFile, workingDirectory));
-            //task.Thread.Start();
-            Startup.taskList.Add(task);
-
-            return task.Status;
-
-            //Na kraju metode Loader() moras staviti taskList.Delete(task);
-            //prvi nacin je da odmah prosljediš sam sebe
-            //task.Thread = new Thread(() => Loader(task));
-            //ili
-            //prosljediš GUID pa ga tako obrises
-
-
-            //Zasto ti je ovo najbolja opcija?
-            //jer imaš onda kontrolu nad svim procesima
-            //ako ti se desi greska u metodi neces znati za to ili jos gore moze te zapeti metoda u infinitive
-            //loop i neces je imat kako zaustaviti ovako imas cijelo vrijeme listu svih trenutacnih threadova i to je to
         }
 
         /// <summary>
