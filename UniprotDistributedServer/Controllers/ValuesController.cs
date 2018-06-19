@@ -98,11 +98,11 @@ namespace UniprotDistributedServer.Controllers
                 string workingDirectory = String.Join('/', sourceFile.Split('/').Take(sourceFile.Split('/').Length - 1)) + '/';
 
                 //return ShellHelper.Bash("test -e " + path + " && echo 1 || echo 0");
-                return "Working Directory: " + workingDirectory + "\nSource file: " + sourceFile;
+                //return "Working Directory: " + workingDirectory + "\nSource file: " + sourceFile;
 
                 Models.Task task = new Models.Task();
-                //task.Thread = new Thread(() => Loader(task, sourceFile, workingDirectory));
-                //task.Thread.Start();
+                task.Thread = new Thread(() => Loader(task, sourceFile, workingDirectory));
+                task.Thread.Start();
                 Startup.taskList.Add(task);
 
                 return task.Status;
@@ -122,16 +122,18 @@ namespace UniprotDistributedServer.Controllers
             stopwatch.Start();
 
             #region Split the file into pieces
+            task.Status = "Spliting the file into pieces";
             //Setting and executing the SPLIT command to execute
-            //status = "Splitting into pieces";
-            string splitBash = "split -l 100000 --additional-suffix=.csv " + sourceFile + " " + workingDirectory;
+            ShellHelper.Bash("mkdir " + workingDirectory + "Run/");
+            string splitBash = "split -l 100000 --additional-suffix=.csv " + sourceFile + " " + workingDirectory + "Run/";
             ShellHelper.Bash(splitBash);
 
-            TimeStatistics.Add("Splitting the file into 100 000 line ones: " + stopwatch.Elapsed);
+            TimeStatistics.Add(DateTime.Now + ": Splitting the file into 100 000 line ones: " + stopwatch.Elapsed);
             stopwatch.Restart();
             #endregion
 
             #region Broadcasting the files
+            task.Status = "Broadcasting the files";
             //Reading the new files one by one and doing stuff depending on MASTER/SLAVE
             //status = "Broadcasting the files";
             string[] files = Directory.GetFiles(workingDirectory);
@@ -156,16 +158,12 @@ namespace UniprotDistributedServer.Controllers
                 }
             }
 
-            TimeStatistics.Add("Broadcasting the Files: " + stopwatch.Elapsed);
+            TimeStatistics.Add(DateTime.Now + ": Broadcasting the Files: " + stopwatch.Elapsed);
             stopwatch.Stop();
             #endregion
 
-            #region Bulk load
-            //status = "Bulk load";
-            //Run bulk load
-            #endregion
-
             #region Log the Time stats
+            task.Status = "Logging the times";
             //Writing time stats to log file
             using (System.IO.StreamWriter file =
             new System.IO.StreamWriter(workingDirectory + "log.txt", true))
@@ -177,7 +175,11 @@ namespace UniprotDistributedServer.Controllers
             }
             #endregion
 
-            //status = "Load finished";
+            task.Status = "Load finished";
+            Thread.Sleep(60000);
+
+            //60 seconds the task is still active so the user can see the "Load finished" information before the task is killed.
+            Startup.taskList.Remove(task);
         }
 
 
