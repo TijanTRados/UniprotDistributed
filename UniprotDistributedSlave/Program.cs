@@ -15,6 +15,7 @@ namespace UniprotDistributedSlave
         public static void Main(string[] args)
         {
             BuildWebHost(args).Run();
+            int i = 0;
         }
 
         public static IWebHost BuildWebHost(string[] args) =>
