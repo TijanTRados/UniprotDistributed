@@ -116,7 +116,7 @@ namespace UniprotDistributedServer.Controllers
         {
             Stopwatch stopwatch = new Stopwatch();
             List<string> TimeStatistics = new List<string>();
-            int[] values = { '1', '1', '1', '1', '1', '2', '2' };
+            List<int> values = Program.values;
 
             TimeStatistics.Add("\n\nNew measure: \n");
             stopwatch.Start();
@@ -143,7 +143,7 @@ namespace UniprotDistributedServer.Controllers
             foreach (string file in files)
             {
                 Random r = new Random();
-                int randomNumber = r.Next(0, values.Length);
+                int randomNumber = r.Next(0, values.Count);
 
                 if (values[randomNumber] == 1)
                 {

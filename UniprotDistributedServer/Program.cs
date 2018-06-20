@@ -9,15 +9,17 @@ using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using UniprotDistributedServer.Models;
 
 namespace UniprotDistributedServer
 {
     public class Program
     {
+        public static List<Servers> Servers;
+        public static List<int> values;
 
         public static void Main(string[] args)
         {
-
             Init();
             BuildWebHost(args).Run();
         }
@@ -25,22 +27,48 @@ namespace UniprotDistributedServer
         public static IWebHost BuildWebHost(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
                 .UseStartup<Startup>()
+                .UseUrls("http://localhost:5000")
                 .Build();
 
         public static void Init()
         {
+            Servers = new List<Models.Servers>();
+            List<int> levels = new List<int>();
+
             #region Read Configuration File
-            //status = "Reading configuration files";
             //Read config file
             //Configuration is set up on DefaultConnection string in this case
             BaseDataAccess DataBase = new BaseDataAccess("Data Source=storage.bioinfo.pbf.hr,8758;Initial Catalog=configuration;Integrated Security=False;User Id=tijan;Password=tijan99;MultipleActiveResultSets=True");
-            string MediationDirectory, SourceFile;
 
-            //using (DataSet ConfigData = DataBase.ExecuteFillDataSet("select * from slaves", null))
-            //{
-            //    MediationDirectory = ConfigData.Tables[0].Select("is_master = 1")[0]["load_mediation_directory"].ToString();
-            //    SourceFile = ConfigData.Tables[0].Select("is_master = 1")[0]["load_source_file"].ToString();
-            //}
+            using (DataSet ConfigData = DataBase.ExecuteFillDataSet("select slave_id, concat('Data Source=localhost,', db_port, ';Initial Catalog=', database_name, ';Integrated Security=False;User Id=', username, ';Password=', password, ';MultipleActiveResultSets=True') as database_connection_string, concat(server_name, ':', api_port, '/') as api_call, api_port, server_level, working_directory, main_table  FROM slaves;", null))
+            {
+                foreach(DataRow row in ConfigData.Tables[0].Rows)
+                {
+                    Servers.Add(new Models.Servers
+                    {
+                        slave_id = (int)row["slave_id"],
+                        database_connection_string = row["database_connection_string"].ToString(),
+                        api_call = row["api_call"].ToString(),
+                        api_port = (int)row["api_port"],
+                        server_level = (int)row["server_level"],
+                        working_directory = row["working_directory"].ToString(),
+                        main_table = row["main_table"].ToString()
+                    });
+
+                    levels.Add((int)row["server_level"]);
+                }
+            }
+
+            int counter = 0;
+
+            foreach(int level in levels)
+            {
+                for (int i = 0; i<level; i++)
+                {
+                    values.Add(counter);
+                }
+                counter++;
+            }
 
             #endregion
         }
