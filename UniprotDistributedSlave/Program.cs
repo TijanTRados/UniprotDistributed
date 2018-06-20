@@ -14,14 +14,13 @@ namespace UniprotDistributedSlave
     {
         public static void Main(string[] args)
         {
-            Console.WriteLine(args);
+
             BuildWebHost(args).Run();
         }
 
         public static IWebHost BuildWebHost(string[] args) =>
-            WebHost.CreateDefaultBuilder()
+            WebHost.CreateDefaultBuilder(args)
                 .UseStartup<Startup>()
-                .UseUrls(args)
                 .Build();
     }
 }
