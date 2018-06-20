@@ -14,7 +14,7 @@ namespace UniprotDistributedSlave
     {
         public static void Main(string[] args)
         {
-            Console.WriteLine(args);
+            Console.WriteLine(args[0]);
 
             var configuration = new ConfigurationBuilder()
             .AddCommandLine(args)
