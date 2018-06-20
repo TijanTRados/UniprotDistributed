@@ -14,13 +14,14 @@ namespace UniprotDistributedSlave
     {
         public static void Main(string[] args)
         {
+            Console.WriteLine(args);
             BuildWebHost(args).Run();
         }
 
         public static IWebHost BuildWebHost(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
                 .UseStartup<Startup>()
-                .UseUrls(args[0] + ':' + args[1])
+                .UseUrls("storage.bioinfo.pbf.hr:7000")
                 .Build();
     }
 }
