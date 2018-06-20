@@ -20,7 +20,7 @@ namespace UniprotDistributedSlave
         public static IWebHost BuildWebHost(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
                 .UseStartup<Startup>()
-                .UseUrls("http://storage.bioinfo.pbf.hr:7604")
+                .UseUrls(args[0])
                 .Build();
     }
 }
