@@ -61,6 +61,7 @@ namespace UniprotDistributedServer
 
             //Initialize the values array
             int counter = 0;
+            values = new List<int>();
 
             foreach(byte level in levels)
             {
