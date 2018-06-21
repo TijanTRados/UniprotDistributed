@@ -73,12 +73,7 @@ namespace UniprotDistributedServer
             }
 
             //Checkup
-            foreach(int n in values)
-            {
-                Console.Write("Values Array: " + n + ", ");
-            }
-            
-
+            Console.Write("Values Array: " + string.Join(",", values));
             #endregion
         }
     }
