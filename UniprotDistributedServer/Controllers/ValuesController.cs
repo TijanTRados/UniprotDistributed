@@ -95,10 +95,16 @@ namespace UniprotDistributedServer.Controllers
             {
                 HttpClient client = new HttpClient();
 
-                HttpResponseMessage response = await client.GetAsync("http://" + server.api_call + "/slave/available");
-
-                if (response.IsSuccessStatusCode) slaveInfo.Add(server.api_call + " - Running");
-                else slaveInfo.Add(server.api_call + " - Not Running");
+                try
+                {
+                    HttpResponseMessage response = await client.GetAsync("http://" + server.api_call + "/slave/available");
+                    if (response.IsSuccessStatusCode) slaveInfo.Add(server.api_call + " - Running");
+                    else slaveInfo.Add(server.api_call + " - Not Running");
+                }
+                catch (Exception)
+                {
+                    slaveInfo.Add(server.api_call + " - Not Running");
+                }
             }
 
             return slaveInfo;
