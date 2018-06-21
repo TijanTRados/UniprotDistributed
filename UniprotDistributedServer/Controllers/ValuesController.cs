@@ -15,7 +15,7 @@ using UniprotDistributedServer.Models;
 
 namespace UniprotDistributedServer.Controllers
 {
-    [Route("api")]
+    [Route("master")]
     ///This method can catch data from SQL
     public class ValuesController : Controller
     {
@@ -24,6 +24,14 @@ namespace UniprotDistributedServer.Controllers
         public ValuesController(IConfiguration configuration)
         {
             _configuration = configuration;
+        }
+
+        [HttpGet]
+        [Route("available")]
+        //Checking if the master is available
+        public bool Availability()
+        {
+            return true;
         }
 
         // GET api/values
@@ -62,7 +70,8 @@ namespace UniprotDistributedServer.Controllers
 
         [HttpGet]
         [Route("info")]
-        public string Info(string guid)
+        //Info controller for checking the status
+        public string Info()
         {
             if (Startup.taskList.Count > 0)
             {
@@ -75,10 +84,30 @@ namespace UniprotDistributedServer.Controllers
             
             return DateTime.Now + ": No tasks running.";
         }
+
+        [HttpGet]
+        [Route("check_slaves")]
+        public async Task<List<string>> CheckSlaves()
+        {
+            //Checking if all slaves are running
+            List<string> slaveInfo = new List<string>();
+            foreach (Servers server in Program.Servers)
+            {
+                HttpClient client = new HttpClient();
+
+                HttpResponseMessage response = await client.GetAsync("http://" + server.api_call + "/slave/available");
+
+                if (response.IsSuccessStatusCode) slaveInfo.Add(server.api_call + " - Running");
+                else slaveInfo.Add(server.api_call + " - Not Running");
+            }
+
+            return slaveInfo;
+        }
         
         [HttpGet]
         [Route("load")]
-        public string Load(string path)
+        //Loading controller
+        public async Task<string> Load(string path)
         {
             //Check number 1 --> Correct load query
             if (path == null) return DateTime.Now + ": Please provide the source file in path variable.\n\nUsing: {server_name}/api/load?path={path_to_source_file}";
@@ -91,11 +120,16 @@ namespace UniprotDistributedServer.Controllers
             }
 
             //Check number 3 --> Are all slaves running
+            List<string> slaveInfo = new List<string>();
             foreach (Servers server in Program.Servers)
             {
+                HttpClient client = new HttpClient();
 
+                HttpResponseMessage response = await client.GetAsync("http://" + server.api_call + "/slave/available");
+
+                if (response.IsSuccessStatusCode) continue;
+                else return DateTime.Now + ": Not all slaves are running. Check it with /master/check_slaves";
             }
-
 
             //Check number 3 --> Check if the file exists
             if (Int32.Parse(ShellHelper.Bash("test -e " + path + " && echo 1 || echo 0")) == 0)
@@ -146,7 +180,6 @@ namespace UniprotDistributedServer.Controllers
             //Reading the new files one by one and doing stuff depending on MASTER/SLAVE
             //Now it reads all the files from ~ workingdirectory/Run/
             string[] files = Directory.GetFiles(workingDirectory + "Run/");
-
 
 
             foreach (string file in files)

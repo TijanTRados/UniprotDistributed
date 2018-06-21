@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace UniprotDistributedSlave.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("slave")]
     public class ValuesController : Controller
     {
         //Method for checking if the server is available
