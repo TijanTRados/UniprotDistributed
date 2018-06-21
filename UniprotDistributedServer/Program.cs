@@ -33,7 +33,7 @@ namespace UniprotDistributedServer
         public static void Init()
         {
             Servers = new List<Models.Servers>();
-            List<int> levels = new List<int>();
+            List<byte> levels = new List<byte>();
 
             #region Read Configuration File
             //Read config file
@@ -55,21 +55,28 @@ namespace UniprotDistributedServer
                         main_table = row["main_table"].ToString() //string to string
                     });
 
-                    levels.Add((int)row["server_level"]);
+                    levels.Add((byte)row["server_level"]);
                 }
             }
 
             //Initialize the values array
             int counter = 0;
 
-            foreach(int level in levels)
+            foreach(byte level in levels)
             {
-                for (int i = 0; i<level; i++)
+                for (byte i = 0; i<level; i++)
                 {
                     values.Add(counter);
                 }
                 counter++;
             }
+
+            //Checkup
+            foreach(int n in values)
+            {
+                Console.Write("Values Array: " + n + ", ");
+            }
+            
 
             #endregion
         }
