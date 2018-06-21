@@ -40,7 +40,7 @@ namespace UniprotDistributedServer
             //Configuration is set up on DefaultConnection string in this case
             BaseDataAccess DataBase = new BaseDataAccess("Data Source=storage.bioinfo.pbf.hr,8758;Initial Catalog=configuration;Integrated Security=False;User Id=tijan;Password=tijan99;MultipleActiveResultSets=True");
 
-            using (DataSet ConfigData = DataBase.ExecuteFillDataSet("select slave_id, concat('Data Source=localhost,', db_port, ';Initial Catalog=', database_name, ';Integrated Security=False;User Id=', username, ';Password=', password, ';MultipleActiveResultSets=True') as database_connection_string, concat(server_name, ':', api_port, '/') as api_call, api_port, server_level, working_directory, main_table  FROM slaves;", null))
+            using (DataSet ConfigData = DataBase.ExecuteFillDataSet("select slave_id, concat('Data Source=localhost,', db_port, ';Initial Catalog=', database_name, ';Integrated Security=False;User Id=', username, ';Password=', password, ';MultipleActiveResultSets=True') as database_connection_string, concat(server_name, ':', api_port) as api_call, api_port, server_level, working_directory, main_table  FROM slaves;", null))
             {
                 foreach(DataRow row in ConfigData.Tables[0].Rows)
                 {
@@ -59,6 +59,7 @@ namespace UniprotDistributedServer
                 }
             }
 
+            //Initialize the values array
             int counter = 0;
 
             foreach(int level in levels)

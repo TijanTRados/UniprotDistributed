@@ -9,11 +9,12 @@ namespace UniprotDistributedSlave.Controllers
     [Route("api/[controller]")]
     public class ValuesController : Controller
     {
-        // GET api/values
+        //Method for checking if the server is available
         [HttpGet]
-        public IEnumerable<string> Get()
+        [Route("available")]
+        public bool Get()
         {
-            return new string[] { "slave1", "slave1" };
+            return true;
         }
 
         // GET api/values/5

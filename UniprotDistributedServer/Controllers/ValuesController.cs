@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using UniprotDistributedServer.Models;
 
 namespace UniprotDistributedServer.Controllers
 {
@@ -79,17 +80,24 @@ namespace UniprotDistributedServer.Controllers
         [Route("load")]
         public string Load(string path)
         {
-            //Using part
+            //Check number 1 --> Correct load query
             if (path == null) return DateTime.Now + ": Please provide the source file in path variable.\n\nUsing: {server_name}/api/load?path={path_to_source_file}";
+            string sourceFile = path;
 
+            //Check number 2 --> Is the load already running
             if (Startup.taskList.Count >= 1)
             {
                 return DateTime.Now + ": Load already running.\n" + Startup.taskList[0].Status;
             }
 
-            string sourceFile = path;
+            //Check number 3 --> Are all slaves running
+            foreach (Servers server in Program.Servers)
+            {
 
-            //Check if the file exists
+            }
+
+
+            //Check number 3 --> Check if the file exists
             if (Int32.Parse(ShellHelper.Bash("test -e " + path + " && echo 1 || echo 0")) == 0)
             {
                 return DateTime.Now + ": File does not exist";
@@ -124,6 +132,7 @@ namespace UniprotDistributedServer.Controllers
             #region Split the file into pieces
             task.Status = "Spliting the file into pieces";
             //Setting and executing the SPLIT command to execute
+            //Everything is splited into pieces inside of sourcefile directory ~ workingdirectory/Run/
             ShellHelper.Bash("mkdir " + workingDirectory + "Run/");
             string splitBash = "split -l 100000 --additional-suffix=.csv " + sourceFile + " " + workingDirectory + "Run/";
             ShellHelper.Bash(splitBash);
@@ -135,27 +144,22 @@ namespace UniprotDistributedServer.Controllers
             #region Broadcasting the files
             task.Status = "Broadcasting the files";
             //Reading the new files one by one and doing stuff depending on MASTER/SLAVE
-            //status = "Broadcasting the files";
-            string[] files = Directory.GetFiles(workingDirectory);
+            //Now it reads all the files from ~ workingdirectory/Run/
+            string[] files = Directory.GetFiles(workingDirectory + "Run/");
 
-            ShellHelper.Bash("mkdir " + workingDirectory + "Run/");
+
 
             foreach (string file in files)
             {
                 Random r = new Random();
                 int randomNumber = r.Next(0, values.Count);
 
-                if (values[randomNumber] == 1)
-                {
-                    //Copy file to Run/ directory
-                    ShellHelper.Bash("cp " + file + " " + workingDirectory + "Run/");
+                //The values[randomNumber] is allways a number between 0 (first server from configuration table) and max (last server from configuration table)
+                //The number will allways be in that scope so that is not a problem!
+                //Now we just send the file to the adress from the Program.Servers list (the value[randomNumber] will determine which one from the table is the destination! 
 
-                }
-                else if (values[randomNumber] == 2)
-                {
-                    //Else send a HTTP POST request
-                    //Upload("proteinreader.bioinfo.pbf.hr/api/load", param, stream, Bytes);
-                }
+                //SEND VIA POST
+
             }
 
             TimeStatistics.Add(DateTime.Now + ": Broadcasting the Files: " + stopwatch.Elapsed);
