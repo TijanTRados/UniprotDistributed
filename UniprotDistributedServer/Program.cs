@@ -38,7 +38,7 @@ namespace UniprotDistributedServer
             #region Read Configuration File
             //Read config file
             //Configuration is set up on DefaultConnection string in this case
-            BaseDataAccess DataBase = new BaseDataAccess("Data Source=storage.bioinfo.pbf.hr,8758;Initial Catalog=configuration;Integrated Security=False;User Id=tijan;Password=tijan99;MultipleActiveResultSets=True");
+            BaseDataAccess DataBase = new BaseDataAccess("Data Source=localhost,8758;Initial Catalog=configuration;Integrated Security=False;User Id=tijan;Password=tijan99;MultipleActiveResultSets=True");
 
             using (DataSet ConfigData = DataBase.ExecuteFillDataSet("select slave_id, concat('Data Source=localhost,', db_port, ';Initial Catalog=', database_name, ';Integrated Security=False;User Id=', username, ';Password=', password, ';MultipleActiveResultSets=True') as database_connection_string, concat(server_name, ':', api_port) as api_call, api_port, server_level, working_directory, main_table  FROM slaves;", null))
             {
@@ -46,13 +46,13 @@ namespace UniprotDistributedServer
                 {
                     Servers.Add(new Models.Servers
                     {
-                        slave_id = (int)row["slave_id"],
-                        database_connection_string = row["database_connection_string"].ToString(),
-                        api_call = row["api_call"].ToString(),
-                        api_port = (int)row["api_port"],
-                        server_level = (int)row["server_level"],
-                        working_directory = row["working_directory"].ToString(),
-                        main_table = row["main_table"].ToString()
+                        slave_id = Convert.ToInt16(row["slave_id"]), //smallint to int
+                        database_connection_string = row["database_connection_string"].ToString(), //string to string
+                        api_call = row["api_call"].ToString(), //string to string
+                        api_port = Convert.ToInt16(row["api_port"]), //smallint to int
+                        server_level = (byte)row["server_level"], //tinyint to int
+                        working_directory = row["working_directory"].ToString(), //string to string
+                        main_table = row["main_table"].ToString() //string to string
                     });
 
                     levels.Add((int)row["server_level"]);
