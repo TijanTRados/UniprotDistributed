@@ -26,8 +26,10 @@ namespace UniprotDistributedSlave.Controllers
 
         // POST api/values
         [HttpPost]
-        public void Post([FromBody]string value)
+        [Route("recieve")]
+        public string Post([FromBody]string value)
         {
+            return "I have just recieved a file!!";
         }
 
         // PUT api/values/5

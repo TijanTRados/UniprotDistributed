@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using RestSharp;
 using UniprotDistributedServer.Models;
 
 namespace UniprotDistributedServer.Controllers
@@ -131,10 +132,16 @@ namespace UniprotDistributedServer.Controllers
             {
                 HttpClient client = new HttpClient();
 
-                HttpResponseMessage response = await client.GetAsync("http://" + server.api_call + "/slave/available");
-
-                if (response.IsSuccessStatusCode) continue;
-                else return DateTime.Now + ": Not all slaves are running. Check it with /master/check_slaves";
+                try
+                {
+                    HttpResponseMessage response = await client.GetAsync("http://" + server.api_call + "/slave/available");
+                    if (response.IsSuccessStatusCode) continue;
+                    else return DateTime.Now + ": Not all slaves are running. Check it with /master/check_slaves";
+                }
+                catch (Exception)
+                {
+                    return (DateTime.Now + ": Not all slaves are running. Check it with /master/check_slaves");
+                } 
             }
 
             //Check number 3 --> Check if the file exists
@@ -222,6 +229,87 @@ namespace UniprotDistributedServer.Controllers
             Thread.Sleep(60000);
 
             //60 seconds the task is still active so the user can see the "Load finished" information before the task is killed.
+            Startup.taskList.Remove(task);
+        }
+
+        [HttpPost]
+        [Route("send")]
+        public async Task<string> Send(string path)
+        {
+            //Check number 1 --> Correct send query
+            if (path == null) return DateTime.Now + ": Please provide the source file in path variable.\n\nUsing: {server_name}/api/send?path={path_to_source_file}";
+            string sourceFile = path;
+
+            //Check number 2 --> Is the load already running
+            if (Startup.taskList.Count >= 1)
+            {
+                return DateTime.Now + ": Send already running.\n" + Startup.taskList[0].Status;
+            }
+
+            //Check number 3 --> Are all slaves running
+            List<string> slaveInfo = new List<string>();
+            foreach (Servers server in Program.Servers)
+            {
+                HttpClient client = new HttpClient();
+
+                try
+                {
+                    HttpResponseMessage response = await client.GetAsync("http://" + server.api_call + "/slave/available");
+                    if (response.IsSuccessStatusCode) continue;
+                    else return DateTime.Now + ": Not all slaves are running. Check it with /master/check_slaves";
+                }
+                catch (Exception)
+                {
+                    return (DateTime.Now + ": Not all slaves are running. Check it with /master/check_slaves");
+                }
+            }
+
+            //Check number 3 --> Check if the file exists
+            if (Int32.Parse(ShellHelper.Bash("test -e " + path + " && echo 1 || echo 0")) == 0)
+            {
+                return DateTime.Now + ": File does not exist";
+            }
+            else
+            {
+                string workingDirectory = String.Join('/', sourceFile.Split('/').Take(sourceFile.Split('/').Length - 1)) + '/';
+
+                //return ShellHelper.Bash("test -e " + path + " && echo 1 || echo 0");
+                //return "Working Directory: " + workingDirectory + "\nSource file: " + sourceFile;
+
+                Models.Task task = new Models.Task();
+                task.Thread = new Thread(() => Sender(task, "http://storage.bioinfo.pbf.hr:7000", "slave/recieve", sourceFile, 1, path));
+                task.Thread.Start();
+                Startup.taskList.Add(task);
+
+                return task.Status;
+            }
+        }
+
+        //Thread method for sending file
+        private void Sender(Models.Task task, string slave, string controller, string name, int id, string path)
+        {
+            task.Status = "I'm setting up the data for sending";
+
+            var client = new RestClient(slave);
+            var request = new RestRequest(controller, Method.POST);
+            request.AddParameter("name", name); // adds to POST or URL querystring based on Method
+            request.AddUrlSegment("id", id); // replaces matching token in request.Resource
+
+            // easily add HTTP Headers
+            request.AddHeader("header", "value");
+
+            // add files to upload (works with compatible verbs)
+            request.AddFile(name, path);
+
+            // execute the request
+            task.Status = "Executing the request";
+            IRestResponse response = client.Execute(request);
+            var content = response.Content; // raw content as string
+
+            task.Status = content;
+
+            //10 seconds after finish, remove the task from the task list
+            Thread.Sleep(10000);
             Startup.taskList.Remove(task);
         }
 
