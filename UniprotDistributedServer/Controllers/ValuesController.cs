@@ -306,7 +306,7 @@ namespace UniprotDistributedServer.Controllers
             IRestResponse response = client.Execute(request);
             var content = response.Content; // raw content as string
 
-            task.Status = content;
+            task.Status = "SUCCESSFULLY SENT";
 
             //10 seconds after finish, remove the task from the task list
             Thread.Sleep(10000);
