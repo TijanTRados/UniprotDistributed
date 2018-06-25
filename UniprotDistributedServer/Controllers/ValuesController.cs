@@ -232,7 +232,7 @@ namespace UniprotDistributedServer.Controllers
             Startup.taskList.Remove(task);
         }
 
-        [HttpPost]
+        [HttpGet]
         [Route("send")]
         public async Task<string> Send(string path)
         {
