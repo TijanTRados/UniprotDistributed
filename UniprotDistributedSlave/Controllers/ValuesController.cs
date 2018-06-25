@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using RestSharp;
+using RestSharp.Extensions;
 
 namespace UniprotDistributedSlave.Controllers
 {
@@ -29,6 +31,15 @@ namespace UniprotDistributedSlave.Controllers
         [Route("recieve")]
         public string Post([FromBody]string value)
         {
+            Console.WriteLine("Value (from body): " + value);
+
+            var client = new RestClient("http://storage.bioinfo.pbf.hr:7000");
+            var request = new RestRequest("slave/recieve", Method.POST);
+
+            client.DownloadData(request).SaveAs("/home/users/tijan/test/slave1/");
+
+            Console.WriteLine("I have just recieved and saved a file!");
+
             return "I have just recieved a file!!";
         }
 

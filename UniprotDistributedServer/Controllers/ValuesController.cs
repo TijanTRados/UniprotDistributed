@@ -309,7 +309,7 @@ namespace UniprotDistributedServer.Controllers
             task.Status = "SUCCESSFULLY SENT";
 
             //10 seconds after finish, remove the task from the task list
-            Thread.Sleep(10000);
+            Thread.Sleep(20000);
             Startup.taskList.Remove(task);
         }
 
