@@ -289,7 +289,10 @@ namespace UniprotDistributedServer.Controllers
         private void Sender(Models.Task task, string slave, string controller, string name, int id, string path)
         {
             task.Status = "I'm setting up the data for sending";
+            Console.WriteLine(DateTime.Now + ": START");
+            Console.WriteLine(DateTime.Now + ": Setting up the request");
 
+            // Setting the client and request
             var client = new RestClient(slave);
             var request = new RestRequest(controller, Method.POST);
             request.AddParameter("name", name); // adds to POST or URL querystring based on Method
@@ -300,17 +303,24 @@ namespace UniprotDistributedServer.Controllers
 
             // add files to upload (works with compatible verbs)
             request.AddFile(name, path);
+            Console.WriteLine(DateTime.Now + ": " + request.ToString());
 
             // execute the request
             task.Status = "Executing the request";
+            Console.WriteLine(DateTime.Now + ": Executing the request");
             IRestResponse response = client.Execute(request);
             var content = response.Content; // raw content as string
+
+            Console.WriteLine(DateTime.Now + ": Response = " + content);
+            Console.WriteLine(DateTime.Now + ": SUCCESSFULLY SENT");
 
             task.Status = "SUCCESSFULLY SENT";
 
             //10 seconds after finish, remove the task from the task list
             Thread.Sleep(20000);
+            Console.WriteLine(DateTime.Now + ": Removing the task from the list");
             Startup.taskList.Remove(task);
+            Console.WriteLine(DateTime.Now + ": END");
         }
 
 
