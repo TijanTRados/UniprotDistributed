@@ -34,7 +34,7 @@ namespace UniprotDistributedSlave.Controllers
             Console.WriteLine("Value (from body): " + value);
 
             var client = new RestClient("http://storage.bioinfo.pbf.hr:7000");
-            var request = new RestRequest("slave/recieve", Method.POST);
+            var request = new RestRequest("/slave/recieve", Method.POST);
 
             client.DownloadData(request).SaveAs("/home/users/tijan/test/slave1/");
 
