@@ -29,9 +29,9 @@ namespace UniprotDistributedSlave.Controllers
         // POST api/values
         [HttpPost]
         [Route("recieve")]
-        public string Post([FromBody]string value)
+        public string Post()
         {
-            Console.WriteLine("Value (from body): " + value);
+            Console.WriteLine("I have been called!");
 
             var client = new RestClient("http://storage.bioinfo.pbf.hr:7000");
             var request = new RestRequest("/slave/recieve", Method.POST);
