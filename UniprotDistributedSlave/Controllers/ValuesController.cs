@@ -29,18 +29,18 @@ namespace UniprotDistributedSlave.Controllers
         // POST api/values
         [HttpPost]
         [Route("recieve")]
-        public string Post()
+        public string Post([FromForm]HttpFile file)
         {
             Console.WriteLine("I have been called!");
 
-            var client = new RestClient("http://storage.bioinfo.pbf.hr:7000");
-            var request = new RestRequest("/slave/recieve", Method.POST);
+            //var client = new RestClient("http://storage.bioinfo.pbf.hr:7000");
+            //var request = new RestRequest("/slave/recieve", Method.POST);
 
-            client.DownloadData(request).SaveAs("/home/users/tijan/test/slave1/");
+            //client.DownloadData(request).SaveAs("/home/users/tijan/test/slave1/");
 
-            Console.WriteLine("I have just recieved and saved a file!");
+            //Console.WriteLine("I have just recieved and saved a file!");
 
-            return "I have just recieved a file!!";
+            return "I have just recieved a file: " + file.FileName;
         }
 
         // PUT api/values/5
