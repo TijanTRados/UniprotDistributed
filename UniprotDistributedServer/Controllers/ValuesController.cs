@@ -277,7 +277,7 @@ namespace UniprotDistributedServer.Controllers
                 //return "Working Directory: " + workingDirectory + "\nSource file: " + sourceFile;
 
                 Models.Task task = new Models.Task();
-                task.Thread = new Thread(() => Sender(task, "http://storage.bioinfo.pbf.hr:7000", "/slave/recieve", sourceFile, 1, path));
+                task.Thread = new Thread(() => Sender(task, "http://storage.bioinfo.pbf.hr:7000", "/slave/recieve", sourceFile.Split('/')[sourceFile.Split('/').Length], 1, path));
                 task.Thread.Start();
                 Startup.taskList.Add(task);
 
