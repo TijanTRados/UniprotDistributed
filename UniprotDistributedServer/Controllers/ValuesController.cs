@@ -286,7 +286,7 @@ namespace UniprotDistributedServer.Controllers
         }
 
         //Thread method for sending file
-        private void Sender(Models.Task task, string slave, string controller, string name, int id, string path)
+        private void Sender(Models.Task task, string slave, string controller, string fileName, int id, string path)
         {
             task.Status = "I'm setting up the data for sending";
             Console.WriteLine(DateTime.Now + ": START");
@@ -295,14 +295,14 @@ namespace UniprotDistributedServer.Controllers
             // Setting the client and request
             var client = new RestClient(slave);
             var request = new RestRequest(controller, Method.POST);
-            request.AddParameter("name", name); // adds to POST or URL querystring based on Method
+            request.AddParameter("name", fileName); // adds to POST or URL querystring based on Method
             request.AddUrlSegment("id", id); // replaces matching token in request.Resource
 
             // easily add HTTP Headers
-            request.AddHeader("header", "value");
+            request.AddHeader("file-name", fileName);
 
             // add files to upload (works with compatible verbs)
-            request.AddFile(name, path);
+            request.AddFile(fileName, path);
             Console.WriteLine(DateTime.Now + ": " + request.ToString());
 
             // execute the request

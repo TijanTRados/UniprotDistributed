@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using System.Net.Http;
+using System.Web;
 using RestSharp;
 using RestSharp.Extensions;
 
@@ -26,21 +29,21 @@ namespace UniprotDistributedSlave.Controllers
             return "slave1";
         }
 
-        // POST api/values
+        // POST api/recieve
+        //Method that saves the file from the request body to folder - copy with the correct name!
         [HttpPost]
         [Route("recieve")]
-        public string Post([FromForm]HttpFile file)
+        public string Post()
         {
-            Console.WriteLine("I have been called!");
+            using (var reader = new StreamReader(Request.Body))
+            {
+                var body = reader.ReadToEnd();
 
-            //var client = new RestClient("http://storage.bioinfo.pbf.hr:7000");
-            //var request = new RestRequest("/slave/recieve", Method.POST);
+                System.IO.File.WriteAllText(Program.myWorkingDirectory + Request.Headers["file-name"], body);
 
-            //client.DownloadData(request).SaveAs("/home/users/tijan/test/slave1/");
-
-            //Console.WriteLine("I have just recieved and saved a file!");
-
-            return "I have just recieved a file: " + file.FileName;
+                Console.WriteLine($"Saved to " + Program.myWorkingDirectory + Request.Headers["file-name"]);
+                return $"Saved to " + Program.myWorkingDirectory + Request.Headers["file-name"];
+            }
         }
 
         // PUT api/values/5

@@ -18,6 +18,7 @@
     },
     "UniprotDistributedSlave": {
       "commandName": "Project",
+      "commandLineArgs": "--urls http://storage.bioinfo.pbf.hr:7000",
       "launchBrowser": true,
       "launchUrl": "api/values",
       "environmentVariables": {
