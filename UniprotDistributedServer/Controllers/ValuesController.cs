@@ -199,6 +199,7 @@ namespace UniprotDistributedServer.Controllers
             {
                 Random r = new Random();
                 int randomNumber = r.Next(0, values.Count);
+                task.Status = "Executing file " + counter + " of " + files.Length;
 
                 //The values[randomNumber] is allways a number between 0 (first server from configuration table) and max (last server from configuration table)
                 //The number will allways be in that scope so that is not a problem!
