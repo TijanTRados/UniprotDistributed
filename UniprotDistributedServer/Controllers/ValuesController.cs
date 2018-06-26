@@ -98,7 +98,7 @@ namespace UniprotDistributedServer.Controllers
 
                 try
                 {
-                    HttpResponseMessage response = await client.GetAsync("http://" + server.api_call + "/slave/available");
+                    HttpResponseMessage response = await client.GetAsync(server.api_call + "/slave/available");
                     if (response.IsSuccessStatusCode) slaveInfo.Add(server.api_call + " - Running");
                     else slaveInfo.Add(server.api_call + " - Not Running");
                 }
@@ -134,7 +134,7 @@ namespace UniprotDistributedServer.Controllers
 
                 try
                 {
-                    HttpResponseMessage response = await client.GetAsync("http://" + server.api_call + "/slave/available");
+                    HttpResponseMessage response = await client.GetAsync(server.api_call + "/slave/available");
                     if (response.IsSuccessStatusCode) continue;
                     else return DateTime.Now + ": Not all slaves are running. Check it with /master/check_slaves";
                 }
@@ -194,7 +194,7 @@ namespace UniprotDistributedServer.Controllers
             //Now it reads all the files from ~ workingdirectory/Run/
             string[] files = Directory.GetFiles(workingDirectory + "Run/");
 
-
+            int counter = 0;
             foreach (string file in files)
             {
                 Random r = new Random();
@@ -204,8 +204,8 @@ namespace UniprotDistributedServer.Controllers
                 //The number will allways be in that scope so that is not a problem!
                 //Now we just send the file to the adress from the Program.Servers list (the value[randomNumber] will determine which one from the table is the destination! 
 
-                //SEND VIA POST
-
+                Sender(task, Program.Servers[randomNumber].api_call, "/slave/recieve", sourceFile.Split('/')[sourceFile.Split('/').Length - 1], counter, sourceFile);
+                counter++;
             }
 
             TimeStatistics.Add(DateTime.Now + ": Broadcasting the Files: " + stopwatch.Elapsed);
@@ -216,7 +216,7 @@ namespace UniprotDistributedServer.Controllers
             task.Status = "Logging the times";
             //Writing time stats to log file
             using (System.IO.StreamWriter file =
-            new System.IO.StreamWriter(workingDirectory + "log.txt", true))
+            new System.IO.StreamWriter(workingDirectory + "time_log.txt", true))
             {
                 foreach (string line in TimeStatistics)
                 {
@@ -254,7 +254,7 @@ namespace UniprotDistributedServer.Controllers
 
                 try
                 {
-                    HttpResponseMessage response = await client.GetAsync("http://" + server.api_call + "/slave/available");
+                    HttpResponseMessage response = await client.GetAsync(server.api_call + "/slave/available");
                     if (response.IsSuccessStatusCode) continue;
                     else return DateTime.Now + ": Not all slaves are running. Check it with /master/check_slaves";
                 }
@@ -289,6 +289,7 @@ namespace UniprotDistributedServer.Controllers
         private void Sender(Models.Task task, string slave, string controller, string fileName, int id, string path)
         {
             task.Status = "I'm setting up the data for sending";
+            Console.WriteLine(id + ": -----------------------------------------------------------NEW SENDER");
             Console.WriteLine(DateTime.Now + ": START");
             Console.WriteLine(DateTime.Now + ": Setting up the request");
 
@@ -316,11 +317,11 @@ namespace UniprotDistributedServer.Controllers
 
             task.Status = "SUCCESSFULLY SENT";
 
-            //10 seconds after finish, remove the task from the task list
-            Thread.Sleep(20000);
-            Console.WriteLine(DateTime.Now + ": Removing the task from the list");
-            Startup.taskList.Remove(task);
-            Console.WriteLine(DateTime.Now + ": END");
+            ////10 seconds after finish, remove the task from the task list
+            //Thread.Sleep(20000);
+            //Console.WriteLine(DateTime.Now + ": Removing the task from the list");
+            //Startup.taskList.Remove(task);
+            //Console.WriteLine(DateTime.Now + ": END");
         }
 
 
