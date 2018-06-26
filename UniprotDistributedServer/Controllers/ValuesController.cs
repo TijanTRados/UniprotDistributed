@@ -204,8 +204,7 @@ namespace UniprotDistributedServer.Controllers
                 //The number will allways be in that scope so that is not a problem!
                 //Now we just send the file to the adress from the Program.Servers list (the value[randomNumber] will determine which one from the table is the destination! 
 
-                Console.WriteLine("File name: " + file);
-                Sender(task, Program.Servers[values[randomNumber]].api_call, "/slave/recieve", file, counter, workingDirectory + "Run/" + file);
+                Sender(task, Program.Servers[values[randomNumber]].api_call, "/slave/recieve", file.Split('/')[file.Split('/').Length -1], counter, file);
                 
                 counter++;
             }
