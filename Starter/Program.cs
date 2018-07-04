@@ -114,7 +114,7 @@ namespace Starter
 
                     FileAttributes attributes = File.GetAttributes(path);
 
-                    ShellHelper.Bash("sudo chmod -R rwx Runme.sh");
+                    ShellHelper.Bash("sudo chmod -R o+r+w+x Runme.sh");
                 }
 
 
