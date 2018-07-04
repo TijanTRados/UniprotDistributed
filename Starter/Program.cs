@@ -107,9 +107,9 @@ namespace Starter
                 }
 
                 script += "\n#Build and publish\n" +
-                        "dotnet restore\n" +
-                        "dotnet build\n" +
-                        "dotnet publish\n" +
+                        "dotnet restore ~/Distributed/UniprotDistributed\n" +
+                        "dotnet build ~/Distributed/UniprotDistributed\n" +
+                        "dotnet publish ~/Distributed/UniprotDistributed\n" +
                         "\n#Remove and make directories and copy the stuff to each slave and make log and wd folders\n" +
                         "rm -r ~/Distributed/UniprotDistributed/UniprotDistributedSlave/bin/Debug/netcoreapp2.0/slaves; mkdir ~/Distributed/UniprotDistributed/UniprotDistributedSlave/bin/Debug/netcoreapp2.0/slaves/\n";
 
