@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -101,7 +102,10 @@ namespace UniprotDistributedServer.Controllers
                     HttpResponseMessage response = await client.GetAsync(server.api_call + "/slave/check_wd");
                     if (response.IsSuccessStatusCode)
                     {
-                        slaveInfo.Add(server.api_call + " - Running, response-content: " + response.Content);
+                        Stream receiveStream = await response.Content.ReadAsStreamAsync();
+                        StreamReader readStream = new StreamReader(receiveStream, Encoding.UTF8);
+                        string result = readStream.ReadToEnd();
+                        slaveInfo.Add(server.api_call + " - Running, response-result: " + result);
                     }
                     else slaveInfo.Add(server.api_call + " - Not Running");
                 }
