@@ -46,7 +46,8 @@ namespace UniprotDistributedSlave
             myApiCall = (filtered.ToList())[0].api_call;
             myApiPort = (filtered.ToList())[0].api_port;
             myServerLevel = (filtered.ToList())[0].server_level;
-            myWorkingDirectory = (filtered.ToList())[0].working_directory;
+            //myWorkingDirectory = (filtered.ToList())[0].working_directory;
+            myWorkingDirectory = AppDomain.CurrentDomain.BaseDirectory + "/Distributed/UniprotDistributed/UniprotDistributedSlave/bin/Debug/netcoreapp2.0/slaves/Slave" + mySlaveId + "/wd/";
             myMainTable = (filtered.ToList())[0].main_table;
 
             //Building the configuration

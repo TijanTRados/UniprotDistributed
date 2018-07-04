@@ -142,7 +142,13 @@ namespace UniprotDistributedServer.Controllers
                 try
                 {
                     HttpResponseMessage response = await client.GetAsync(server.api_call + "/slave/available");
-                    if (response.IsSuccessStatusCode) continue;
+                    if (response.IsSuccessStatusCode)
+                    {
+                        Stream receiveStream = await response.Content.ReadAsStreamAsync();
+                        StreamReader readStream = new StreamReader(receiveStream, Encoding.UTF8);
+                        string result = readStream.ReadToEnd();
+                        if (result.Equals("true")) continue;
+                    }
                     else return DateTime.Now + ": Not all slaves are running. Check it with /master/check_slaves";
                 }
                 catch (Exception)
@@ -305,8 +311,8 @@ namespace UniprotDistributedServer.Controllers
             // Setting the client and request
             var client = new RestClient(slave);
             var request = new RestRequest(controller, Method.POST);
-            request.AddParameter("name", fileName); // adds to POST or URL querystring based on Method
-            request.AddUrlSegment("id", id); // replaces matching token in request.Resource
+            //request.AddParameter("name", fileName); // adds to POST or URL querystring based on Method
+            //request.AddUrlSegment("id", id); // replaces matching token in request.Resource
 
             // easily add HTTP Headers
             request.AddHeader("file-name", fileName);
