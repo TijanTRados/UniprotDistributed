@@ -5,7 +5,9 @@ VisualStudioVersion = 15.0.27130.2010
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UniprotDistributedServer", "UniprotDistributedServer\UniprotDistributedServer.csproj", "{6E4132D0-6002-45C9-A6F5-6931EF8DD740}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UniprotDistributedSlave", "UniprotDistributedSlave\UniprotDistributedSlave.csproj", "{8AC3A9E5-318A-40EF-8C1A-3E90E494F12E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UniprotDistributedSlave", "UniprotDistributedSlave\UniprotDistributedSlave.csproj", "{8AC3A9E5-318A-40EF-8C1A-3E90E494F12E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Starter", "Starter\Starter.csproj", "{9B33E796-1A1C-4036-8FA7-284B5880E648}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{8AC3A9E5-318A-40EF-8C1A-3E90E494F12E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8AC3A9E5-318A-40EF-8C1A-3E90E494F12E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8AC3A9E5-318A-40EF-8C1A-3E90E494F12E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9B33E796-1A1C-4036-8FA7-284B5880E648}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9B33E796-1A1C-4036-8FA7-284B5880E648}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9B33E796-1A1C-4036-8FA7-284B5880E648}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9B33E796-1A1C-4036-8FA7-284B5880E648}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
