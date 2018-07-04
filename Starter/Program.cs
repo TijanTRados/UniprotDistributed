@@ -24,6 +24,7 @@ namespace Starter
 
             Init();
             MakeScript(Properties.Resources.path, port);
+            Console.WriteLine("Successfully made file 'Runme.sh'. Start it with ./Runme.sh");
         }
 
         public static void Init()
@@ -114,7 +115,7 @@ namespace Starter
 
                     FileAttributes attributes = File.GetAttributes(path);
 
-                    ShellHelper.Bash("sudo chmod -R o+r+w+x Runme.sh");
+                    ShellHelper.Bash("sudo chmod -R a+r+w+x Runme.sh");
                 }
 
 
