@@ -191,6 +191,11 @@ namespace UniprotDistributedServer.Controllers
                 System.IO.File.Delete(AppDomain.CurrentDomain.BaseDirectory + "log.txt");
             }
 
+            if (System.IO.File.Exists(AppDomain.CurrentDomain.BaseDirectory + "time_log.txt"))
+            {
+                System.IO.File.Delete(AppDomain.CurrentDomain.BaseDirectory + "time_log.txt");
+            }
+
             using (StreamWriter sw = System.IO.File.CreateText(AppDomain.CurrentDomain.BaseDirectory + "log.txt"))
             {
                 sw.WriteLine(DateTime.Now + " ::: Mater Load Started");
@@ -230,7 +235,12 @@ namespace UniprotDistributedServer.Controllers
 
                 using (StreamWriter sw = System.IO.File.AppendText(AppDomain.CurrentDomain.BaseDirectory + "log.txt"))
                 {
-                    sw.WriteLine(Sender(task, Program.Servers[values[randomNumber]].api_call, "/slave/recieve", file.Split('/')[file.Split('/').Length - 1], counter, file));
+                    List<string> result = Sender(task, Program.Servers[values[randomNumber]].api_call, "/slave/recieve", file.Split('/')[file.Split('/').Length - 1], counter, file);
+                    foreach(string line in result)
+                    {
+                        //Logging the output
+                        sw.WriteLine(line);
+                    }
                 }
                 counter++;
             }
@@ -243,7 +253,7 @@ namespace UniprotDistributedServer.Controllers
             task.Status = "Logging the times";
             //Writing time stats to log file
             using (System.IO.StreamWriter file =
-            new System.IO.StreamWriter(workingDirectory + "time_log.txt", true))
+            new System.IO.StreamWriter(AppDomain.CurrentDomain.BaseDirectory + "time_log.txt", true))
             {
                 foreach (string line in TimeStatistics)
                 {
@@ -313,14 +323,13 @@ namespace UniprotDistributedServer.Controllers
         }
 
         //Thread method for sending file
-        private string Sender(Models.Task task, string slave, string controller, string fileName, int id, string path)
+        private List<string> Sender(Models.Task task, string slave, string controller, string fileName, int id, string path)
         {
-            string log = "";
+            List<string> log = new List<string>();
 
-            task.Status = "I'm setting up the data for sending";
-            log+= id + ": -----------------------------------------------------------NEW SENDER/n";
-            log += (DateTime.Now + ": START/n");
-            log += (DateTime.Now + ": Setting up the request/n");
+            log.Add(id + ": -----------------------------------------------------------NEW SENDER");
+            log.Add(DateTime.Now + ": START");
+            log.Add(DateTime.Now + ": Setting up the request");
 
             // Setting the client and request
             var client = new RestClient(slave);
@@ -333,20 +342,17 @@ namespace UniprotDistributedServer.Controllers
 
             // add files to upload (works with compatible verbs)
             request.AddFile(fileName, path);
-            log += (DateTime.Now + ": " + request.ToString() + "/n");
+            log.Add(DateTime.Now + ": " + request.ToString());
 
             // execute the request
-            task.Status = "Executing the request";
-            log += (DateTime.Now + ": Executing the request/n");
+            log.Add(DateTime.Now + ": Executing the request");
 
             IRestResponse response = client.Execute(request);
             var content = response.Content;
              // raw content as string
 
-            log += (DateTime.Now + ": Response = " + content + "/");
-            log += (DateTime.Now + ": SUCCESSFULLY SENT\n");
-
-            task.Status = "SUCCESSFULLY SENT";
+            log.Add(DateTime.Now + ": Response = " + content);
+            log.Add(DateTime.Now + ": SUCCESSFULLY SENT\n");
 
             return log;
         }

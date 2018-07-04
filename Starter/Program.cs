@@ -127,7 +127,7 @@ namespace Starter
 
                 foreach(Servers server in Servers)
                 {
-                    script += "dotnet ~/Distributed/UniprotDistributed/UniprotDistributedSlave/bin/Debug/netcoreapp2.0/slaves/Slave" + server.slave_id + "/publish/UniprotDistributedSlave.dll --urls "+ server.api_call + " & >> ~/Distributed/UniprotDistributed/UniprotDistributedSlave/bin/Debug/netcoreapp2.0/slaves/Slave" + server.slave_id + "/publish/logs/log.txt\n";
+                    script += "dotnet ~/Distributed/UniprotDistributed/UniprotDistributedSlave/bin/Debug/netcoreapp2.0/slaves/Slave" + server.slave_id + "/publish/UniprotDistributedSlave.dll --urls "+ server.api_call + " >> ~/Distributed/UniprotDistributed/UniprotDistributedSlave/bin/Debug/netcoreapp2.0/slaves/Slave" + server.slave_id + "/publish/logs/log.txt &\n";
                 }
 
                 // Create the file.
