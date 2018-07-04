@@ -30,7 +30,14 @@ namespace UniprotDistributedSlave
             Init();
 
             //Finding my configuration from the configuration list via argument (http://{host}:{port})
+
             Me = args[1];
+
+            foreach(string arg in args)
+            {
+                Console.WriteLine(arg);
+            }
+
             var filtered = from server in Servers
                            where server.api_call == Me
                            select server;
