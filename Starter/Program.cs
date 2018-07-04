@@ -19,7 +19,7 @@ namespace Starter
                 return;
             }
 
-            string port = args[1];
+            string port = args[0];
 
             Init();
             MakeScript(Properties.Resources.path, port);
