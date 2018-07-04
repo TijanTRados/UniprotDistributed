@@ -106,6 +106,7 @@ namespace Starter
                     ShellHelper.Bash("sudo chmod -R a+r+w+x " + path2);
                 }
 
+
                 script += "\n#Build and publish\n" +
                         "dotnet restore ~/Distributed/UniprotDistributed\n" +
                         "dotnet build ~/Distributed/UniprotDistributed\n" +
