@@ -22,6 +22,17 @@ namespace UniprotDistributedSlave.Controllers
             return true;
         }
 
+        [HttpGet]
+        [Route("check_wd")]
+        public bool CheckWorkingDirectory()
+        {
+            if (Directory.Exists("~/Distributed/UniprotDistributed/UniprotDistributedSlave/bin/Debug/netcoreapp2.0/slaves/Slave1/wd"))
+            {
+                return true;
+            }
+            else return false;
+        }
+
         // GET api/values/5
         [HttpGet("{id}")]
         public string Get(int id)

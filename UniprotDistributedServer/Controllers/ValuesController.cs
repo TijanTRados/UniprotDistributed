@@ -98,8 +98,11 @@ namespace UniprotDistributedServer.Controllers
 
                 try
                 {
-                    HttpResponseMessage response = await client.GetAsync(server.api_call + "/slave/available");
-                    if (response.IsSuccessStatusCode) slaveInfo.Add(server.api_call + " - Running");
+                    HttpResponseMessage response = await client.GetAsync(server.api_call + "/slave/check_wd");
+                    if (response.IsSuccessStatusCode)
+                    {
+                        slaveInfo.Add(server.api_call + " - Running, response-content: " + response.Content);
+                    }
                     else slaveInfo.Add(server.api_call + " - Not Running");
                 }
                 catch (Exception)
