@@ -46,7 +46,6 @@ namespace UniprotDistributedSlave
             myApiCall = (filtered.ToList())[0].api_call;
             myApiPort = (filtered.ToList())[0].api_port;
             myServerLevel = (filtered.ToList())[0].server_level;
-            //myWorkingDirectory = (filtered.ToList())[0].working_directory;
             myWorkingDirectory = AppDomain.CurrentDomain.BaseDirectory + "wd/";
             myMainTable = (filtered.ToList())[0].main_table;
 
@@ -86,7 +85,7 @@ namespace UniprotDistributedSlave
             //Configuration is set up on DefaultConnection string in this case
             BaseDataAccess DataBase = new BaseDataAccess("Data Source=storage.bioinfo.pbf.hr,8758;Initial Catalog=configuration;Integrated Security=False;User Id=tijan;Password=tijan99;MultipleActiveResultSets=True");
 
-            using (DataSet ConfigData = DataBase.ExecuteFillDataSet("select slave_id, concat('Data Source=localhost,', db_port, ';Initial Catalog=', database_name, ';Integrated Security=False;User Id=', username, ';Password=', password, ';MultipleActiveResultSets=True') as database_connection_string, concat('http://', server_name, ':', api_port) as api_call, api_port, server_level, working_directory, main_table  FROM slaves WHERE is_using = 'true';", null))
+            using (DataSet ConfigData = DataBase.ExecuteFillDataSet("select slave_id, concat('Data Source=localhost,', db_port, ';Initial Catalog=', database_name, ';Integrated Security=False;User Id=', username, ';Password=', password, ';MultipleActiveResultSets=True') as database_connection_string, concat('http://', server_name, ':', api_port) as api_call, api_port, server_level, main_table  FROM slaves WHERE is_using = 'true';", null))
             {
                 foreach (DataRow row in ConfigData.Tables[0].Rows)
                 {
@@ -97,7 +96,7 @@ namespace UniprotDistributedSlave
                         api_call = row["api_call"].ToString(), //string to string
                         api_port = Convert.ToInt16(row["api_port"]), //smallint to int
                         server_level = (byte)row["server_level"], //tinyint to int
-                        working_directory = row["working_directory"].ToString(), //string to string
+                        working_directory = AppDomain.CurrentDomain.BaseDirectory + "wd/",
                         main_table = row["main_table"].ToString() //string to string
                     });
 

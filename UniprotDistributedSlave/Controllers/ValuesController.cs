@@ -51,12 +51,21 @@ namespace UniprotDistributedSlave.Controllers
         {
             using (var reader = new StreamReader(Request.Body))
             {
-                var body = reader.ReadToEnd();
+                try
+                {
+                    var body = reader.ReadToEnd();
 
-                System.IO.File.WriteAllText(Program.myWorkingDirectory + Request.Headers["file-name"], body);
+                    System.IO.File.WriteAllText(Program.myWorkingDirectory + Request.Headers["file-name"], body);
 
-                Console.WriteLine($"Saved to " + Program.myWorkingDirectory + Request.Headers["file-name"]);
-                return $"Saved to " + Program.myWorkingDirectory + Request.Headers["file-name"];
+                    Console.WriteLine($"Saved to " + Program.myWorkingDirectory + Request.Headers["file-name"]);
+                    return $"Saved to " + Program.myWorkingDirectory + Request.Headers["file-name"];
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("An exception occured while saving " + Request.Headers["file-name"] + ". Check it manually.");
+                    return "An exception occured while saving " + Request.Headers["file-name"] + ". Check it manually.";
+                }
+                
             }
         }
 

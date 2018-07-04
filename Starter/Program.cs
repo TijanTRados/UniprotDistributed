@@ -37,7 +37,7 @@ namespace Starter
             //Configuration is set up on DefaultConnection string in this case
             BaseDataAccess DataBase = new BaseDataAccess("Data Source=localhost,8758;Initial Catalog=configuration;Integrated Security=False;User Id=tijan;Password=tijan99;MultipleActiveResultSets=True");
 
-            using (DataSet ConfigData = DataBase.ExecuteFillDataSet("select slave_id, concat('Data Source=localhost,', db_port, ';Initial Catalog=', database_name, ';Integrated Security=False;User Id=', username, ';Password=', password, ';MultipleActiveResultSets=True') as database_connection_string, concat('http://', server_name, ':', api_port) as api_call, api_port, server_level, working_directory, main_table  FROM slaves WHERE is_using = 'true';", null))
+            using (DataSet ConfigData = DataBase.ExecuteFillDataSet("select slave_id, concat('Data Source=localhost,', db_port, ';Initial Catalog=', database_name, ';Integrated Security=False;User Id=', username, ';Password=', password, ';MultipleActiveResultSets=True') as database_connection_string, concat('http://', server_name, ':', api_port) as api_call, api_port, server_level, main_table  FROM slaves WHERE is_using = 'true';", null))
             {
                 foreach (DataRow row in ConfigData.Tables[0].Rows)
                 {
@@ -48,7 +48,6 @@ namespace Starter
                         api_call = row["api_call"].ToString(), //string to string
                         api_port = Convert.ToInt16(row["api_port"]), //smallint to int
                         server_level = (byte)row["server_level"], //tinyint to int
-                        working_directory = row["working_directory"].ToString(), //string to string
                         main_table = row["main_table"].ToString() //string to string
                     });
 
@@ -128,7 +127,7 @@ namespace Starter
 
                 foreach(Servers server in Servers)
                 {
-                    script += "dotnet ~/Distributed/UniprotDistributed/UniprotDistributedSlave/bin/Debug/netcoreapp2.0/slaves/Slave" + server.slave_id + "/publish/UniprotDistributedSlave.dll --urls "+ server.api_call + " &\n";
+                    script += "dotnet ~/Distributed/UniprotDistributed/UniprotDistributedSlave/bin/Debug/netcoreapp2.0/slaves/Slave" + server.slave_id + "/publish/UniprotDistributedSlave.dll --urls "+ server.api_call + " & >> ~/Distributed/UniprotDistributed/UniprotDistributedSlave/bin/Debug/netcoreapp2.0/slaves/Slave" + server.slave_id + "/publish/logs/log.txt\n";
                 }
 
                 // Create the file.

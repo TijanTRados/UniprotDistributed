@@ -186,6 +186,16 @@ namespace UniprotDistributedServer.Controllers
             List<string> TimeStatistics = new List<string>();
             List<int> values = Program.values;
 
+            if (System.IO.File.Exists(AppDomain.CurrentDomain.BaseDirectory + "log.txt"))
+            {
+                System.IO.File.Delete(AppDomain.CurrentDomain.BaseDirectory + "log.txt");
+            }
+
+            using (StreamWriter sw = System.IO.File.CreateText(AppDomain.CurrentDomain.BaseDirectory + "log.txt"))
+            {
+                sw.WriteLine(DateTime.Now + " ::: Mater Load Started");
+            }
+
             TimeStatistics.Add("\n\nNew measure: \n");
             stopwatch.Start();
 
@@ -218,8 +228,10 @@ namespace UniprotDistributedServer.Controllers
                 //The number will allways be in that scope so that is not a problem!
                 //Now we just send the file to the adress from the Program.Servers list (the value[randomNumber] will determine which one from the table is the destination! 
 
-                Sender(task, Program.Servers[values[randomNumber]].api_call, "/slave/recieve", file.Split('/')[file.Split('/').Length -1], counter, file);
-                
+                using (StreamWriter sw = System.IO.File.AppendText(AppDomain.CurrentDomain.BaseDirectory + "log.txt"))
+                {
+                    sw.WriteLine(Sender(task, Program.Servers[values[randomNumber]].api_call, "/slave/recieve", file.Split('/')[file.Split('/').Length - 1], counter, file));
+                }
                 counter++;
             }
 
@@ -301,12 +313,14 @@ namespace UniprotDistributedServer.Controllers
         }
 
         //Thread method for sending file
-        private void Sender(Models.Task task, string slave, string controller, string fileName, int id, string path)
+        private string Sender(Models.Task task, string slave, string controller, string fileName, int id, string path)
         {
+            string log = "";
+
             task.Status = "I'm setting up the data for sending";
-            Console.WriteLine(id + ": -----------------------------------------------------------NEW SENDER");
-            Console.WriteLine(DateTime.Now + ": START");
-            Console.WriteLine(DateTime.Now + ": Setting up the request");
+            log+= id + ": -----------------------------------------------------------NEW SENDER/n";
+            log += (DateTime.Now + ": START/n");
+            log += (DateTime.Now + ": Setting up the request/n");
 
             // Setting the client and request
             var client = new RestClient(slave);
@@ -319,24 +333,22 @@ namespace UniprotDistributedServer.Controllers
 
             // add files to upload (works with compatible verbs)
             request.AddFile(fileName, path);
-            Console.WriteLine(DateTime.Now + ": " + request.ToString());
+            log += (DateTime.Now + ": " + request.ToString() + "/n");
 
             // execute the request
             task.Status = "Executing the request";
-            Console.WriteLine(DateTime.Now + ": Executing the request");
-            IRestResponse response = client.Execute(request);
-            var content = response.Content; // raw content as string
+            log += (DateTime.Now + ": Executing the request/n");
 
-            Console.WriteLine(DateTime.Now + ": Response = " + content);
-            Console.WriteLine(DateTime.Now + ": SUCCESSFULLY SENT");
+            IRestResponse response = client.Execute(request);
+            var content = response.Content;
+             // raw content as string
+
+            log += (DateTime.Now + ": Response = " + content + "/");
+            log += (DateTime.Now + ": SUCCESSFULLY SENT\n");
 
             task.Status = "SUCCESSFULLY SENT";
 
-            ////10 seconds after finish, remove the task from the task list
-            //Thread.Sleep(20000);
-            //Console.WriteLine(DateTime.Now + ": Removing the task from the list");
-            //Startup.taskList.Remove(task);
-            //Console.WriteLine(DateTime.Now + ": END");
+            return log;
         }
 
         #region TEST
