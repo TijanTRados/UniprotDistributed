@@ -26,7 +26,7 @@ namespace UniprotDistributedSlave.Controllers
         [Route("check_wd")]
         public bool CheckWorkingDirectory()
         {
-            if (Directory.Exists("~/Distributed/UniprotDistributed/UniprotDistributedSlave/bin/Debug/netcoreapp2.0/slaves/Slave1/wd"))
+            if (Directory.Exists("~/Distributed/UniprotDistributed/UniprotDistributedSlave/bin/Debug/netcoreapp2.0/slaves/Slave" + Program.mySlaveId+ "/wd/"))
             {
                 return true;
             }
