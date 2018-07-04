@@ -61,11 +61,20 @@ namespace Starter.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Kill.sh.
+        /// </summary>
+        internal static string killscript {
+            get {
+                return ResourceManager.GetString("killscript", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Runme.sh.
         /// </summary>
-        internal static string path {
+        internal static string runscript {
             get {
-                return ResourceManager.GetString("path", resourceCulture);
+                return ResourceManager.GetString("runscript", resourceCulture);
             }
         }
     }

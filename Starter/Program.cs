@@ -22,8 +22,9 @@ namespace Starter
             string port = args[0];
 
             Init();
-            MakeScript(Properties.Resources.path, port);
-            Console.WriteLine("Successfully made file 'Runme.sh'. Start it with ./Runme.sh");
+            MakeScript(port);
+
+            Console.WriteLine("Successfully made files '"+ Properties.Resources.runscript +"' and '"+ Properties.Resources.killscript +"'. Start the system with ./" + Properties.Resources.runscript + "\nTo kill the processes and free ports run ./" + Properties.Resources.killscript);
         }
 
         public static void Init()
@@ -57,8 +58,11 @@ namespace Starter
             #endregion
         }
 
-        public static void MakeScript(string path, string port)
+        public static void MakeScript(string port)
         {
+            string path = Properties.Resources.runscript;
+            string path2 = Properties.Resources.killscript;
+
             try
             {
 
@@ -73,12 +77,33 @@ namespace Starter
                     File.Delete(path);
                 }
 
+                // Delete the file if it exists.
+                if (File.Exists(path2))
+                {
+                    // Note that no lock is put on the
+                    // file and the possibility exists
+                    // that another process could do
+                    // something with it between
+                    // the calls to Exists and Delete.
+                    File.Delete(path2);
+                }
+
                 string script = "#Kill all processes that hold up ports user for the system\n" +
                         "fuser -k -n tcp " + port + "\n";
 
                 foreach(Servers server in Servers)
                 {
                     script += "fuser -k -n tcp " + server.api_port + "\n";
+                }
+
+                // Create the file for killing the processes
+                using (FileStream fs = File.Create(path2))
+                {
+                    Byte[] info = new UTF8Encoding(true).GetBytes(script);
+                    // Add some information to the file.
+                    fs.Write(info, 0, info.Length);
+
+                    ShellHelper.Bash("sudo chmod -R a+r+w+x " + path2);
                 }
 
                 script += "\n#Build and publish\n" +
@@ -112,17 +137,13 @@ namespace Starter
                     // Add some information to the file.
                     fs.Write(info, 0, info.Length);
 
-                    FileAttributes attributes = File.GetAttributes(path);
-
-                    ShellHelper.Bash("sudo chmod -R a+r+w+x Runme.sh");
+                    ShellHelper.Bash("sudo chmod -R a+r+w+x " + path);
                 }
-
-
             }
 
             catch (Exception ex)
             {
-                Console.WriteLine(ex.ToString());
+                Console.WriteLine("Could not create the script. Original error: " + ex.ToString());
             }
         }
     }
