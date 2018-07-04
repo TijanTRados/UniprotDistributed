@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
+using System.Security.Principal;
 using System.Text;
 
 namespace Starter
@@ -110,7 +111,13 @@ namespace Starter
                     Byte[] info = new UTF8Encoding(true).GetBytes(script);
                     // Add some information to the file.
                     fs.Write(info, 0, info.Length);
+
+                    FileAttributes attributes = File.GetAttributes(path);
+
+                    File.SetAttributes(path, attributes | FileAttributes.Normal);
                 }
+
+
             }
 
             catch (Exception ex)
