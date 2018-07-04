@@ -61,7 +61,7 @@ namespace Starter.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to ~/Distributed/UniprotDistributed/Runme.sh.
+        ///   Looks up a localized string similar to &quot;~/Distributed/UniprotDistributed/Runme.sh&quot;.
         /// </summary>
         internal static string path {
             get {
