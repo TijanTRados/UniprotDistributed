@@ -208,6 +208,7 @@ namespace UniprotDistributedServer.Controllers
             task.Status = "Spliting the file into pieces";
             //Setting and executing the SPLIT command to execute
             //Everything is splited into pieces inside of sourcefile directory ~ workingdirectory/Run/
+            ShellHelper.Bash("rm -r " + workingDirectory + "Run/");
             ShellHelper.Bash("mkdir " + workingDirectory + "Run/");
             string splitBash = "split -l 100000 --additional-suffix=.csv " + sourceFile + " " + workingDirectory + "Run/";
             ShellHelper.Bash(splitBash);
