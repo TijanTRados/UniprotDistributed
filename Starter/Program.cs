@@ -84,11 +84,11 @@ namespace Starter
                         "dotnet restore\n" +
                         "dotnet build\n" +
                         "dotnet publish\n" +
-                        "\n#Remove and make directories and copy the stuff to each slave and make log and wd folders\n";
+                        "\n#Remove and make directories and copy the stuff to each slave and make log and wd folders";
 
                 foreach(Servers server in Servers)
                 {
-                    script += "rm -r ~/Distributed/UniprotDistributed/UniprotDistributedSlave/bin/Debug/netcoreapp2.0/slaves; mkdir ~/Distributed/UniprotDistributed/UniprotDistributedSlave/bin/Debug/netcoreapp2.0/slaves/\n" +
+                    script += "\nrm -r ~/Distributed/UniprotDistributed/UniprotDistributedSlave/bin/Debug/netcoreapp2.0/slaves; mkdir ~/Distributed/UniprotDistributed/UniprotDistributedSlave/bin/Debug/netcoreapp2.0/slaves/\n" +
                         "mkdir ~/Distributed/UniprotDistributed/UniprotDistributedSlave/bin/Debug/netcoreapp2.0/slaves/Slave" + server.slave_id + "\n" +
                         "mkdir ~/Distributed/UniprotDistributed/UniprotDistributedSlave/bin/Debug/netcoreapp2.0/slaves/Slave" + server.slave_id + "/logs\n" +
                         "mkdir ~/Distributed/UniprotDistributed/UniprotDistributedSlave/bin/Debug/netcoreapp2.0/slaves/Slave" + server.slave_id + "/wd\n" +
@@ -100,7 +100,7 @@ namespace Starter
 
                 foreach(Servers server in Servers)
                 {
-                    script += "dotnet ~/Distributed/UniprotDistributed/UniprotDistributedSlave/bin/Debug/netcoreapp2.0/slaves/Slave" + server.slave_id + "/publish/UniprotDistributedSlave.dll --urls http://storage.bioinfo.pbf.hr:7000 &\n";
+                    script += "dotnet ~/Distributed/UniprotDistributed/UniprotDistributedSlave/bin/Debug/netcoreapp2.0/slaves/Slave" + server.slave_id + "/publish/UniprotDistributedSlave.dll --urls "+ server.api_call + " &\n";
                 }
 
                 // Create the file.
