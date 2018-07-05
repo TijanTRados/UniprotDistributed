@@ -53,9 +53,12 @@ namespace UniprotDistributedSlave.Controllers
             {
                 try
                 {
-                    var body = reader.ReadToEnd();
+                    //Skipping first 4 lines
+                    List<string> fileLines = reader.ReadToEnd().Split('\n').ToList();
+                    fileLines.RemoveRange(0, 4);
+                    fileLines.RemoveRange(fileLines.Count - 2, 2);
 
-                    System.IO.File.WriteAllText(Program.myWorkingDirectory + Request.Headers["file-name"], body);
+                    System.IO.File.WriteAllText(Program.myWorkingDirectory + Request.Headers["file-name"], string.Join('\n', fileLines));
 
                     Console.WriteLine($"Saved to " + Program.myWorkingDirectory + Request.Headers["file-name"]);
                     return $"Saved to " + Program.myWorkingDirectory + Request.Headers["file-name"];
