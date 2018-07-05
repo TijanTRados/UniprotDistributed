@@ -56,7 +56,7 @@ namespace UniprotDistributedSlave.Controllers
                     //Skipping first 4 lines
                     List<string> fileLines = reader.ReadToEnd().Split('\n').ToList();
                     fileLines.RemoveRange(0, 4);
-                    fileLines.RemoveRange(fileLines.Count - 2, 2);
+                    fileLines.RemoveRange(fileLines.Count - 2, 3);
 
                     System.IO.File.WriteAllText(Program.myWorkingDirectory + Request.Headers["file-name"], string.Join('\n', fileLines));
 
