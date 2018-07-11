@@ -371,7 +371,7 @@ namespace UniprotDistributedServer.Controllers
             Startup.taskList.Remove(task);
         }
 
-        //Thread method for sending file
+        //Thread method for sending file -> restsharp
         private List<string> Sender(Models.Task task, string slave, string controller, string fileName, int id, string path)
         {
             List<string> log = new List<string>();
@@ -410,7 +410,7 @@ namespace UniprotDistributedServer.Controllers
             return log;
         }
 
-        //Thread method for sending file
+        //Thread method for sending file -> httpclient
         private async Task<List<string>> Sender2(Models.Task task, string slave, string controller, string fileName, int id, string path)
         {
             List<string> log = new List<string>();
@@ -429,7 +429,8 @@ namespace UniprotDistributedServer.Controllers
 
             try
             {
-                HttpContent content = new StringContent(path);
+                var stream = new FileStream(path, FileMode.Open);
+                HttpContent content = new StreamContent(stream);
                 content.Headers.Add("file-name", fileName);
                 HttpResponseMessage response = await client.PostAsync(slave + controller, content);
                 if (response.IsSuccessStatusCode)
