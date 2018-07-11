@@ -54,6 +54,8 @@ namespace UniprotDistributedSlave.Controllers
             {
                 try
                 {
+                    Console.WriteLine("HAY");
+
                     //Skipping first 4 lines
                     List<string> fileLines = reader.ReadToEnd().Split('\n').ToList();
 
