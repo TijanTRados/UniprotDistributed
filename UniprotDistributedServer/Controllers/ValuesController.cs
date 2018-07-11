@@ -289,8 +289,6 @@ namespace UniprotDistributedServer.Controllers
             int counter = 0;
             foreach (string file in files)
             {
-                Console.WriteLine(file);
-
                 Random r = new Random();
                 int randomNumber = r.Next(0, values.Count);
                 task.Status = "Executing file " + counter + " of " + files.Length;
@@ -434,6 +432,10 @@ namespace UniprotDistributedServer.Controllers
             log.Add(id + ": -----------------------------------------------------------NEW SENDER");
             log.Add(DateTime.Now + ": START");
             log.Add(DateTime.Now + ": Setting up the request");
+            log.Add(DateTime.Now + ": Filename: " + fileName);
+            log.Add(DateTime.Now + ": Path: " + path);
+            log.Add(DateTime.Now + ": Save: " + slave);
+            log.Add(DateTime.Now + ": Controller: " + controller);
 
             // Setting the client and request
             var client = new RestClient(slave);
@@ -446,17 +448,17 @@ namespace UniprotDistributedServer.Controllers
 
             // add files to upload (works with compatible verbs)
             request.AddFile(fileName, path);
-            log.Add(DateTime.Now + ": " + request.ToString());
+            log.Add(DateTime.Now + ": Request: " + request.ToString());
 
             // execute the request
-            log.Add(DateTime.Now + ": Executing the request");
+            log.Add(DateTime.Now + ": EXECUTION");
 
             IRestResponse response = client.Execute(request);
             var content = response.Content;
              // raw content as string
 
-            log.Add(DateTime.Now + ": Response = " + content);
-            log.Add(DateTime.Now + ": SUCCESSFULLY SENT\n");
+            log.Add(DateTime.Now + ": Response: " + content);
+            log.Add(DateTime.Now + ": DONE\n");
 
             return log;
         }
