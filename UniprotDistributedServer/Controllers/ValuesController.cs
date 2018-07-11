@@ -286,11 +286,11 @@ namespace UniprotDistributedServer.Controllers
             //Now it reads all the files from ~ workingdirectory/Run/
             string[] files = Directory.GetFiles(workingDirectory + "Run/");
 
-            Console.WriteLine(files);
-
             int counter = 0;
             foreach (string file in files)
             {
+                Console.WriteLine(file);
+
                 Random r = new Random();
                 int randomNumber = r.Next(0, values.Count);
                 task.Status = "Executing file " + counter + " of " + files.Length;
