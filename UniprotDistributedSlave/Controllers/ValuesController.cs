@@ -70,8 +70,10 @@ namespace UniprotDistributedSlave.Controllers
                     Console.WriteLine($"Saved to " + Program.myWorkingDirectory + Request.Headers["file-name"]);
                     return $"Saved to " + Program.myWorkingDirectory + Request.Headers["file-name"];
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
+                    Console.WriteLine(ex.Message);
+                    throw;
                     Console.WriteLine("An exception occured while saving " + Request.Headers["file-name"] + ". Check it manually.");
                     return "An exception occured while saving " + Request.Headers["file-name"] + ". Check it manually.";
                 }
