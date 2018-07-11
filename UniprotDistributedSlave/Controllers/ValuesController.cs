@@ -8,6 +8,7 @@ using System.Net.Http;
 using System.Web;
 using RestSharp;
 using RestSharp.Extensions;
+using System.Threading;
 
 namespace UniprotDistributedSlave.Controllers
 {
@@ -47,7 +48,7 @@ namespace UniprotDistributedSlave.Controllers
         //Method that saves the file from the request body to folder - copy with the correct name!
         [HttpPost]
         [Route("recieve")]
-        public string Post()
+        public string Copy()
         {
             using (var reader = new StreamReader(Request.Body))
             {
@@ -55,6 +56,10 @@ namespace UniprotDistributedSlave.Controllers
                 {
                     //Skipping first 4 lines
                     List<string> fileLines = reader.ReadToEnd().Split('\n').ToList();
+
+                    //TRY TO MANAGE START OF EACH LINE
+                    fileLines = fileLines.Select(x => "0    " + x).ToList();
+
                     fileLines.RemoveRange(0, 4);
                     fileLines.RemoveRange(fileLines.Count - 3, 2);
 
@@ -63,7 +68,7 @@ namespace UniprotDistributedSlave.Controllers
                     Console.WriteLine($"Saved to " + Program.myWorkingDirectory + Request.Headers["file-name"]);
                     return $"Saved to " + Program.myWorkingDirectory + Request.Headers["file-name"];
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     Console.WriteLine("An exception occured while saving " + Request.Headers["file-name"] + ". Check it manually.");
                     return "An exception occured while saving " + Request.Headers["file-name"] + ". Check it manually.";
@@ -72,16 +77,88 @@ namespace UniprotDistributedSlave.Controllers
             }
         }
 
-        // PUT api/values/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody]string value)
+        [HttpGet]
+        [Route("start_bulk")]
+        public string Bulk()
         {
+            //Checking if the bulk is already active
+            if (Program.taskList.Count >= 1)
+            {
+                return DateTime.Now + ": Load already running.\n" + Program.taskList[0].Status;
+            }
+
+            //Checking if working directory exists
+            if (!CheckWorkingDirectory())
+            {
+                return "Working directory does not exists.";
+            }
+
+            //Else start the bulk insertion
+            else
+            {
+                try
+                {
+                    Models.Task task = new Models.Task();
+                    task.Thread = new Thread(() => Bulkloader(task));
+                    task.Thread.Start();
+                    Program.taskList.Add(task);
+                    return "Bulk load successfully started";
+                }
+                catch (Exception)
+                {
+                    return "Bulk load start failed.";
+                }
+                
+            }
         }
 
-        // DELETE api/values/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
+        //Method for bulkloading
+        public void Bulkloader(Models.Task task)
         {
+            string[] files = Directory.GetFiles(Program.myWorkingDirectory);
+            int counter = 0;
+
+            if (files.Length == 0) return;
+            else
+            {
+                task.Status = "Bulk importing " + counter + " of " + files.Length;
+
+                Console.Write("Bulk file " + counter + " of " + files.Length);
+                foreach (string file in files)
+                {
+                    //Bulk insert it
+                    Console.Write(ShellHelper.Bash("/opt/mssql-tools/bin/bcp " + Program.myMainTable +
+                        " in " + file +
+                        " -S localhost,8758" +
+                        " -U " + Program.username +
+                        " -P " + Program.password +
+                        " -d " + Program.myDatabaseName +
+                        " -c " +
+                        " -t '\\t' -r '\\n'"
+                       ).ToString() + "\n");
+                    //Remove it
+                    ShellHelper.Bash("rm " + file);
+
+                    //Count
+                    task.bulkcount++;
+                    counter++;
+                }
+
+                Program.taskList.Remove(task);
+            }
+            
+        }
+
+        [HttpGet]
+        [Route("check_bulk")]
+        public string Check_bulk()
+        {
+            if (Program.taskList.Count > 0)
+            {
+                return Program.taskList[0].Status;
+            }
+            else return "Bulk not running";
+            
         }
     }
 }

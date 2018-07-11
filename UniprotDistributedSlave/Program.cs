@@ -15,6 +15,7 @@ namespace UniprotDistributedSlave
     public class Program
     {
         public static List<Servers> Servers;
+        public static List<Models.Task> taskList = new List<Models.Task>();
 
         public static string Me;
         public static Int16 mySlaveId;
@@ -24,6 +25,9 @@ namespace UniprotDistributedSlave
         public static byte myServerLevel;
         public static string myWorkingDirectory;
         public static string myMainTable;
+        public static string username;
+        public static string password;
+        public static string myDatabaseName;
 
         public static void Main(string[] args)
         {
@@ -48,6 +52,7 @@ namespace UniprotDistributedSlave
             myServerLevel = (filtered.ToList())[0].server_level;
             myWorkingDirectory = AppDomain.CurrentDomain.BaseDirectory + "wd/";
             myMainTable = (filtered.ToList())[0].main_table;
+
 
             //Building the configuration
             var configuration = new ConfigurationBuilder()
@@ -83,9 +88,9 @@ namespace UniprotDistributedSlave
             #region Read Configuration File
             //Read config file
             //Configuration is set up on DefaultConnection string in this case
-            BaseDataAccess DataBase = new BaseDataAccess("Data Source=storage.bioinfo.pbf.hr,8758;Initial Catalog=configuration;Integrated Security=False;User Id=tijan;Password=tijan99;MultipleActiveResultSets=True");
+            BaseDataAccess DataBase = new BaseDataAccess("Data Source=localhost,8758;Initial Catalog=configuration;Integrated Security=False;User Id=tijan;Password=tijan99;MultipleActiveResultSets=True");
 
-            using (DataSet ConfigData = DataBase.ExecuteFillDataSet("select slave_id, concat('Data Source=localhost,', db_port, ';Initial Catalog=', database_name, ';Integrated Security=False;User Id=', username, ';Password=', password, ';MultipleActiveResultSets=True') as database_connection_string, concat('http://', server_name, ':', api_port) as api_call, api_port, server_level, main_table  FROM slaves WHERE is_using = 'true';", null))
+            using (DataSet ConfigData = DataBase.ExecuteFillDataSet("select slave_id, concat('Data Source=localhost,', db_port, ';Initial Catalog=', database_name, ';Integrated Security=False;User Id=', username, ';Password=', password, ';MultipleActiveResultSets=True') as database_connection_string, concat('http://', server_name, ':', api_port) as api_call, api_port, server_level, main_table, database_name, username, password  FROM slaves WHERE is_using = 'true';", null))
             {
                 foreach (DataRow row in ConfigData.Tables[0].Rows)
                 {
@@ -97,7 +102,10 @@ namespace UniprotDistributedSlave
                         api_port = Convert.ToInt16(row["api_port"]), //smallint to int
                         server_level = (byte)row["server_level"], //tinyint to int
                         working_directory = AppDomain.CurrentDomain.BaseDirectory + "wd/",
-                        main_table = row["main_table"].ToString() //string to string
+                        main_table = row["main_table"].ToString(), //string to string,
+                        username = row["username"].ToString(),
+                        password = row["password"].ToString(),
+                        database_name = row["database_name"].ToString()
                     });
 
                     levels.Add((byte)row["server_level"]);

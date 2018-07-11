@@ -88,6 +88,62 @@ namespace UniprotDistributedServer.Controllers
         }
 
         [HttpGet]
+        [Route("check_bulk_status")]
+        public async Task<List<string>> Bulk_info()
+        {
+            //Checking all slaves bulk status
+            List<string> slaveInfo = new List<string>();
+            foreach (Servers server in Program.Servers)
+            {
+                HttpClient client = new HttpClient();
+
+                try
+                {
+                    HttpResponseMessage response = await client.GetAsync(server.api_call + "/slave/check_bulk");
+                    if (response.IsSuccessStatusCode)
+                    {
+                        Stream receiveStream = await response.Content.ReadAsStreamAsync();
+                        StreamReader readStream = new StreamReader(receiveStream, Encoding.UTF8);
+                        string result = readStream.ReadToEnd();
+                        slaveInfo.Add(server.api_call + ": " + result);
+                    }
+                    else slaveInfo.Add(server.api_call + " - Slave Not Running");
+                }
+                catch (Exception)
+                {
+                    slaveInfo.Add(server.api_call + " - Slave Not Running");
+                }
+            }
+
+            return slaveInfo;
+        }
+
+        [HttpGet]
+        [Route("start_bulk")]
+        //Start bulk on manually
+        public async Task<string> Start_Bulk(string slave)
+        {
+            HttpClient client = new HttpClient();
+
+            try
+            {
+                HttpResponseMessage response = await client.GetAsync(slave + "/slave/start_bulk");
+                if (response.IsSuccessStatusCode)
+                {
+                    Stream receiveStream = await response.Content.ReadAsStreamAsync();
+                    StreamReader readStream = new StreamReader(receiveStream, Encoding.UTF8);
+                    string result = readStream.ReadToEnd();
+                    return (slave + ": " + result);
+                }
+                else return (slave + ": - Error, Slave Not Running. Activate the slave and then Try activating the bulk load manually with /master/start_bulk?slave={host}:{port}");
+            }
+            catch (Exception)
+            {
+                return (slave + ": - Error, Slave Not Running. Activate the slave and then Try activating the bulk load manually with /master/start_bulk?slave={host}:{port}");
+            }
+        }
+
+        [HttpGet]
         [Route("check_slaves")]
         public async Task<List<string>> CheckSlaves()
         {
@@ -105,7 +161,7 @@ namespace UniprotDistributedServer.Controllers
                         Stream receiveStream = await response.Content.ReadAsStreamAsync();
                         StreamReader readStream = new StreamReader(receiveStream, Encoding.UTF8);
                         string result = readStream.ReadToEnd();
-                        slaveInfo.Add(server.api_call + " - Running, response-result: " + result);
+                        slaveInfo.Add(server.api_call + " - Running, working directory exists: " + result);
                     }
                     else slaveInfo.Add(server.api_call + " - Not Running");
                 }
@@ -180,21 +236,25 @@ namespace UniprotDistributedServer.Controllers
         /// <summary>
         /// Process for Loading the data
         /// </summary>
-        private void Loader(Models.Task task, string sourceFile, string workingDirectory)
+        private async void Loader(Models.Task task, string sourceFile, string workingDirectory)
         {
             Stopwatch stopwatch = new Stopwatch();
             List<string> TimeStatistics = new List<string>();
             List<int> values = Program.values;
 
+            #region Delete 'log.txt' if exists
             if (System.IO.File.Exists(AppDomain.CurrentDomain.BaseDirectory + "log.txt"))
             {
                 System.IO.File.Delete(AppDomain.CurrentDomain.BaseDirectory + "log.txt");
             }
+            #endregion
 
+            #region Delete 'time_log.txt' if exists
             if (System.IO.File.Exists(AppDomain.CurrentDomain.BaseDirectory + "time_log.txt"))
             {
                 System.IO.File.Delete(AppDomain.CurrentDomain.BaseDirectory + "time_log.txt");
             }
+            #endregion
 
             using (StreamWriter sw = System.IO.File.CreateText(AppDomain.CurrentDomain.BaseDirectory + "log.txt"))
             {
@@ -247,8 +307,46 @@ namespace UniprotDistributedServer.Controllers
             }
 
             TimeStatistics.Add(DateTime.Now + ": Broadcasting the Files: " + stopwatch.Elapsed);
-            stopwatch.Stop();
+            stopwatch.Restart();
             #endregion
+
+            #region Deleting the /Run folder
+            //With one single bash line
+            ShellHelper.Bash("rm -r " + workingDirectory + "Run/");
+            #endregion
+
+
+
+            #region Bulk Insert Activation
+            ////Activating the bulk insert
+            //List<string> slaveInfo = new List<string>();
+            //foreach (Servers server in Program.Servers)
+            //{
+            //    HttpClient client = new HttpClient();
+
+            //    try
+            //    {
+            //        HttpResponseMessage response = await client.GetAsync(server.api_call + "/slave/start_bulk");
+            //        if (response.IsSuccessStatusCode)
+            //        {
+            //            Stream receiveStream = await response.Content.ReadAsStreamAsync();
+            //            StreamReader readStream = new StreamReader(receiveStream, Encoding.UTF8);
+            //            string result = readStream.ReadToEnd();
+            //            slaveInfo.Add(server.api_call + " :" + result + ". Check it with /master/check_bulk_status");
+            //        }
+            //        else slaveInfo.Add(server.api_call + " - Error, Slave Not Running, Try activating it manually with /master/start_bulk?slave={host}:{port}");
+            //    }
+            //    catch (Exception)
+            //    {
+            //        slaveInfo.Add(server.api_call + " - - Error, Slave Not Running, Try activating it manually with /master/start_bulk?slave={host}:{port}");
+            //    }
+            //}
+
+            //task.Status = string.Join('\n', slaveInfo);
+
+            //TimeStatistics.Add(DateTime.Now + ": Activating the bulk insertions: " + stopwatch.Elapsed);
+            //stopwatch.Stop();
+            #endregion //
 
             #region Log the Time stats
             task.Status = "Logging the times";

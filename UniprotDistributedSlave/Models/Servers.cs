@@ -14,5 +14,8 @@ namespace UniprotDistributedSlave.Models
         public byte server_level { get; set; }
         public string working_directory { get; set; }
         public string main_table { get; set; }
+        public string username { get; set; }
+        public string password { get; set; }
+        public string database_name { get; set; }
     }
 }
