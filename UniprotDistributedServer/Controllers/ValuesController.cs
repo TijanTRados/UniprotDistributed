@@ -268,9 +268,12 @@ namespace UniprotDistributedServer.Controllers
             task.Status = "Spliting the file into pieces";
             //Setting and executing the SPLIT command to execute
             //Everything is splited into pieces inside of sourcefile directory ~ workingdirectory/Run/
-            ShellHelper.Bash("rm -r " + workingDirectory + "Run/");
-            ShellHelper.Bash("mkdir " + workingDirectory + "Run/");
-            string splitBash = "split -l 100000 --additional-suffix=.csv " + sourceFile + " " + workingDirectory + "Run/";
+            if (Int32.Parse(ShellHelper.Bash("sudo test -e " + workingDirectory + "Run/ && echo 1 || echo 0")) == 1)
+            {
+                ShellHelper.Bash("sudo rm -r " + workingDirectory + "Run/");
+            }
+            ShellHelper.Bash("sudo mkdir " + workingDirectory + "Run/");
+            string splitBash = "sudo split -l 100000 --additional-suffix=.csv " + sourceFile + " " + workingDirectory + "Run/";
             ShellHelper.Bash(splitBash);
 
             TimeStatistics.Add(DateTime.Now + ": Splitting the file into 100 000 line ones: " + stopwatch.Elapsed);
