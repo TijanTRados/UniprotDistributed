@@ -299,7 +299,7 @@ namespace UniprotDistributedServer.Controllers
 
                 using (StreamWriter sw = System.IO.File.AppendText(AppDomain.CurrentDomain.BaseDirectory + "log.txt"))
                 {
-                    List<string> result = Sender2(task, Program.Servers[values[randomNumber]].api_call, "/slave/recieve", file.Split('/')[file.Split('/').Length - 1], counter, file);
+                    List<string> result = await Sender2(task, Program.Servers[values[randomNumber]].api_call, "/slave/recieve", file.Split('/')[file.Split('/').Length - 1], counter, file);
                     foreach(string line in result)
                     {
                         //Logging the output
