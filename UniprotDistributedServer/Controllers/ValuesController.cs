@@ -286,6 +286,8 @@ namespace UniprotDistributedServer.Controllers
             //Now it reads all the files from ~ workingdirectory/Run/
             string[] files = Directory.GetFiles(workingDirectory + "Run/");
 
+            Console.WriteLine(files);
+
             int counter = 0;
             foreach (string file in files)
             {
