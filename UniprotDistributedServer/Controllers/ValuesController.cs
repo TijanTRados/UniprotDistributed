@@ -317,7 +317,7 @@ namespace UniprotDistributedServer.Controllers
 
             #region Deleting the /Run folder
             //With one single bash line
-            ShellHelper.Bash("rm -r " + workingDirectory + "Run/");
+            ShellHelper.Bash("sudo rm -r " + workingDirectory + "Run/");
             #endregion
 
 

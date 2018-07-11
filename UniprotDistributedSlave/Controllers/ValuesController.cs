@@ -57,8 +57,8 @@ namespace UniprotDistributedSlave.Controllers
                     //Skipping first 4 lines
                     List<string> fileLines = reader.ReadToEnd().Split('\n').ToList();
 
-                    //TRY TO MANAGE START OF EACH LINE
-                    fileLines = fileLines.Select(x => "0    " + x).ToList();
+                    ////TRY TO MANAGE START OF EACH LINE
+                    //fileLines = fileLines.Select(x => "0    " + x).ToList();
 
                     fileLines.RemoveRange(0, 4);
                     fileLines.RemoveRange(fileLines.Count - 3, 2);
