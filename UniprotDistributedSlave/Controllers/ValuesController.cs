@@ -54,16 +54,16 @@ namespace UniprotDistributedSlave.Controllers
             {
                 try
                 {
-                    Console.WriteLine("HAY");
+                    Console.WriteLine("I've been called by " + Request.Host.ToString());
 
                     //Skipping first 4 lines
                     List<string> fileLines = reader.ReadToEnd().Split('\n').ToList();
 
-                    //TRY TO MANAGE START OF EACH LINE
-                    fileLines = fileLines.Select(x => "0    " + x).ToList();
+                    ////TRY TO MANAGE START OF EACH LINE
+                    //fileLines = fileLines.Select(x => "0    " + x).ToList();
 
-                    fileLines.RemoveRange(0, 4);
-                    fileLines.RemoveRange(fileLines.Count - 3, 2);
+                    //fileLines.RemoveRange(0, 4);
+                    //fileLines.RemoveRange(fileLines.Count - 3, 2);
 
                     System.IO.File.WriteAllText(Program.myWorkingDirectory + Request.Headers["file-name"], string.Join('\n', fileLines));
 
@@ -72,10 +72,8 @@ namespace UniprotDistributedSlave.Controllers
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine(ex.Message);
-                    throw;
-                    Console.WriteLine("An exception occured while saving " + Request.Headers["file-name"] + ". Check it manually.");
-                    return "An exception occured while saving " + Request.Headers["file-name"] + ". Check it manually.";
+                    Console.WriteLine("An exception occured while saving " + Request.Headers["file-name"] + ". Original message: " + ex.Message);
+                    return "An exception occured while saving " + Request.Headers["file-name"] + ". Original message: " + ex.Message;
                 }
                 
             }

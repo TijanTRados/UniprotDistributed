@@ -299,7 +299,7 @@ namespace UniprotDistributedServer.Controllers
 
                 using (StreamWriter sw = System.IO.File.AppendText(AppDomain.CurrentDomain.BaseDirectory + "log.txt"))
                 {
-                    List<string> result = Sender(task, Program.Servers[values[randomNumber]].api_call, "/slave/recieve", file.Split('/')[file.Split('/').Length - 1], counter, file);
+                    List<string> result = Sender2(task, Program.Servers[values[randomNumber]].api_call, "/slave/recieve", file.Split('/')[file.Split('/').Length - 1], counter, file);
                     foreach(string line in result)
                     {
                         //Logging the output
@@ -405,6 +405,49 @@ namespace UniprotDistributedServer.Controllers
              // raw content as string
 
             log.Add(DateTime.Now + ": Response: " + content);
+            log.Add(DateTime.Now + ": DONE\n");
+
+            return log;
+        }
+
+        //Thread method for sending file
+        private async Task<List<string>> Sender2(Models.Task task, string slave, string controller, string fileName, int id, string path)
+        {
+            List<string> log = new List<string>();
+
+            log.Add(id + ": -----------------------------------------------------------NEW SENDER");
+            log.Add(DateTime.Now + ": START");
+            log.Add(DateTime.Now + ": Setting up the request");
+            log.Add(DateTime.Now + ": Filename: " + fileName);
+            log.Add(DateTime.Now + ": Path: " + path);
+            log.Add(DateTime.Now + ": Slave: " + slave);
+            log.Add(DateTime.Now + ": Controller: " + controller);
+
+            // Setting the client and request
+            HttpClient client = new HttpClient();
+            string result = "No result";
+
+            try
+            {
+                HttpContent content = new StringContent(path);
+                content.Headers.Add("file-name", fileName);
+                HttpResponseMessage response = await client.PostAsync(slave + controller, content);
+                if (response.IsSuccessStatusCode)
+                {
+                    Stream receiveStream = await response.Content.ReadAsStreamAsync();
+                    StreamReader readStream = new StreamReader(receiveStream, Encoding.UTF8);
+                    result = readStream.ReadToEnd();
+                }
+                else result = response.StatusCode.ToString();
+            }
+            catch (Exception)
+            {
+                result = slave + " - not running";
+            }
+
+            // execute the request
+            log.Add(DateTime.Now + ": EXECUTION");
+            log.Add(DateTime.Now + ": Response: " + result);
             log.Add(DateTime.Now + ": DONE\n");
 
             return log;
