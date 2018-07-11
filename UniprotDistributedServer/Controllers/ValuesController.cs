@@ -315,7 +315,7 @@ namespace UniprotDistributedServer.Controllers
 
             #region Deleting the /Run folder
             //With one single bash line
-            ShellHelper.Bash("sudo rm -r " + workingDirectory + "Run/");
+            //ShellHelper.Bash("sudo rm -r " + workingDirectory + "Run/");
             #endregion
 
 
@@ -371,59 +371,6 @@ namespace UniprotDistributedServer.Controllers
             Startup.taskList.Remove(task);
         }
 
-        [HttpGet]
-        [Route("send")]
-        public async Task<string> Send(string path)
-        {
-            //Check number 1 --> Correct send query
-            if (path == null) return DateTime.Now + ": Please provide the source file in path variable.\n\nUsing: {server_name}/api/send?path={path_to_source_file}";
-            string sourceFile = path;
-
-            //Check number 2 --> Is the load already running
-            if (Startup.taskList.Count >= 1)
-            {
-                return DateTime.Now + ": Send already running.\n" + Startup.taskList[0].Status;
-            }
-
-            //Check number 3 --> Are all slaves running
-            List<string> slaveInfo = new List<string>();
-            foreach (Servers server in Program.Servers)
-            {
-                HttpClient client = new HttpClient();
-
-                try
-                {
-                    HttpResponseMessage response = await client.GetAsync(server.api_call + "/slave/available");
-                    if (response.IsSuccessStatusCode) continue;
-                    else return DateTime.Now + ": Not all slaves are running. Check it with /master/check_slaves";
-                }
-                catch (Exception)
-                {
-                    return (DateTime.Now + ": Not all slaves are running. Check it with /master/check_slaves");
-                }
-            }
-
-            //Check number 3 --> Check if the file exists
-            if (Int32.Parse(ShellHelper.Bash("test -e " + path + " && echo 1 || echo 0")) == 0)
-            {
-                return DateTime.Now + ": File does not exist";
-            }
-            else
-            {
-                string workingDirectory = String.Join('/', sourceFile.Split('/').Take(sourceFile.Split('/').Length - 1)) + '/';
-
-                //return ShellHelper.Bash("test -e " + path + " && echo 1 || echo 0");
-                //return "Working Directory: " + workingDirectory + "\nSource file: " + sourceFile;
-
-                Models.Task task = new Models.Task();
-                task.Thread = new Thread(() => Sender(task, "http://storage.bioinfo.pbf.hr:7000", "/slave/recieve", sourceFile.Split('/')[sourceFile.Split('/').Length -1], 1, path));
-                task.Thread.Start();
-                Startup.taskList.Add(task);
-
-                return task.Status;
-            }
-        }
-
         //Thread method for sending file
         private List<string> Sender(Models.Task task, string slave, string controller, string fileName, int id, string path)
         {
@@ -434,7 +381,7 @@ namespace UniprotDistributedServer.Controllers
             log.Add(DateTime.Now + ": Setting up the request");
             log.Add(DateTime.Now + ": Filename: " + fileName);
             log.Add(DateTime.Now + ": Path: " + path);
-            log.Add(DateTime.Now + ": Save: " + slave);
+            log.Add(DateTime.Now + ": Slave: " + slave);
             log.Add(DateTime.Now + ": Controller: " + controller);
 
             // Setting the client and request
