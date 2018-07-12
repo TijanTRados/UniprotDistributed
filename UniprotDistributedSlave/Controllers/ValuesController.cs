@@ -64,8 +64,6 @@ namespace UniprotDistributedSlave.Controllers
                     fileLines.RemoveRange(fileLines.Count - 3, 2);
 
                     System.IO.File.WriteAllText(Program.myWorkingDirectory + Request.Headers["file-name"], string.Join('\n', fileLines));
-
-                    Console.WriteLine($"Saved to " + Program.myWorkingDirectory + Request.Headers["file-name"]);
                     return $"Saved to " + Program.myWorkingDirectory + Request.Headers["file-name"];
                 }
                 catch (Exception ex)
@@ -143,6 +141,8 @@ namespace UniprotDistributedSlave.Controllers
                     task.bulkcount++;
                     counter++;
                 }
+
+                Console.Write("Bulk successfull loaded: " + counter + " files.");
 
                 task.Status = "Bulk finished.";
                 Thread.Sleep(60000);

@@ -1,0 +1,70 @@
+﻿@{
+    ViewData["Title"] = "Uniprot Distributed Database";
+}
+
+<div class="row">
+    <div class="col-md-6">
+        <h2>Import</h2>
+        <div>
+            <div>Enter file path:</div>
+            <input type="text" name="NAME" id="FileName" />
+
+            <button id="Load">Load</button>
+            <button id="Info">Check Status</button>
+            <button id="Slaves">Check Slaves</button>
+            <button id="Bulk">Check Bulk Status</button>
+
+            <div id="output" style="display:none">Info</div>
+        </div>
+    </div>
+    
+</div>
+
+<script>
+    $('#Load').click(function () {
+        $.ajax({
+            url: '/Home/Load',
+            data: { path: $('#FileName').text },
+            dataType: 'json',
+            type: 'GET',
+            success: function (response) {
+                $('#output').html(response);
+            }
+        });
+    })
+
+    $('#Info').click(function () {
+        $.ajax({
+            url: '/Home/Check_Status',
+            dataType: 'json',
+            type: 'GET',
+            success: function (response) {
+                $('#output').html(response);
+            }
+        });
+    })
+
+    $('#Slaves').click(function () {
+        $.ajax({
+            url: '/Home/Check_Slaves',
+            dataType: 'json',
+            type: 'GET',
+            success: function (response) {
+                $('#output').html(response);
+            }
+        });
+    })
+
+    $('#Bulk').click(function () {
+        $.ajax({
+            url: '/Home/Check_Bulk_Status',
+            dataType: 'json',
+            type: 'GET',
+            success: function (response) {
+                $('#output').html(response);
+            }
+        });
+    })
+</script>
+
+

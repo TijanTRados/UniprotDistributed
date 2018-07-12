@@ -7,7 +7,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UniprotDistributedServer", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UniprotDistributedSlave", "UniprotDistributedSlave\UniprotDistributedSlave.csproj", "{8AC3A9E5-318A-40EF-8C1A-3E90E494F12E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Starter", "Starter\Starter.csproj", "{9B33E796-1A1C-4036-8FA7-284B5880E648}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Starter", "Starter\Starter.csproj", "{9B33E796-1A1C-4036-8FA7-284B5880E648}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Frontend", "Frontend\Frontend.csproj", "{1193CF60-CADB-405B-9F68-281BE222500E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,6 +29,10 @@ Global
 		{9B33E796-1A1C-4036-8FA7-284B5880E648}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9B33E796-1A1C-4036-8FA7-284B5880E648}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9B33E796-1A1C-4036-8FA7-284B5880E648}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1193CF60-CADB-405B-9F68-281BE222500E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1193CF60-CADB-405B-9F68-281BE222500E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1193CF60-CADB-405B-9F68-281BE222500E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1193CF60-CADB-405B-9F68-281BE222500E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -243,21 +243,23 @@ namespace UniprotDistributedServer.Controllers
             List<string> TimeStatistics = new List<string>();
             List<int> values = Program.values;
 
+            string name = sourceFile.Split('.')[0];
+
             #region Delete 'log.txt' if exists
-            if (System.IO.File.Exists(AppDomain.CurrentDomain.BaseDirectory + "log.txt"))
+            if (System.IO.File.Exists(AppDomain.CurrentDomain.BaseDirectory + "log" + name + ".txt"))
             {
-                System.IO.File.Delete(AppDomain.CurrentDomain.BaseDirectory + "log.txt");
+                System.IO.File.Delete(AppDomain.CurrentDomain.BaseDirectory + "log" + name + ".txt");
             }
             #endregion
 
             #region Delete 'time_log.txt' if exists
-            if (System.IO.File.Exists(AppDomain.CurrentDomain.BaseDirectory + "time_log.txt"))
+            if (System.IO.File.Exists(AppDomain.CurrentDomain.BaseDirectory + "time_log" + name + ".txt"))
             {
-                System.IO.File.Delete(AppDomain.CurrentDomain.BaseDirectory + "time_log.txt");
+                System.IO.File.Delete(AppDomain.CurrentDomain.BaseDirectory + "time_log" + name + ".txt");
             }
             #endregion
 
-            using (StreamWriter sw = System.IO.File.CreateText(AppDomain.CurrentDomain.BaseDirectory + "log.txt"))
+            using (StreamWriter sw = System.IO.File.CreateText(AppDomain.CurrentDomain.BaseDirectory + "log" + name + ".txt"))
             {
                 sw.WriteLine(DateTime.Now + " ::: Mater Load Started");
             }
@@ -298,7 +300,7 @@ namespace UniprotDistributedServer.Controllers
                 //The number will allways be in that scope so that is not a problem!
                 //Now we just send the file to the adress from the Program.Servers list (the value[randomNumber] will determine which one from the table is the destination! 
 
-                using (StreamWriter sw = System.IO.File.AppendText(AppDomain.CurrentDomain.BaseDirectory + "log.txt"))
+                using (StreamWriter sw = System.IO.File.AppendText(AppDomain.CurrentDomain.BaseDirectory + "log" + name + ".txt"))
                 {
                     List<string> result = await Sender2(task, Program.Servers[values[randomNumber]].api_call, "/slave/recieve", file.Split('/')[file.Split('/').Length - 1], counter, file);
                     foreach(string line in result)
@@ -356,7 +358,7 @@ namespace UniprotDistributedServer.Controllers
             task.Status = "Logging the times";
             //Writing time stats to log file
             using (System.IO.StreamWriter file =
-            new System.IO.StreamWriter(AppDomain.CurrentDomain.BaseDirectory + "time_log.txt", true))
+            new System.IO.StreamWriter(AppDomain.CurrentDomain.BaseDirectory + "time_log" + name + ".txt", true))
             {
                 foreach (string line in TimeStatistics)
                 {
