@@ -137,13 +137,15 @@ namespace UniprotDistributedSlave.Controllers
                         " -t '\\t' -r '\\n'"
                        ).ToString() + "\n");
                     //Remove it
-                    ShellHelper.Bash("rm " + file);
+                    ShellHelper.Bash("echo tijan99 | sudo rm " + file);
 
                     //Count
                     task.bulkcount++;
                     counter++;
                 }
 
+                task.Status = "Bulk finished.";
+                Thread.Sleep(60000);
                 Program.taskList.Remove(task);
             }
             
