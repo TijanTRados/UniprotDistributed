@@ -246,10 +246,10 @@ namespace UniprotDistributedServer.Controllers
         //Thread function that checks split info
         public void checkSplit(string workingDirectory, string sourceFile, Models.Task task)
         {
-            string sourceSize = ShellHelper.Bash("du -h -k " + sourceFile);
+            string sourceSize = ShellHelper.Bash("du -h -k " + sourceFile).Split('\t')[0];
             int sourceSizeGB = Int32.Parse(sourceSize)/1048576;
 
-            string folderSize = ShellHelper.Bash("du -sh -k " + workingDirectory);
+            string folderSize = ShellHelper.Bash("du -sh -k " + workingDirectory).Split('\t')[0];
             int folderSizeGB = Int32.Parse(folderSize) / 1048576;
 
             while (true)
@@ -259,10 +259,10 @@ namespace UniprotDistributedServer.Controllers
                 task.total = sourceSizeGB;
                 Thread.Sleep(2000);
 
-                sourceSize = ShellHelper.Bash("du -h -k " + sourceFile);
+                sourceSize = ShellHelper.Bash("du -h -k " + sourceFile).Split('\t')[0];
                 sourceSizeGB = Int32.Parse(sourceSize) / 1048576;
 
-                folderSize = ShellHelper.Bash("du -sh -k " + workingDirectory);
+                folderSize = ShellHelper.Bash("du -sh -k " + workingDirectory).Split('\t')[0];
                 folderSizeGB = Int32.Parse(folderSize) / 1048576;
             }
         }
