@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -423,27 +424,48 @@ namespace UniprotDistributedServer.Controllers
             log.Add(DateTime.Now + ": Slave: " + slave);
             log.Add(DateTime.Now + ": Controller: " + controller);
 
-            // Setting the client and request
-            HttpClient client = new HttpClient();
             string result = "No result";
 
-            try
+            // Setting the client and request
+            //HttpClient client = new HttpClient();
+
+
+            //try
+            //{
+            //    var stream = new FileStream(path, FileMode.Open);
+            //    HttpContent content = new StreamContent(stream);
+            //    content.Headers.Add("file-name", fileName);
+            //    HttpResponseMessage response = await client.PostAsync(slave + controller, content);
+            //    if (response.IsSuccessStatusCode)
+            //    {
+            //        Stream receiveStream = await response.Content.ReadAsStreamAsync();
+            //        StreamReader readStream = new StreamReader(receiveStream, Encoding.UTF8);
+            //        result = readStream.ReadToEnd();
+            //    }
+            //    else result = response.StatusCode.ToString();
+            //}
+            //catch (Exception)
+            //{
+            //    result = slave + " - not running";
+            //}
+
+            using (var client = new HttpClient())
             {
-                var stream = new FileStream(path, FileMode.Open);
-                HttpContent content = new StreamContent(stream);
-                content.Headers.Add("file-name", fileName);
-                HttpResponseMessage response = await client.PostAsync(slave + controller, content);
-                if (response.IsSuccessStatusCode)
+                using (var content =
+                    new MultipartFormDataContent("Upload----" + DateTime.Now.ToString(CultureInfo.InvariantCulture)))
                 {
-                    Stream receiveStream = await response.Content.ReadAsStreamAsync();
-                    StreamReader readStream = new StreamReader(receiveStream, Encoding.UTF8);
-                    result = readStream.ReadToEnd();
+                    var stream = new FileStream(path, FileMode.Open);
+                    content.Add(new StreamContent(new FileStream(path, FileMode.Open)));
+
+                    using (
+                       var message =
+                           await client.PostAsync(slave + controller, content))
+                    {
+                        var input = await message.Content.ReadAsStringAsync();
+
+                        result = !string.IsNullOrWhiteSpace(input) ? input : null;
+                    }
                 }
-                else result = response.StatusCode.ToString();
-            }
-            catch (Exception)
-            {
-                result = slave + " - not running";
             }
 
             // execute the request
