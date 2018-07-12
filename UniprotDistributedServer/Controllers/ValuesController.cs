@@ -452,10 +452,11 @@ namespace UniprotDistributedServer.Controllers
             using (var client = new HttpClient())
             {
                 using (var content =
-                    new MultipartFormDataContent("Upload----" + DateTime.Now.ToString(CultureInfo.InvariantCulture)))
+                    new MultipartFormDataContent())
                 {
                     var stream = new FileStream(path, FileMode.Open);
                     content.Add(new StreamContent(new FileStream(path, FileMode.Open)));
+                    content.Headers.Add("file-name", fileName);
 
                     using (
                        var message =
