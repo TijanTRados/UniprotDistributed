@@ -58,7 +58,7 @@ namespace UniprotDistributedSlave.Controllers
                     List<string> fileLines = reader.ReadToEnd().Split('\n').ToList();
 
                     ////TRY TO MANAGE START OF EACH LINE
-                    //fileLines = fileLines.Select(x => "0    " + x).ToList();
+                    fileLines = fileLines.Select(x => "0    " + x).ToList();
 
                     fileLines.RemoveRange(0, 3);
                     fileLines.RemoveRange(fileLines.Count - 3, 2);
