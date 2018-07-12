@@ -62,6 +62,7 @@ namespace UniprotDistributedSlave.Controllers
 
                     //fileLines.RemoveRange(0, 4);
                     //fileLines.RemoveRange(fileLines.Count - 3, 2);
+                    Console.WriteLine("Trying to write text to " + Program.myWorkingDirectory + Request.Headers["file-name"]);
 
                     System.IO.File.WriteAllText(Program.myWorkingDirectory + Request.Headers["file-name"], string.Join('\n', fileLines));
 
