@@ -276,7 +276,7 @@ namespace UniprotDistributedServer.Controllers
             List<string> TimeStatistics = new List<string>();
             List<int> values = Program.values;
 
-            string name = sourceFile.Split('.')[0];
+            string name = sourceFile.Split('/')[sourceFile.Split('/').Length - 1].Split('.')[0];
 
             #region Delete 'log.txt' if exists
             if (System.IO.File.Exists(AppDomain.CurrentDomain.BaseDirectory + "log" + name + ".txt"))
