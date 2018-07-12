@@ -316,41 +316,41 @@ namespace UniprotDistributedServer.Controllers
 
             #region Deleting the /Run folder
             //With one single bash line
-            //ShellHelper.Bash("sudo rm -r " + workingDirectory + "Run/");
+            ShellHelper.Bash("echo tijan99 | sudo rm -r " + workingDirectory + "Run/");
             #endregion
 
 
 
             #region Bulk Insert Activation
             ////Activating the bulk insert
-            //List<string> slaveInfo = new List<string>();
-            //foreach (Servers server in Program.Servers)
-            //{
-            //    HttpClient client = new HttpClient();
+            List<string> slaveInfo = new List<string>();
+            foreach (Servers server in Program.Servers)
+            {
+                HttpClient client = new HttpClient();
 
-            //    try
-            //    {
-            //        HttpResponseMessage response = await client.GetAsync(server.api_call + "/slave/start_bulk");
-            //        if (response.IsSuccessStatusCode)
-            //        {
-            //            Stream receiveStream = await response.Content.ReadAsStreamAsync();
-            //            StreamReader readStream = new StreamReader(receiveStream, Encoding.UTF8);
-            //            string result = readStream.ReadToEnd();
-            //            slaveInfo.Add(server.api_call + " :" + result + ". Check it with /master/check_bulk_status");
-            //        }
-            //        else slaveInfo.Add(server.api_call + " - Error, Slave Not Running, Try activating it manually with /master/start_bulk?slave={host}:{port}");
-            //    }
-            //    catch (Exception)
-            //    {
-            //        slaveInfo.Add(server.api_call + " - - Error, Slave Not Running, Try activating it manually with /master/start_bulk?slave={host}:{port}");
-            //    }
-            //}
+                try
+                {
+                    HttpResponseMessage response = await client.GetAsync(server.api_call + "/slave/start_bulk");
+                    if (response.IsSuccessStatusCode)
+                    {
+                        Stream receiveStream = await response.Content.ReadAsStreamAsync();
+                        StreamReader readStream = new StreamReader(receiveStream, Encoding.UTF8);
+                        string result = readStream.ReadToEnd();
+                        slaveInfo.Add(server.api_call + " :" + result + ". Check it with /master/check_bulk_status");
+                    }
+                    else slaveInfo.Add(server.api_call + " - Error, Slave Not Running, Try activating it manually with /master/start_bulk?slave={host}:{port}");
+                }
+                catch (Exception)
+                {
+                    slaveInfo.Add(server.api_call + " - - Error, Slave Not Running, Try activating it manually with /master/start_bulk?slave={host}:{port}");
+                }
+            }
 
-            //task.Status = string.Join('\n', slaveInfo);
+            task.Status = string.Join('\n', slaveInfo);
 
-            //TimeStatistics.Add(DateTime.Now + ": Activating the bulk insertions: " + stopwatch.Elapsed);
-            //stopwatch.Stop();
-            #endregion //
+            TimeStatistics.Add(DateTime.Now + ": Activating the bulk insertions: " + stopwatch.Elapsed);
+            stopwatch.Stop();
+            #endregion
 
             #region Log the Time stats
             task.Status = "Logging the times";
@@ -427,28 +427,6 @@ namespace UniprotDistributedServer.Controllers
             string result = "No result";
 
             // Setting the client and request
-            //HttpClient client = new HttpClient();
-
-
-            //try
-            //{
-            //    var stream = new FileStream(path, FileMode.Open);
-            //    HttpContent content = new StreamContent(stream);
-            //    content.Headers.Add("file-name", fileName);
-            //    HttpResponseMessage response = await client.PostAsync(slave + controller, content);
-            //    if (response.IsSuccessStatusCode)
-            //    {
-            //        Stream receiveStream = await response.Content.ReadAsStreamAsync();
-            //        StreamReader readStream = new StreamReader(receiveStream, Encoding.UTF8);
-            //        result = readStream.ReadToEnd();
-            //    }
-            //    else result = response.StatusCode.ToString();
-            //}
-            //catch (Exception)
-            //{
-            //    result = slave + " - not running";
-            //}
-
             using (var client = new HttpClient())
             {
                 using (var content =
