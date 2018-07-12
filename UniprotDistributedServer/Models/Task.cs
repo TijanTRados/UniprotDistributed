@@ -11,6 +11,8 @@ namespace UniprotDistributedServer.Models
         public DateTime StartTime { get; set; }
         private string _status;
         public Thread Thread { get; set; }
+        public int current { get; set; }
+        public int total { get; set; }
 
         public Task()
         {

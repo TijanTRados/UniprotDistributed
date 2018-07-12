@@ -66,6 +66,52 @@ namespace Frontend.Controllers
             }
         }
 
+        public async Task<string> Check_Slaves()
+        {
+            using (var client = new HttpClient())
+            {
+                try
+                {
+                    HttpResponseMessage response = await client.GetAsync("http://proteinreader.bioinfo.pbf.hr" + "/master/check_slaves");
+                    if (response.IsSuccessStatusCode)
+                    {
+                        Stream receiveStream = await response.Content.ReadAsStreamAsync();
+                        StreamReader readStream = new StreamReader(receiveStream, Encoding.UTF8);
+                        string result = readStream.ReadToEnd();
+                        return result;
+                    }
+                    else return "Check if the master server is running";
+                }
+                catch (Exception)
+                {
+                    return "Check if the master server is running";
+                }
+            }
+        }
+
+        public async Task<string> Check_Bulk_Status()
+        {
+            using (var client = new HttpClient())
+            {
+                try
+                {
+                    HttpResponseMessage response = await client.GetAsync("http://proteinreader.bioinfo.pbf.hr" + "/master/check_bulk_status");
+                    if (response.IsSuccessStatusCode)
+                    {
+                        Stream receiveStream = await response.Content.ReadAsStreamAsync();
+                        StreamReader readStream = new StreamReader(receiveStream, Encoding.UTF8);
+                        string result = readStream.ReadToEnd();
+                        return result;
+                    }
+                    else return "Check if the master server is running";
+                }
+                catch (Exception)
+                {
+                    return "Check if the master server is running";
+                }
+            }
+        }
+
         public IActionResult Index()
         {
             return View();

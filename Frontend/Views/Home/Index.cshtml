@@ -3,29 +3,37 @@
 }
 
 <div class="row">
-    <div class="col-md-6">
-        <h2>Import</h2>
+    <div class="col-md-12">
+        <h2>Import To Database</h2>
+
+        <div>Enter file path:</div>
+        <input class="form-control" type="text" name="NAME" id="FileName" />
+        <button class=" btn btn-primary btn-lg btn-block" id="Load">Load</button>
+        <hr/>
+
         <div>
-            <div>Enter file path:</div>
-            <input type="text" name="NAME" id="FileName" />
-
-            <button id="Load">Load</button>
-            <button id="Info">Check Status</button>
-            <button id="Slaves">Check Slaves</button>
-            <button id="Bulk">Check Bulk Status</button>
-
-            <div id="output" style="display:none">Info</div>
+            <button class=" btn btn-primary" id="Info">Check Status</button>
+            <button class=" btn btn-primary" id="Checker">Run checker</button>
+            <button class=" btn btn-primary" id="Slaves">Check Slaves</button>
+            <button class=" btn btn-primary" id="Bulk">Check Bulk Status</button>
         </div>
+
+        <hr/>
+        <div>
+            <h3>Info:</h3>
+            <div id="output"></div>
+        </div>
+
     </div>
-    
+
 </div>
 
+<script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
 <script>
     $('#Load').click(function () {
         $.ajax({
             url: '/Home/Load',
             data: { path: $('#FileName').text },
-            dataType: 'json',
             type: 'GET',
             success: function (response) {
                 $('#output').html(response);
@@ -36,21 +44,70 @@
     $('#Info').click(function () {
         $.ajax({
             url: '/Home/Check_Status',
-            dataType: 'json',
             type: 'GET',
             success: function (response) {
                 $('#output').html(response);
+            },
+            error: function (response) {
+                alert.error;
             }
         });
     })
 
+    $('#Checker').click(function () {
+        repeat();
+    })
+
+    function repeat() {
+        var isFinished = false;
+        loop();
+    }
+
+    function loop() {
+        callinfo(callback);
+        setTimeout(function () {
+            if (!isFinished) {
+                loop();
+            }
+        }, 2000);
+    }
+
+    function callback(res) {
+        $('#output').html(res);
+        if (res.includes("No tasks running") || res.includes("Load finished") || res.includes("Error occured")) isFinished = true;
+        return res;
+    }
+
+    function callinfo(callback) {
+        $.ajax({
+            url: '/Home/Check_Status',
+            type: 'GET',
+            success: function (response) {
+                callback(response)
+            },
+            error: function (response) {
+                callback("Error")
+            }
+        });
+    }
+
     $('#Slaves').click(function () {
         $.ajax({
             url: '/Home/Check_Slaves',
-            dataType: 'json',
             type: 'GET',
             success: function (response) {
-                $('#output').html(response);
+                $('#output').html("");
+                var res = JSON.parse(response);
+                var i;
+                for (i = 0; i < res.length; i++) {
+                    if (res[i].includes("Slave not running")) $('#output').append("<div>" + res[i] + " <img height=10 width=10 src='https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Fxemoji_u274C.svg/512px-Fxemoji_u274C.svg.png'></div>");
+                    else $('#output').append("<div>" + res[i] + " <img height=10 width=10 src='https://www.shareicon.net/data/128x128/2016/08/20/817721_check_512x512.png'></div>");
+
+                }
+                //$('#output').html(res);
+            },
+            error: function (response) {
+                alert.error;
             }
         });
     })
@@ -58,13 +115,24 @@
     $('#Bulk').click(function () {
         $.ajax({
             url: '/Home/Check_Bulk_Status',
-            dataType: 'json',
             type: 'GET',
             success: function (response) {
-                $('#output').html(response);
+                $('#output').html("");
+                var res = JSON.parse(response);
+                var i;
+                for (i = 0; i < res.length; i++) {
+                    if (res[i].includes("Bulk not running")) $('#output').append("<div>" + res[i] + " <img height=10 width=10 src='https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Fxemoji_u274C.svg/512px-Fxemoji_u274C.svg.png'></div>");
+                    else $('#output').append("<div>" + res[i] + " <img height=10 width=10 src='https://www.shareicon.net/data/128x128/2016/08/20/817721_check_512x512.png'></div>");
+                    //$('#output').append("<div>" + res[i] + "</div>");
+                }
+                //$('#output').html(response);
+            },
+            error: function (response) {
+                alert.error;
             }
         });
     })
+
 </script>
 
 

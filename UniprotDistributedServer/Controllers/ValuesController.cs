@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using RestSharp;
 using UniprotDistributedServer.Models;
+using Newtonsoft.Json;
 
 namespace UniprotDistributedServer.Controllers
 {
@@ -81,11 +82,19 @@ namespace UniprotDistributedServer.Controllers
                 Models.Task task = Startup.taskList[0];
                 if (task != null)
                 {
-                    return task.Status;
+                    return JsonConvert.SerializeObject(new
+                    {
+                        status = task.Status,
+                        current = task.current,
+                        total = task.total
+                    });
                 }
             }
-            
-            return DateTime.Now + ": No tasks running.";
+
+            return JsonConvert.SerializeObject(new
+            {
+                status = "No tasks running"
+            });
         }
 
         [HttpGet]
@@ -234,6 +243,30 @@ namespace UniprotDistributedServer.Controllers
             }
         }
 
+        //Thread function that checks split info
+        public void checkSplit(string workingDirectory, string sourceFile, Models.Task task)
+        {
+            string sourceSize = ShellHelper.Bash("du -h -k " + sourceFile);
+            int sourceSizeGB = Int32.Parse(sourceSize)/1048576;
+
+            string folderSize = ShellHelper.Bash("du -sh -k " + workingDirectory);
+            int folderSizeGB = Int32.Parse(folderSize) / 1048576;
+
+            while (true)
+            {
+                task.Status = "Splitting file into pieces. Current size: " + folderSizeGB + "GB of " + sourceSizeGB + "GB";
+                task.current = folderSizeGB;
+                task.total = sourceSizeGB;
+                Thread.Sleep(2000);
+
+                sourceSize = ShellHelper.Bash("du -h -k " + sourceFile);
+                sourceSizeGB = Int32.Parse(sourceSize) / 1048576;
+
+                folderSize = ShellHelper.Bash("du -sh -k " + workingDirectory);
+                folderSizeGB = Int32.Parse(folderSize) / 1048576;
+            }
+        }
+
         /// <summary>
         /// Process for Loading the data
         /// </summary>
@@ -269,6 +302,11 @@ namespace UniprotDistributedServer.Controllers
 
             #region Split the file into pieces
             task.Status = "Spliting the file into pieces";
+
+            //Thread for checking split status
+            Thread split_checker = new Thread(() => checkSplit(workingDirectory, sourceFile, task));
+            split_checker.Start();
+
             //Setting and executing the SPLIT command to execute
             //Everything is splited into pieces inside of sourcefile directory ~ workingdirectory/Run/
             if (Int32.Parse(ShellHelper.Bash("test -e " + workingDirectory + "Run/ && echo 1 || echo 0")) == 1)
@@ -278,6 +316,9 @@ namespace UniprotDistributedServer.Controllers
             ShellHelper.Bash("echo tijan99 | mkdir " + workingDirectory + "Run/");
             string splitBash = "echo tijan99 | split -l 100000 --additional-suffix=.csv " + sourceFile + " " + workingDirectory + "Run/";
             ShellHelper.Bash(splitBash);
+
+            //Aborting split status thread after it's done
+            split_checker.Abort();
 
             TimeStatistics.Add(DateTime.Now + ": Splitting the file into 100 000 line ones: " + stopwatch.Elapsed);
             stopwatch.Restart();
@@ -294,7 +335,9 @@ namespace UniprotDistributedServer.Controllers
             {
                 Random r = new Random();
                 int randomNumber = r.Next(0, values.Count);
-                task.Status = "Executing file " + counter + " of " + files.Length;
+                task.Status = "Broadcasting file " + counter + " of " + files.Length;
+                task.current = counter;
+                task.total = files.Length;
 
                 //The values[randomNumber] is allways a number between 0 (first server from configuration table) and max (last server from configuration table)
                 //The number will allways be in that scope so that is not a problem!
@@ -325,30 +368,30 @@ namespace UniprotDistributedServer.Controllers
 
             #region Bulk Insert Activation
             ////Activating the bulk insert
-            List<string> slaveInfo = new List<string>();
-            foreach (Servers server in Program.Servers)
-            {
-                HttpClient client = new HttpClient();
+            //List<string> slaveInfo = new List<string>();
+            //foreach (Servers server in Program.Servers)
+            //{
+            //    HttpClient client = new HttpClient();
 
-                try
-                {
-                    HttpResponseMessage response = await client.GetAsync(server.api_call + "/slave/start_bulk");
-                    if (response.IsSuccessStatusCode)
-                    {
-                        Stream receiveStream = await response.Content.ReadAsStreamAsync();
-                        StreamReader readStream = new StreamReader(receiveStream, Encoding.UTF8);
-                        string result = readStream.ReadToEnd();
-                        slaveInfo.Add(server.api_call + " :" + result + ". Check it with /master/check_bulk_status");
-                    }
-                    else slaveInfo.Add(server.api_call + " - Error, Slave Not Running, Try activating it manually with /master/start_bulk?slave={host}:{port}");
-                }
-                catch (Exception)
-                {
-                    slaveInfo.Add(server.api_call + " - - Error, Slave Not Running, Try activating it manually with /master/start_bulk?slave={host}:{port}");
-                }
-            }
+            //    try
+            //    {
+            //        HttpResponseMessage response = await client.GetAsync(server.api_call + "/slave/start_bulk");
+            //        if (response.IsSuccessStatusCode)
+            //        {
+            //            Stream receiveStream = await response.Content.ReadAsStreamAsync();
+            //            StreamReader readStream = new StreamReader(receiveStream, Encoding.UTF8);
+            //            string result = readStream.ReadToEnd();
+            //            slaveInfo.Add(server.api_call + " :" + result + ". Check it with /master/check_bulk_status");
+            //        }
+            //        else slaveInfo.Add(server.api_call + " - Error, Slave Not Running, Try activating it manually with /master/start_bulk?slave={host}:{port}");
+            //    }
+            //    catch (Exception)
+            //    {
+            //        slaveInfo.Add(server.api_call + " - - Error, Slave Not Running, Try activating it manually with /master/start_bulk?slave={host}:{port}");
+            //    }
+            //}
 
-            task.Status = string.Join('\n', slaveInfo);
+            //task.Status = string.Join('\n', slaveInfo);
 
             TimeStatistics.Add(DateTime.Now + ": Activating the bulk insertions: " + stopwatch.Elapsed);
             stopwatch.Stop();
