@@ -21,7 +21,16 @@
         <hr/>
         <div>
             <h3>Info:</h3>
-            <div id="output"></div>
+            <div id="output">
+                <div id="status"></div>
+                <div class="progress">
+                    <div id="progress" class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:0%;visibility:hidden">
+                        0%
+                    </div>
+                </div>
+
+                <div id="otherinfo"></div>
+            </div>
         </div>
 
     </div>
@@ -33,10 +42,10 @@
     $('#Load').click(function () {
         $.ajax({
             url: '/Home/Load',
-            data: { path: $('#FileName').text },
+            data: { path: $('#FileName')[0].value },
             type: 'GET',
             success: function (response) {
-                $('#output').html(response);
+                $('#otherinfo').html(response);
             }
         });
     })
@@ -45,8 +54,9 @@
         $.ajax({
             url: '/Home/Check_Status',
             type: 'GET',
+            dataType: 'json',
             success: function (response) {
-                $('#output').html(response);
+                $('#otherinfo').html(response.status);
             },
             error: function (response) {
                 alert.error;
@@ -55,11 +65,14 @@
     })
 
     $('#Checker').click(function () {
+        $('#progress').css('visibility', 'visible');
         repeat();
     })
 
+    var isFinished = false;
+
     function repeat() {
-        var isFinished = false;
+        isFinished = false;
         loop();
     }
 
@@ -72,9 +85,15 @@
         }, 2000);
     }
 
-    function callback(res) {
-        $('#output').html(res);
-        if (res.includes("No tasks running") || res.includes("Load finished") || res.includes("Error occured")) isFinished = true;
+    function callback(resJson) {
+        var res = JSON.parse(resJson);
+        var percantage = Math.round(res.current / res.total * 100)
+        $('#status').html(res.status);
+        $('#progress').html(percantage);
+        $('#progress').attr('aria-valuenow', percantage);
+        $('#progress').css('width', percantage+'%');
+        //$('#progress').aria-valuenow(res.total / res.current);
+        if (res.status.includes("No tasks running") || res.status.includes("Load finished") || res.status.includes("Error occured")) isFinished = true;
         return res;
     }
 
@@ -96,12 +115,12 @@
             url: '/Home/Check_Slaves',
             type: 'GET',
             success: function (response) {
-                $('#output').html("");
+                $('#otherinfo').html("");
                 var res = JSON.parse(response);
                 var i;
                 for (i = 0; i < res.length; i++) {
-                    if (res[i].includes("Slave not running")) $('#output').append("<div>" + res[i] + " <img height=10 width=10 src='https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Fxemoji_u274C.svg/512px-Fxemoji_u274C.svg.png'></div>");
-                    else $('#output').append("<div>" + res[i] + " <img height=10 width=10 src='https://www.shareicon.net/data/128x128/2016/08/20/817721_check_512x512.png'></div>");
+                    if (res[i].includes("Slave not running")) $('#otherinfo').append("<div>" + res[i] + " <img height=10 width=10 src='https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Fxemoji_u274C.svg/512px-Fxemoji_u274C.svg.png'></div>");
+                    else $('#otherinfo').append("<div>" + res[i] + " <img height=10 width=10 src='https://www.shareicon.net/data/128x128/2016/08/20/817721_check_512x512.png'></div>");
 
                 }
                 //$('#output').html(res);
@@ -117,12 +136,12 @@
             url: '/Home/Check_Bulk_Status',
             type: 'GET',
             success: function (response) {
-                $('#output').html("");
+                $('#otherinfo').html("");
                 var res = JSON.parse(response);
                 var i;
                 for (i = 0; i < res.length; i++) {
-                    if (res[i].includes("Bulk not running")) $('#output').append("<div>" + res[i] + " <img height=10 width=10 src='https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Fxemoji_u274C.svg/512px-Fxemoji_u274C.svg.png'></div>");
-                    else $('#output').append("<div>" + res[i] + " <img height=10 width=10 src='https://www.shareicon.net/data/128x128/2016/08/20/817721_check_512x512.png'></div>");
+                    if (res[i].includes("Bulk not running")) $('#otherinfo').append("<div>" + res[i] + " <img height=10 width=10 src='https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Fxemoji_u274C.svg/512px-Fxemoji_u274C.svg.png'></div>");
+                    else $('#otherinfo').append("<div>" + res[i] + " <img height=10 width=10 src='https://www.shareicon.net/data/128x128/2016/08/20/817721_check_512x512.png'></div>");
                     //$('#output').append("<div>" + res[i] + "</div>");
                 }
                 //$('#output').html(response);

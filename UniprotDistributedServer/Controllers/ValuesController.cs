@@ -85,6 +85,7 @@ namespace UniprotDistributedServer.Controllers
                     return JsonConvert.SerializeObject(new
                     {
                         status = task.Status,
+                        time = DateTime.Now,
                         current = task.current,
                         total = task.total
                     });
@@ -93,7 +94,8 @@ namespace UniprotDistributedServer.Controllers
 
             return JsonConvert.SerializeObject(new
             {
-                status = "No tasks running"
+                status = "No tasks running",
+                time = DateTime.Now
             });
         }
 
@@ -171,13 +173,13 @@ namespace UniprotDistributedServer.Controllers
                         Stream receiveStream = await response.Content.ReadAsStreamAsync();
                         StreamReader readStream = new StreamReader(receiveStream, Encoding.UTF8);
                         string result = readStream.ReadToEnd();
-                        slaveInfo.Add(server.api_call + " - Running, working directory exists: " + result);
+                        slaveInfo.Add(server.api_call + ": Running, working directory exists: " + result);
                     }
-                    else slaveInfo.Add(server.api_call + " - Not Running");
+                    else slaveInfo.Add(server.api_call + ": Not Running");
                 }
                 catch (Exception)
                 {
-                    slaveInfo.Add(server.api_call + " - Not Running");
+                    slaveInfo.Add(server.api_call + ": Not Running");
                 }
             }
 
@@ -247,23 +249,23 @@ namespace UniprotDistributedServer.Controllers
         public void checkSplit(string workingDirectory, string sourceFile, Models.Task task)
         {
             string sourceSize = ShellHelper.Bash("du -h -k " + sourceFile).Split('\t')[0];
-            int sourceSizeGB = Int32.Parse(sourceSize)/1048576;
+            int sourceSizeGB = Int32.Parse(sourceSize)/1024;
 
             string folderSize = ShellHelper.Bash("du -sh -k " + workingDirectory + "Run/").Split('\t')[0];
-            int folderSizeGB = Int32.Parse(folderSize)/1048576;
+            int folderSizeGB = Int32.Parse(folderSize)/1024;
 
             while (task.splitFlag)
             {
-                task.Status = "Splitting file into pieces. Current size: " + folderSizeGB + "GB of " + sourceSizeGB + "GB";
+                task.Status = "Splitting file into pieces. Current size: " + folderSizeGB + "KB of " + sourceSizeGB + "KB";
                 task.current = folderSizeGB;
                 task.total = sourceSizeGB;
                 Thread.Sleep(2000);
 
                 sourceSize = ShellHelper.Bash("du -h -k " + sourceFile).Split('\t')[0];
-                sourceSizeGB = Int32.Parse(sourceSize) / 1048576;
+                sourceSizeGB = Int32.Parse(sourceSize) / 1024;
 
                 folderSize = ShellHelper.Bash("du -sh -k " + workingDirectory + "Run/").Split('\t')[0];
-                folderSizeGB = Int32.Parse(folderSize) / 1048576;
+                folderSizeGB = Int32.Parse(folderSize) / 1024;
             }
         }
 

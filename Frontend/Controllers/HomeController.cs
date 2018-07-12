@@ -20,6 +20,7 @@ namespace Frontend.Controllers
             return "";
         }
 
+        [HttpGet]
         public async Task<string> Load(string path)
         {
             using (var client = new HttpClient())

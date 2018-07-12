@@ -23,7 +23,7 @@ namespace UniprotDistributedServer.Models
 
         public string Status
         {
-            get { return _status; } set { _status = DateTime.Now + ": " + value; }
+            get { return _status; } set { _status = value; }
         }
     }
 }
