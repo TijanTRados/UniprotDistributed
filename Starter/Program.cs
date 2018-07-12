@@ -111,15 +111,15 @@ namespace Starter
                         "dotnet build ~/Distributed/UniprotDistributed\n" +
                         "dotnet publish ~/Distributed/UniprotDistributed\n" +
                         "\n#Remove and make directories and copy the stuff to each slave and make log and wd folders\n" +
-                        "rm -r ~/Distributed/UniprotDistributed/UniprotDistributedSlave/bin/Debug/netcoreapp2.0/slaves; mkdir ~/Distributed/UniprotDistributed/UniprotDistributedSlave/bin/Debug/netcoreapp2.0/slaves/; echo tijan99 | sudo chmod -R a+rwx ~/Distributed/UniprotDistributed/UniprotDistributedSlave/bin/Debug/netcoreapp2.0/slaves/\n";
+                        "rm -r ~/Distributed/UniprotDistributed/UniprotDistributedSlave/bin/Debug/netcoreapp2.0/slaves; mkdir ~/Distributed/UniprotDistributed/UniprotDistributedSlave/bin/Debug/netcoreapp2.0/slaves/; echo tijan99 | sudo chmod a+rwx ~/Distributed/UniprotDistributed/UniprotDistributedSlave/bin/Debug/netcoreapp2.0/slaves/\n";
 
                 foreach (Servers server in Servers)
                 {
                     script +=
                         "\nmkdir ~/Distributed/UniprotDistributed/UniprotDistributedSlave/bin/Debug/netcoreapp2.0/slaves/Slave" + server.slave_id + "\n" +
                         "cp -r ~/Distributed/UniprotDistributed/UniprotDistributedSlave/bin/Debug/netcoreapp2.0/publish ~/Distributed/UniprotDistributed/UniprotDistributedSlave/bin/Debug/netcoreapp2.0/slaves/Slave" + server.slave_id + "\n" +
-                        "mkdir ~/Distributed/UniprotDistributed/UniprotDistributedSlave/bin/Debug/netcoreapp2.0/slaves/Slave" + server.slave_id + "/publish/logs\n" +
-                        "mkdir ~/Distributed/UniprotDistributed/UniprotDistributedSlave/bin/Debug/netcoreapp2.0/slaves/Slave" + server.slave_id + "/publish/wd\n";
+                        "mkdir ~/Distributed/UniprotDistributed/UniprotDistributedSlave/bin/Debug/netcoreapp2.0/slaves/Slave" + server.slave_id + "/publish/logs; echo tijan99 | sudo chmod a+rwx ~/Distributed/UniprotDistributed/UniprotDistributedSlave/bin/Debug/netcoreapp2.0/slaves/Slave" + server.slave_id + "/publish/logs\n" +
+                        "mkdir ~/Distributed/UniprotDistributed/UniprotDistributedSlave/bin/Debug/netcoreapp2.0/slaves/Slave" + server.slave_id + "/publish/wd; echo tijan99 | sudo chmod a+rwx ~/Distributed/UniprotDistributed/UniprotDistributedSlave/bin/Debug/netcoreapp2.0/slaves/Slave" + server.slave_id + "/publish/wd\n";
                 }
 
                 script += "\n#Run the thing\n" +
