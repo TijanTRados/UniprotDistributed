@@ -60,10 +60,8 @@ namespace UniprotDistributedSlave.Controllers
                     ////TRY TO MANAGE START OF EACH LINE
                     //fileLines = fileLines.Select(x => "0    " + x).ToList();
 
-                    //fileLines.RemoveRange(0, 4);
-                    //fileLines.RemoveRange(fileLines.Count - 3, 2);
-                    Console.WriteLine("Trying to write text to " + Program.myWorkingDirectory + Request.Headers["file-name"]);
-                    Console.WriteLine("Text starting with: " + fileLines[0] + "...");
+                    fileLines.RemoveRange(0, 3);
+                    fileLines.RemoveRange(fileLines.Count - 3, 2);
 
                     System.IO.File.WriteAllText(Program.myWorkingDirectory + Request.Headers["file-name"], string.Join('\n', fileLines));
 
