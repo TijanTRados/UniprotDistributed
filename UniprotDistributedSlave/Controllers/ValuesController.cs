@@ -58,7 +58,7 @@ namespace UniprotDistributedSlave.Controllers
                     List<string> fileLines = reader.ReadToEnd().Split('\n').ToList();
 
                     ////TRY TO MANAGE START OF EACH LINE
-                    fileLines = fileLines.Select(x => "0    " + x).ToList();
+                    fileLines = fileLines.Select(x => "0\t" + x).ToList();
 
                     fileLines.RemoveRange(0, 3);
                     fileLines.RemoveRange(fileLines.Count - 3, 2);
@@ -123,7 +123,7 @@ namespace UniprotDistributedSlave.Controllers
             {
                 task.Status = "Bulk importing " + counter + " of " + files.Length;
 
-                Console.Write("Bulk file " + counter + " of " + files.Length);
+                Console.Write("Bulk file " + counter + " of " + files.Length + "\n");
                 foreach (string file in files)
                 {
                     //Bulk insert it
