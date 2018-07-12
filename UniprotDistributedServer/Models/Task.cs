@@ -13,6 +13,7 @@ namespace UniprotDistributedServer.Models
         public Thread Thread { get; set; }
         public int current { get; set; }
         public int total { get; set; }
+        public bool splitFlag { get; set; }
 
         public Task()
         {

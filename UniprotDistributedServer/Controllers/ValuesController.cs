@@ -250,9 +250,9 @@ namespace UniprotDistributedServer.Controllers
             int sourceSizeGB = Int32.Parse(sourceSize)/1048576;
 
             string folderSize = ShellHelper.Bash("du -sh -k " + workingDirectory).Split('\t')[0];
-            int folderSizeGB = Int32.Parse(folderSize) / 1048576;
+            int folderSizeGB = Int32.Parse(folderSize)/1048576;
 
-            while (true)
+            while (task.splitFlag)
             {
                 task.Status = "Splitting file into pieces. Current size: " + folderSizeGB + "GB of " + sourceSizeGB + "GB";
                 task.current = folderSizeGB;
@@ -304,6 +304,7 @@ namespace UniprotDistributedServer.Controllers
             task.Status = "Spliting the file into pieces";
 
             //Thread for checking split status
+            task.splitFlag = true;
             Thread split_checker = new Thread(() => checkSplit(workingDirectory, sourceFile, task));
             split_checker.Start();
 
@@ -317,8 +318,8 @@ namespace UniprotDistributedServer.Controllers
             string splitBash = "echo tijan99 | split -l 100000 --additional-suffix=.csv " + sourceFile + " " + workingDirectory + "Run/";
             ShellHelper.Bash(splitBash);
 
-            //Aborting split status thread after it's done
-            split_checker.Abort();
+            //Aborting split thread work after it's done
+            task.splitFlag = false;
 
             TimeStatistics.Add(DateTime.Now + ": Splitting the file into 100 000 line ones: " + stopwatch.Elapsed);
             stopwatch.Restart();
