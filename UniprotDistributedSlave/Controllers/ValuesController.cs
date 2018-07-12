@@ -129,7 +129,7 @@ namespace UniprotDistributedSlave.Controllers
                     //Bulk insert it
                     Console.Write(ShellHelper.Bash("/opt/mssql-tools/bin/bcp " + Program.myMainTable +
                         " in " + file +
-                        " -S localhost,8758" +
+                        " -S " + Program.myApiCall +
                         " -U " + Program.username +
                         " -P " + Program.password +
                         " -d " + Program.myDatabaseName +
