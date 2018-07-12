@@ -249,7 +249,7 @@ namespace UniprotDistributedServer.Controllers
             string sourceSize = ShellHelper.Bash("du -h -k " + sourceFile).Split('\t')[0];
             int sourceSizeGB = Int32.Parse(sourceSize)/1048576;
 
-            string folderSize = ShellHelper.Bash("du -sh -k " + workingDirectory).Split('\t')[0];
+            string folderSize = ShellHelper.Bash("du -sh -k " + workingDirectory + "Run/").Split('\t')[0];
             int folderSizeGB = Int32.Parse(folderSize)/1048576;
 
             while (task.splitFlag)
@@ -262,7 +262,7 @@ namespace UniprotDistributedServer.Controllers
                 sourceSize = ShellHelper.Bash("du -h -k " + sourceFile).Split('\t')[0];
                 sourceSizeGB = Int32.Parse(sourceSize) / 1048576;
 
-                folderSize = ShellHelper.Bash("du -sh -k " + workingDirectory).Split('\t')[0];
+                folderSize = ShellHelper.Bash("du -sh -k " + workingDirectory + "Run/").Split('\t')[0];
                 folderSizeGB = Int32.Parse(folderSize) / 1048576;
             }
         }
