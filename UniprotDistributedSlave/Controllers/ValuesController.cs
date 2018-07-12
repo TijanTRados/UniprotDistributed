@@ -54,8 +54,6 @@ namespace UniprotDistributedSlave.Controllers
             {
                 try
                 {
-                    Console.WriteLine("I've been called by " + Request.Host.ToString());
-
                     //Skipping first 4 lines
                     List<string> fileLines = reader.ReadToEnd().Split('\n').ToList();
 
