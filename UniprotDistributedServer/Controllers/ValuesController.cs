@@ -508,7 +508,7 @@ namespace UniprotDistributedServer.Controllers
             }
 
             //Kill all tasks on servers (after 10 secs)
-            Thread.Sleep(10000);
+            Thread.Sleep(2000);
             foreach (Servers server in Program.Servers)
             {
                 using (var client = new HttpClient())
