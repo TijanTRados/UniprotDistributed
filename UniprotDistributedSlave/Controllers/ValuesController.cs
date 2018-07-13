@@ -121,24 +121,24 @@ namespace UniprotDistributedSlave.Controllers
             else
             {
                 task.total = files.Length;
-
-                Console.Write("Bulk file " + counter + " of " + files.Length + "\n");
                 foreach (string file in files)
                 {
+                    Console.Write("Bulk file " + counter + " of " + files.Length + "\n");
                     task.Status = "Bulk importing " + counter + " of " + files.Length;
                     task.current = counter;
 
-                    //Bulk insert it
-                    task.details = (ShellHelper.Bash("/opt/mssql-tools/bin/bcp " + Program.myMainTable +
+                    string bulk = "/opt/mssql-tools/bin/bcp " + Program.myMainTable +
                         " in " + file +
                         " -S " + Program.myDbCall +
                         " -U " + Program.username +
                         " -P " + Program.password +
                         " -d " + Program.myDatabaseName +
                         " -c " +
-                        " -t '\\t' -r '\\n'"
-                       ).ToString() + "\n");
-                    Console.WriteLine(task.details);
+                        " -t '\\t' -r '\\n'";
+                    //Bulk insert it
+                    Console.WriteLine("BULK:\n" + bulk);
+                    task.details = (ShellHelper.Bash(bulk).ToString());
+                    Console.WriteLine("RESULT:\n" + task.details);
 
                     //Remove it
                     ShellHelper.Bash("rm " + file);
@@ -147,7 +147,7 @@ namespace UniprotDistributedSlave.Controllers
                     counter++;
                 }
 
-                Console.Write("Bulk successfull loaded: " + counter + " files.");
+                Console.Write("Bulk done: " + counter + " files.");
 
                 task.Status = "Done";
                 task.done = true;

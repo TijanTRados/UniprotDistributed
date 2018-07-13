@@ -156,7 +156,7 @@
             if (!isFinished) {
                 loop();
             }
-        }, 2000);
+        }, 500);
     }
 
     function callback(resJson) {
@@ -168,6 +168,7 @@
             $('#split_progress').html(res.s_status);
             $('#split_progress').attr('aria-valuenow', percantage);
             $('#split_progress').css('width', percantage + '%');
+            $('#details').html(res.details);
         }
         if (res.splitDone == true) {
             $('#split_progress').html(res.s_status);
@@ -184,6 +185,7 @@
             $('#broadcast_progress').html(res.b_status);
             $('#broadcast_progress').attr('aria-valuenow', percantage);
             $('#broadcast_progress').css('width', percantage + '%');
+            $('#details').html(res.details);
         }
         if (res.broadcastDone == true) {
             $('#broadcast_progress').html(res.b_status);
