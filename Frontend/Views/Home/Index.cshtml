@@ -141,7 +141,7 @@
     function callback(resJson) {
         var res = JSON.parse(resJson);
 
-        if (res.status == "split") {
+        if (res.status.includes("split")) {
             var percantage = Math.round((res.s_current / res.s_total) * 100)
             $('#split_progress').html(res.s_status);
             $('#split_progress').attr('aria-valuenow', percantage);
@@ -155,27 +155,27 @@
 
         }
 
-        if (res.status == "broadcast") {
+        if (res.status.includes("broadcast")) {
             var percantage = Math.round((res.b_current / res.b_total) * 100)
             $('#broadcast_progress').html(res.b_status);
             $('#broadcast_progress').attr('aria-valuenow', percantage);
             $('#broadcast_progress').css('width', percantage + '%');
         }
         if (res.b_status) {
-            $('#broadcast_progress').html(res.s_status);
+            $('#broadcast_progress').html(res.b_status);
             $('#broadcast_progress').attr('aria-valuenow', 100);
             $('#broadcast_progress').css('width', '100%');
             $('#b_check').css('visibility', 'visible');
         }
 
-        if (res.status == "bulk") {
+        if (res.status.includes("bulk")) {
             var percantage = Math.round((res.blk_current / res.blk_total) * 100)
             $('#bulk_progress').html(res.blk_status);
             $('#bulk_progress').attr('aria-valuenow', percantage);
             $('#bulk_progress').css('width', percantage + '%');
         }
         if (res.blk_status) {
-            $('#bulk_progress').html(res.s_status);
+            $('#bulk_progress').html(res.blk_status);
             $('#bulk_progress').attr('aria-valuenow', 100);
             $('#bulk_progress').css('width', '100%');
             $('#blk_check').css('visibility', 'visible');
