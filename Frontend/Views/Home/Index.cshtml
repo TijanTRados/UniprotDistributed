@@ -83,6 +83,7 @@
 <script>
 
     $('#ShowDetails').click(function () {
+        if ($('#detailsShow').css('visibility', 'visible'))
         $('#detailsShow').css('visibility', 'visible');
 
     })
@@ -215,7 +216,7 @@
 
         if (res.status.includes("finished")) {
             isFinished = true;
-            $('#otherinfo').html("<div>\"Import finished.\"<div></div><div>Time statistics:</div><div>Split: ",res.s_time,"</div><div>Broadcast: ",res.b_time,"</div><div>Bulk: ",res.blk_time,"</div></div>");
+            $('#otherinfo').html("<div>\"Import finished.\"<div></div><div>Time statistics:</div><div>Split: "+res.s_time+"</div><div>Broadcast: "+res.b_time+"</div><div>Bulk: "+res.blk_time+"</div></div>");
         }
         return res;
     }

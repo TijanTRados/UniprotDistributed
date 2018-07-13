@@ -56,6 +56,7 @@ namespace UniprotDistributedSlave
             myDbCall = (filtered.ToList())[0].db_call;
             username = (filtered.ToList())[0].username;
             password = (filtered.ToList())[0].password;
+            myDatabaseName = (filtered.ToList())[0].database_name;
 
             //Building the configuration
             var configuration = new ConfigurationBuilder()
