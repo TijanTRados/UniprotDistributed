@@ -17,5 +17,6 @@ namespace UniprotDistributedSlave.Models
         public string username { get; set; }
         public string password { get; set; }
         public string database_name { get; set; }
+        public string db_call { get; set; }
     }
 }

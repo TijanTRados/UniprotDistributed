@@ -205,13 +205,26 @@ namespace UniprotDistributedServer.Controllers
         public async Task<string> Load(string path)
         {
             //Check number 1 --> Correct load query
-            if (path == null) return DateTime.Now + ": Please provide the source file in path variable.\n\nUsing: {server_name}/api/load?path={path_to_source_file}";
+            if (path == null)
+            {
+                return JsonConvert.SerializeObject(new
+                {
+                    status = "Please provide the source file in path variable.",
+                    success = false,
+                    time = DateTime.Now
+                });
+            }
             string sourceFile = path;
 
             //Check number 2 --> Is the load already running
             if (Startup.taskList.Count >= 1)
             {
-                return DateTime.Now + ": Load already running.\n" + Startup.taskList[0].Status;
+                return JsonConvert.SerializeObject(new
+                {
+                    status = "Load is already running.",
+                    success = false,
+                    time = DateTime.Now
+                });
             }
 
             //Check number 3 --> Are all slaves running
@@ -230,18 +243,33 @@ namespace UniprotDistributedServer.Controllers
                         string result = readStream.ReadToEnd();
                         if (result.Equals("true")) continue;
                     }
-                    else return DateTime.Now + ": Not all slaves are running. Check it with /master/check_slaves";
+                    else return JsonConvert.SerializeObject(new
+                    {
+                        status = "Not all slaves are running. Check slaves first.",
+                        success = false,
+                        time = DateTime.Now
+                    });
                 }
                 catch (Exception)
                 {
-                    return (DateTime.Now + ": Not all slaves are running. Check it with /master/check_slaves");
+                    return JsonConvert.SerializeObject(new
+                    {
+                        status = "Not all slaves are running. Check slaves first.",
+                        success = false,
+                        time = DateTime.Now
+                    });
                 } 
             }
 
             //Check number 3 --> Check if the file exists
             if (Int32.Parse(ShellHelper.Bash("test -e " + path + " && echo 1 || echo 0")) == 0)
             {
-                return DateTime.Now + ": File does not exist";
+                return JsonConvert.SerializeObject(new
+                {
+                    status = "File does not exist. Please enter correct existing file name.",
+                    success = false,
+                    time = DateTime.Now
+                });
             } else
             {
                 string workingDirectory = String.Join('/', sourceFile.Split('/').Take(sourceFile.Split('/').Length - 1)) + '/';
@@ -254,7 +282,12 @@ namespace UniprotDistributedServer.Controllers
                 task.Thread.Start();
                 Startup.taskList.Add(task);
 
-                return task.Status;
+                return JsonConvert.SerializeObject(new
+                {
+                    status = "started",
+                    success = true,
+                    time = DateTime.Now
+                });
             }
         }
 
@@ -391,6 +424,7 @@ namespace UniprotDistributedServer.Controllers
 
             #region Bulk Insert Activation
             //Activating the bulk insert
+            task.Status = "bulk";
             List<string> slaveInfo = new List<string>();
             foreach (Servers server in Program.Servers)
             {

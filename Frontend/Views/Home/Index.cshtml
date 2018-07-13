@@ -86,8 +86,14 @@
             url: '/Home/Load',
             data: { path: $('#FileName')[0].value },
             type: 'GET',
+            dataType: 'json',
             success: function (response) {
-                start();
+                if (response.success == true) {
+                    start();
+                } else {
+                    $('#otherinfo').html(response.status);
+                }
+                
             }
         });
     })
