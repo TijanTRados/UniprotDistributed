@@ -86,15 +86,28 @@ namespace UniprotDistributedServer.Controllers
                     {
                         status = task.Status,
                         time = DateTime.Now,
-                        current = task.current,
-                        total = task.total
+
+                        s_current = task.s_current,
+                        s_total = task.s_total,
+                        s_status = task.s_status,
+                        splitDone = task.splitDone,
+
+                        b_current = task.b_current,
+                        b_total = task.b_total,
+                        b_status = task.b_status,
+                        broadcastDone = task.broadcastDone,
+
+                        blk_current = task.blk_current,
+                        blk_total = task.blk_total,
+                        blk_status = task.blk_status,
+                        bulkDone = task.bulkDone
                     });
                 }
             }
 
             return JsonConvert.SerializeObject(new
             {
-                status = "No tasks running",
+                status = "no tasks running",
                 time = DateTime.Now
             });
         }
@@ -254,11 +267,11 @@ namespace UniprotDistributedServer.Controllers
             string folderSize = ShellHelper.Bash("du -sh -k " + workingDirectory + "Run/").Split('\t')[0];
             int folderSizeGB = Int32.Parse(folderSize)/1024;
 
-            while (task.splitFlag)
+            while (!task.splitDone)
             {
-                task.Status = "Splitting file into pieces. Current size: " + folderSizeGB + "KB of " + sourceSizeGB + "KB";
-                task.current = folderSizeGB;
-                task.total = sourceSizeGB;
+                task.s_status = "Splitting file into pieces. Current size: " + folderSizeGB + "KB of " + sourceSizeGB + "KB";
+                task.s_current = folderSizeGB;
+                task.s_total = sourceSizeGB;
                 Thread.Sleep(2000);
 
                 sourceSize = ShellHelper.Bash("du -h -k " + sourceFile).Split('\t')[0];
@@ -277,6 +290,10 @@ namespace UniprotDistributedServer.Controllers
             Stopwatch stopwatch = new Stopwatch();
             List<string> TimeStatistics = new List<string>();
             List<int> values = Program.values;
+
+            task.splitDone = false;
+            task.broadcastDone = false;
+            task.bulkDone = false;
 
             string name = sourceFile.Split('/')[sourceFile.Split('/').Length - 1].Split('.')[0];
 
@@ -303,10 +320,9 @@ namespace UniprotDistributedServer.Controllers
             stopwatch.Start();
 
             #region Split the file into pieces
-            task.Status = "Spliting the file into pieces";
+            task.Status = "split";
 
             //Thread for checking split status
-            task.splitFlag = true;
             Thread split_checker = new Thread(() => checkSplit(workingDirectory, sourceFile, task));
             split_checker.Start();
 
@@ -321,14 +337,15 @@ namespace UniprotDistributedServer.Controllers
             ShellHelper.Bash(splitBash);
 
             //Aborting split thread work after it's done
-            task.splitFlag = false;
+            task.s_status = "Done";
+            task.splitDone = true;
 
             TimeStatistics.Add(DateTime.Now + ": Splitting the file into 100 000 line ones: " + stopwatch.Elapsed);
             stopwatch.Restart();
             #endregion
 
             #region Broadcasting the files
-            task.Status = "Broadcasting the files";
+            task.Status = "broadcast";
             //Reading the new files one by one and doing stuff depending on MASTER/SLAVE
             //Now it reads all the files from ~ workingdirectory/Run/
             string[] files = Directory.GetFiles(workingDirectory + "Run/");
@@ -338,9 +355,9 @@ namespace UniprotDistributedServer.Controllers
             {
                 Random r = new Random();
                 int randomNumber = r.Next(0, values.Count);
-                task.Status = "Broadcasting file " + counter + " of " + files.Length;
-                task.current = counter;
-                task.total = files.Length;
+                task.b_status = "Broadcasting file " + counter + " of " + files.Length;
+                task.b_current = counter;
+                task.b_total = files.Length;
 
                 //The values[randomNumber] is allways a number between 0 (first server from configuration table) and max (last server from configuration table)
                 //The number will allways be in that scope so that is not a problem!
@@ -357,6 +374,7 @@ namespace UniprotDistributedServer.Controllers
                 }
                 counter++;
             }
+            
 
             TimeStatistics.Add(DateTime.Now + ": Broadcasting the Files: " + stopwatch.Elapsed);
             stopwatch.Restart();
@@ -367,6 +385,8 @@ namespace UniprotDistributedServer.Controllers
             ShellHelper.Bash("echo tijan99 | sudo rm -r " + workingDirectory + "Run/");
             #endregion
 
+            task.broadcastDone = true;
+            task.b_status = "Done";
 
 
             #region Bulk Insert Activation
@@ -396,12 +416,15 @@ namespace UniprotDistributedServer.Controllers
 
             //task.Status = string.Join('\n', slaveInfo);
 
+            task.blk_status = "Done";
+            task.bulkDone = true;
+
             TimeStatistics.Add(DateTime.Now + ": Activating the bulk insertions: " + stopwatch.Elapsed);
             stopwatch.Stop();
             #endregion
 
             #region Log the Time stats
-            task.Status = "Logging the times";
+            task.Status = "time";
             //Writing time stats to log file
             using (System.IO.StreamWriter file =
             new System.IO.StreamWriter(AppDomain.CurrentDomain.BaseDirectory + "time_log" + name + ".txt", true))
@@ -413,7 +436,7 @@ namespace UniprotDistributedServer.Controllers
             }
             #endregion
 
-            task.Status = "Load finished";
+            task.Status = "finished";
             Thread.Sleep(60000);
 
             //60 seconds the task is still active so the user can see the "Load finished" information before the task is killed.

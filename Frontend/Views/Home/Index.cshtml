@@ -19,15 +19,53 @@
         </div>
 
         <hr/>
-        <div>
+        <div class="col-md-12">
             <h3>Info:</h3>
-            <div id="output">
-                <div id="status"></div>
-                <div class="progress">
-                    <div id="progress" class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:0%;visibility:hidden">
-                        0%
-                    </div>
-                </div>
+            <div id="output" class="col-md-12">
+                <table style="width:100%">
+                    <tr >
+                        <td style="vertical-align:top">Split</td>
+                        <td style="vertical-align:top; width:90%">
+                            <div class="progress">
+                                <div id="split_progress" class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:0%;">
+                                    0%
+                                </div>
+                            </div>
+                        </td>
+                        <td style="vertical-align:top">
+                            <img id="s_check" src='https://www.shareicon.net/data/128x128/2016/08/20/817721_check_512x512.png' height="10" width="10" style="visibility:hidden" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="vertical-align:top">Broadcast</td>
+                        <td style="vertical-align:top; width:90%">
+                            <div class="progress">
+                                <div id="broadcast_progress" class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:0%;">
+                                    0%
+                                </div>
+                            </div>
+                        </td>
+                        <td style="vertical-align:top;">
+                            <img id="b_check" src='https://www.shareicon.net/data/128x128/2016/08/20/817721_check_512x512.png' height="10" width="10" style="visibility:hidden"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="vertical-align:top">Bulk</td>
+                        <td style="vertical-align:top; width:90%">
+                            <div class="progress">
+                                <div id="bulk_progress" class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:0%;">
+                                    0%
+                                </div>
+                            </div>
+                        </td>
+                        <td style="vertical-align:top">
+                            <img id="blk_check" src='https://www.shareicon.net/data/128x128/2016/08/20/817721_check_512x512.png' height="10" width="10" style="visibility:hidden" />
+                        </td>
+                    </tr>
+                    
+                    
+                </table>
+                
 
                 <div id="otherinfo"></div>
             </div>
@@ -64,14 +102,29 @@
         });
     })
 
+    var isFinished = true;
+
     $('#Checker').click(function () {
-        $('#progress').css('visibility', 'visible');
-        repeat();
+        //If this is finished or first time -> then start the thread
+        if (isFinished) {
+            repeat();
+        }
     })
 
-    var isFinished = false;
-
     function repeat() {
+        //Initialisation
+        $('#split_progress').html();
+        $('#split_progress').attr('aria-valuenow', 0);
+        $('#split_progress').css('width', 0 + '%');
+
+        $('#broadcast_progress').html();
+        $('#broadcast_progress').attr('aria-valuenow', 0);
+        $('#broadcast_progress').css('width', 0 + '%');
+
+        $('#bulk_progress').html();
+        $('#bulk_progress').attr('aria-valuenow', 0);
+        $('#bulk_progress').css('width', 0 + '%');
+
         isFinished = false;
         loop();
     }
@@ -87,13 +140,51 @@
 
     function callback(resJson) {
         var res = JSON.parse(resJson);
-        var percantage = Math.round(res.current / res.total * 100)
-        $('#status').html(res.status);
-        $('#progress').html(percantage);
-        $('#progress').attr('aria-valuenow', percantage);
-        $('#progress').css('width', percantage+'%');
-        //$('#progress').aria-valuenow(res.total / res.current);
-        if (res.status.includes("No tasks running") || res.status.includes("Load finished") || res.status.includes("Error occured")) isFinished = true;
+
+        if (res.status == "split") {
+            var percantage = Math.round((res.s_current / res.s_total) * 100)
+            $('#split_progress').html(res.s_status);
+            $('#split_progress').attr('aria-valuenow', percantage);
+            $('#split_progress').css('width', percantage + '%');
+        }
+        if (res.s_status) {
+            $('#split_progress').html(res.s_status);
+            $('#split_progress').attr('aria-valuenow', 100);
+            $('#split_progress').css('width', '100%');
+            $('#s_check').css('visibility', 'visible');
+
+        }
+
+        if (res.status == "broadcast") {
+            var percantage = Math.round((res.b_current / res.b_total) * 100)
+            $('#broadcast_progress').html(res.b_status);
+            $('#broadcast_progress').attr('aria-valuenow', percantage);
+            $('#broadcast_progress').css('width', percantage + '%');
+        }
+        if (res.b_status) {
+            $('#broadcast_progress').html(res.s_status);
+            $('#broadcast_progress').attr('aria-valuenow', 100);
+            $('#broadcast_progress').css('width', '100%');
+            $('#b_check').css('visibility', 'visible');
+        }
+
+        if (res.status == "bulk") {
+            var percantage = Math.round((res.blk_current / res.blk_total) * 100)
+            $('#bulk_progress').html(res.blk_status);
+            $('#bulk_progress').attr('aria-valuenow', percantage);
+            $('#bulk_progress').css('width', percantage + '%');
+        }
+        if (res.blk_status) {
+            $('#bulk_progress').html(res.s_status);
+            $('#bulk_progress').attr('aria-valuenow', 100);
+            $('#bulk_progress').css('width', '100%');
+            $('#blk_check').css('visibility', 'visible');
+        }
+
+
+        if (res.status.includes("finished")) {
+            isFinished = true;
+        }
         return res;
     }
 
