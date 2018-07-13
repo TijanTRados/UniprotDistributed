@@ -10,6 +10,8 @@ using RestSharp;
 using RestSharp.Extensions;
 using System.Threading;
 using Newtonsoft.Json;
+using System.Data.Common;
+using System.Diagnostics;
 
 namespace UniprotDistributedSlave.Controllers
 {
@@ -18,8 +20,35 @@ namespace UniprotDistributedSlave.Controllers
     {
         //Method for checking if the server is available
         [HttpGet]
+        [Route("get")]
+        public string Get(string sql)
+        {
+            BaseDataAccess DataBase = new BaseDataAccess(Program.myDatabaseConnectionString);
+
+            List<DbParameter> parameterList = new List<DbParameter>();
+            List<string> Result = new List<string>();
+
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
+
+            using (DbDataReader dataReader = DataBase.ExecuteDataReader(sql, parameterList))
+            {
+                stopwatch.Stop();
+                if (dataReader != null && dataReader.HasRows)
+                {
+                    while (dataReader.Read())
+                    {
+                        Result.Add(dataReader[0].ToString());
+                    }
+                }
+            }
+
+            return JsonConvert.SerializeObject(Result);
+        }
+
+        [HttpGet]
         [Route("available")]
-        public bool Get()
+        public bool Available()
         {
             return true;
         }

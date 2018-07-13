@@ -1,0 +1,67 @@
+﻿@{
+    ViewData["Title"] = "Query";
+}
+<h2>@ViewData["Title"]</h2>
+<h3>Search By:</h3>
+
+<div class="row">
+
+    <div class="col-md-12">
+        <div class="dropdown col-md-3">
+            <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">
+                SQL
+                <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu">
+                <li><a href="#">SQL</a></li>
+                <li><a href="#">Mass</a></li>
+                <li><a href="#">Accession</a></li>
+                <li><a href="#">Taxonomy</a></li>
+                <li><a href="#">Division</a></li>
+            </ul>
+        </div>
+        <div class="col-md-9">
+            <input class="form-control" type="text" name="NAME" id="FileName" value="SELECT TOP (1000) * FROM maintable" placeholder="Value" />
+        </div>
+
+        <button class=" btn btn-primary" id="run">Run</button>
+    </div>
+
+    <hr/>
+
+    <div>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Mass</th>
+                    <th scope="col">Peptide</th>
+                    <th scope="col">Accession</th>
+                    <th scope="col">Taxonomy</th>
+                    <th scope="col">Division</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+    
+</div>
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+<script>
+    $('#run').click(function () {
+        $.ajax({
+            url: '/Home/Get',
+            data: { sql: $('#FileName')[0].value },
+            type: 'GET',
+            dataType: 'json',
+            success: function (response) {
+                $('#otherinfo').html(response);
+            }
+        });
+
+    })
+</script>

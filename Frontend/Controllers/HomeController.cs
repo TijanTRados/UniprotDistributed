@@ -113,21 +113,44 @@ namespace Frontend.Controllers
             }
         }
 
+        public async Task<string> Get(string sql)
+        {
+            using (var client = new HttpClient())
+            {
+                try
+                {
+                    HttpResponseMessage response = await client.GetAsync("http://proteinreader.bioinfo.pbf.hr" + "/master/get?sql=" + sql);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        Stream receiveStream = await response.Content.ReadAsStreamAsync();
+                        StreamReader readStream = new StreamReader(receiveStream, Encoding.UTF8);
+                        string result = readStream.ReadToEnd();
+                        return result;
+                    }
+                    else return "{ Check if the master server is running}";
+                }
+                catch (Exception)
+                {
+                    return "{Check if the master server is running}";
+                }
+            }
+        }
+
         public IActionResult Index()
         {
             return View();
         }
 
-        public IActionResult About()
+        public IActionResult Query()
         {
-            ViewData["Message"] = "Your application description page.";
+            ViewData["Message"] = "Query";
 
             return View();
         }
 
-        public IActionResult Contact()
+        public IActionResult Rebalance()
         {
-            ViewData["Message"] = "Your contact page.";
+            ViewData["Message"] = "Rebalance";
 
             return View();
         }

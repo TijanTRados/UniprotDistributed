@@ -41,35 +41,33 @@ namespace UniprotDistributedServer.Controllers
         // GET api/values
         [HttpGet]
         [Route("get")]
-        public IEnumerable<string> Get(string sql)
+        public async Task<List<string>> Get(string sql)
         {
-            BaseDataAccess DataBase = new BaseDataAccess(_configuration.GetConnectionString("DefaultConnection"));
+            List<string> results = new List<string>();
 
-            List<DbParameter> parameterList = new List<DbParameter>();
-            List<string> Result = new List<string>();
-
-            Stopwatch stopwatch = new Stopwatch();
-            stopwatch.Start();
-
-            using (DbDataReader dataReader = DataBase.ExecuteDataReader(sql, parameterList))
+            foreach (Servers server in Program.Servers)
             {
-                stopwatch.Stop();
-                if (dataReader != null && dataReader.HasRows)
-                {
-                    while (dataReader.Read())
-                    {
-                        Result.Add(dataReader[0].ToString());
-                    }
-                }
+                HttpClient client = new HttpClient();
 
-                //foreach(DataRow row in data.Tables[0].Rows)
-                //{
-                //    Console.WriteLine(row[0]);
-                //}
+                try
+                {
+                    HttpResponseMessage response = await client.GetAsync(server.api_call + "/slave/get?sql=" + sql);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        Stream receiveStream = await response.Content.ReadAsStreamAsync();
+                        StreamReader readStream = new StreamReader(receiveStream, Encoding.UTF8);
+                        string result = readStream.ReadToEnd();
+                        results.Add(result);
+                    }
+                    else results.Add(server.api_call + ": Slave Not Running");
+                }
+                catch (Exception)
+                {
+                    results.Add(server.api_call + ": Slave Not Running");
+                }
             }
 
-            return Result;
-            //return new string[] { sql, "value1", "value2" };
+            return results;
         }
 
         [HttpGet]
