@@ -12,9 +12,10 @@
         <hr/>
 
         <div>
-            <button class=" btn btn-primary" id="Checker">Activate checker</button>
+            <button class=" btn btn-primary" id="Checker">Activate Checker</button>
             <button class=" btn btn-primary" id="Slaves">Check Slaves</button>
             <button class=" btn btn-primary" id="Bulk">Check Bulk Status</button>
+            <button class=" btn btn-primary" id="ShowDetails">Show Details</button>
         </div>
 
         <hr/>
@@ -67,6 +68,10 @@
                 
 
                 <div id="otherinfo" style="font-family:'Courier New'"></div>
+                <div id="detailsShow" style="visibility:collapse">
+                    <hr/>
+                    <div id="details"></div>
+                </div>
             </div>
         </div>
 
@@ -76,8 +81,9 @@
 
 <script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
 <script>
-    $(document).ready(function () {
-        start();
+
+    $('#ShowDetails').click(function () {
+        $('#detailsShow').css('visibility', 'visible');
 
     })
 
@@ -193,6 +199,7 @@
             $('#bulk_progress').html(res.blk_status);
             $('#bulk_progress').attr('aria-valuenow', percantage);
             $('#bulk_progress').css('width', percantage + '%');
+            $('#details').html(res.details);
         }
         if (res.bulkDone == true) {
             $('#bulk_progress').html(res.blk_status);
@@ -206,7 +213,7 @@
 
         if (res.status.includes("finished")) {
             isFinished = true;
-            $('#otherinfo').html("Inport finished.");
+            $('#otherinfo').html("<div>\"Import finished.\"<div></div><div>Time statistics:</div><div>Split: ",res.s_time,"</div><div>Broadcast: ",res.b_time,"</div><div>Bulk: ",res.blk_time,"</div></div>");
         }
         return res;
     }

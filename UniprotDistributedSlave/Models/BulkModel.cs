@@ -11,5 +11,6 @@ namespace UniprotDistributedSlave.Models
         public int total { get; set; }
         public string status { get; set; }
         public bool done { get; set; }
+        public string details { get; set; }
     }
 }

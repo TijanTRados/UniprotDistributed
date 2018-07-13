@@ -54,6 +54,8 @@ namespace UniprotDistributedSlave
             myWorkingDirectory = AppDomain.CurrentDomain.BaseDirectory + "wd/";
             myMainTable = (filtered.ToList())[0].main_table;
             myDbCall = (filtered.ToList())[0].db_call;
+            username = (filtered.ToList())[0].username;
+            password = (filtered.ToList())[0].password;
 
             //Building the configuration
             var configuration = new ConfigurationBuilder()

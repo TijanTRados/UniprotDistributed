@@ -91,16 +91,21 @@ namespace UniprotDistributedServer.Controllers
                         s_total = task.s_total,
                         s_status = task.s_status,
                         splitDone = task.splitDone,
+                        s_time = (task.s_end.Subtract(task.s_start)).ToString(),
 
                         b_current = task.b_current,
                         b_total = task.b_total,
                         b_status = task.b_status,
                         broadcastDone = task.broadcastDone,
+                        b_time = (task.b_end.Subtract(task.b_start)).ToString(),
 
                         blk_current = task.blk_current,
                         blk_total = task.blk_total,
                         blk_status = task.blk_status,
-                        bulkDone = task.bulkDone
+                        bulkDone = task.bulkDone,
+                        blk_time = (task.blk_end.Subtract(task.blk_start)).ToString(),
+
+                        details = task.details
                     });
                 }
             }
@@ -354,6 +359,7 @@ namespace UniprotDistributedServer.Controllers
 
             #region Split the file into pieces
             task.Status = "split";
+            task.s_start = DateTime.Now;
 
             //Thread for checking split status
             Thread split_checker = new Thread(() => checkSplit(workingDirectory, sourceFile, task));
@@ -367,11 +373,12 @@ namespace UniprotDistributedServer.Controllers
             }
             ShellHelper.Bash("echo tijan99 | mkdir " + workingDirectory + "Run/");
             string splitBash = "echo tijan99 | split -l 100000 --additional-suffix=.csv " + sourceFile + " " + workingDirectory + "Run/";
-            ShellHelper.Bash(splitBash);
+            task.details = ShellHelper.Bash(splitBash);
 
             //Aborting split thread work after it's done
             task.s_status = "Done";
             task.splitDone = true;
+            task.s_end = DateTime.Now;
 
             TimeStatistics.Add(DateTime.Now + ": Splitting the file into 100 000 line ones: " + stopwatch.Elapsed);
             stopwatch.Restart();
@@ -379,6 +386,7 @@ namespace UniprotDistributedServer.Controllers
 
             #region Broadcasting the files
             task.Status = "broadcast";
+            task.b_start = DateTime.Now;
             //Reading the new files one by one and doing stuff depending on MASTER/SLAVE
             //Now it reads all the files from ~ workingdirectory/Run/
             string[] files = Directory.GetFiles(workingDirectory + "Run/");
@@ -399,7 +407,8 @@ namespace UniprotDistributedServer.Controllers
                 using (StreamWriter sw = System.IO.File.AppendText(AppDomain.CurrentDomain.BaseDirectory + "log" + name + ".txt"))
                 {
                     List<string> result = await Sender2(task, Program.Servers[values[randomNumber]].api_call, "/slave/recieve", file.Split('/')[file.Split('/').Length - 1], counter, file);
-                    foreach(string line in result)
+                    task.details = string.Join('\n', result);
+                    foreach (string line in result)
                     {
                         //Logging the output
                         sw.WriteLine(line);
@@ -411,6 +420,10 @@ namespace UniprotDistributedServer.Controllers
 
             TimeStatistics.Add(DateTime.Now + ": Broadcasting the Files: " + stopwatch.Elapsed);
             stopwatch.Restart();
+            task.broadcastDone = true;
+            task.b_status = "Done";
+            task.b_end = DateTime.Now;
+
             #endregion
 
             #region Deleting the /Run folder
@@ -418,13 +431,13 @@ namespace UniprotDistributedServer.Controllers
             ShellHelper.Bash("rm -r " + workingDirectory + "Run/");
             #endregion
 
-            task.broadcastDone = true;
-            task.b_status = "Done";
+            
 
 
             #region Bulk Insert Activation
             //Activating the bulk insert
             task.Status = "bulk";
+            task.blk_start = DateTime.Now;
             List<string> slaveInfo = new List<string>();
             foreach (Servers server in Program.Servers)
             {
@@ -455,6 +468,7 @@ namespace UniprotDistributedServer.Controllers
                 int sumtotal = 0;
                 string status = "";
                 bool done = true;
+                string details = "";
 
                 foreach(Servers server in Program.Servers)
                 {
@@ -473,6 +487,7 @@ namespace UniprotDistributedServer.Controllers
                                 sumcurrent += res.current;
                                 sumtotal += res.total;
                                 done = done && res.done;
+                                details = res.details;
                             }
                             status = "Check if the slave is running";
                         }
@@ -487,8 +502,34 @@ namespace UniprotDistributedServer.Controllers
                 task.blk_total = sumtotal;
                 task.blk_status = "Bulk importing " + sumcurrent + " of " + sumtotal;
                 task.bulkDone = done;
-
+                task.details = details;
+                task.blk_end = DateTime.Now;
                 Thread.Sleep(2000);
+            }
+
+            //Kill all tasks on servers (after 10 secs)
+            Thread.Sleep(10000);
+            foreach (Servers server in Program.Servers)
+            {
+                using (var client = new HttpClient())
+                {
+                    try
+                    {
+                        HttpResponseMessage response = await client.GetAsync(server.api_call + "/slave/kill_task");
+                        if (response.IsSuccessStatusCode)
+                        {
+                            Stream receiveStream = await response.Content.ReadAsStreamAsync();
+                            StreamReader readStream = new StreamReader(receiveStream, Encoding.UTF8);
+                            string result = readStream.ReadToEnd();
+                            task.details = result;
+                        }
+                        task.details = "Check if the slave is running";
+                    }
+                    catch (Exception)
+                    {
+                        task.details = "Check if the slave is running";
+                    }
+                }
             }
 
             //Bulk done

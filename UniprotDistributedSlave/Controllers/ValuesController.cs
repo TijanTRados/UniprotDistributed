@@ -129,7 +129,7 @@ namespace UniprotDistributedSlave.Controllers
                     task.current = counter;
 
                     //Bulk insert it
-                    Console.Write(ShellHelper.Bash("/opt/mssql-tools/bin/bcp " + Program.myMainTable +
+                    task.details = (ShellHelper.Bash("/opt/mssql-tools/bin/bcp " + Program.myMainTable +
                         " in " + file +
                         " -S " + Program.myDbCall +
                         " -U " + Program.username +
@@ -138,6 +138,8 @@ namespace UniprotDistributedSlave.Controllers
                         " -c " +
                         " -t '\\t' -r '\\n'"
                        ).ToString() + "\n");
+                    Console.WriteLine(task.details);
+
                     //Remove it
                     ShellHelper.Bash("rm " + file);
 
@@ -150,9 +152,18 @@ namespace UniprotDistributedSlave.Controllers
                 task.Status = "Done";
                 task.done = true;
                 Thread.Sleep(60000);
-                Program.taskList.Remove(task);
             }
             
+        }
+
+        [HttpGet]
+        [Route("kill_task")]
+        //Removes task from the list (when everything is done this should be called!
+        public string Kill()
+        {
+            Console.WriteLine(DateTime.Now + "Bulk task killed");
+            Program.taskList.RemoveAt(0);
+            return "Bulk task killed";
         }
 
         [HttpGet]
@@ -169,7 +180,8 @@ namespace UniprotDistributedSlave.Controllers
                         status = task.Status,
                         current = task.current,
                         total = task.total,
-                        done = task.done
+                        done = task.done,
+                        details = task.details
                     });
                 }
             }
