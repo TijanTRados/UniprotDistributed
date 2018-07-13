@@ -330,7 +330,7 @@ namespace UniprotDistributedServer.Controllers
             //Everything is splited into pieces inside of sourcefile directory ~ workingdirectory/Run/
             if (Int32.Parse(ShellHelper.Bash("test -e " + workingDirectory + "Run/ && echo 1 || echo 0")) == 1)
             {
-                ShellHelper.Bash("echo tijan99 | sudo rm -r " + workingDirectory + "Run/");
+                ShellHelper.Bash("rm -r " + workingDirectory + "Run/");
             }
             ShellHelper.Bash("echo tijan99 | mkdir " + workingDirectory + "Run/");
             string splitBash = "echo tijan99 | split -l 100000 --additional-suffix=.csv " + sourceFile + " " + workingDirectory + "Run/";
@@ -382,7 +382,7 @@ namespace UniprotDistributedServer.Controllers
 
             #region Deleting the /Run folder
             //With one single bash line
-            ShellHelper.Bash("echo tijan99 | sudo rm -r " + workingDirectory + "Run/");
+            ShellHelper.Bash("rm -r " + workingDirectory + "Run/");
             #endregion
 
             task.broadcastDone = true;

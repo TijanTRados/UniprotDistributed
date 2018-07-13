@@ -83,7 +83,7 @@
             data: { path: $('#FileName')[0].value },
             type: 'GET',
             success: function (response) {
-                $('#otherinfo').html(response);
+                start();
             }
         });
     })
@@ -106,10 +106,14 @@
 
     $('#Checker').click(function () {
         //If this is finished or first time -> then start the thread
+        start();
+    })
+
+    function start(){
         if (isFinished) {
             repeat();
         }
-    })
+    }
 
     function repeat() {
         //Initialisation
@@ -140,50 +144,58 @@
 
     function callback(resJson) {
         var res = JSON.parse(resJson);
+        var percantage = 0;
 
         if (res.status.includes("split")) {
-            var percantage = Math.round((res.s_current / res.s_total) * 100)
+            percantage = Math.round((res.s_current / res.s_total) * 100)
             $('#split_progress').html(res.s_status);
             $('#split_progress').attr('aria-valuenow', percantage);
             $('#split_progress').css('width', percantage + '%');
         }
-        if (res.s_status) {
+        if (res.s_status === true) {
             $('#split_progress').html(res.s_status);
-            $('#split_progress').attr('aria-valuenow', 100);
-            $('#split_progress').css('width', '100%');
+            $('#split_progress').attr('aria-valuenow', percantage);
+            $('#split_progress').css('width', percantage + '%');
             $('#s_check').css('visibility', 'visible');
+            $('#split_progress').removeClass("progress-bar progress-bar-striped active");
+            $('#split_progress').addClass(".progress-bar-success");
 
         }
 
         if (res.status.includes("broadcast")) {
-            var percantage = Math.round((res.b_current / res.b_total) * 100)
+            percantage = Math.round((res.b_current / res.b_total) * 100)
             $('#broadcast_progress').html(res.b_status);
             $('#broadcast_progress').attr('aria-valuenow', percantage);
             $('#broadcast_progress').css('width', percantage + '%');
         }
-        if (res.b_status) {
+        if (res.b_status === true) {
             $('#broadcast_progress').html(res.b_status);
-            $('#broadcast_progress').attr('aria-valuenow', 100);
-            $('#broadcast_progress').css('width', '100%');
+            $('#broadcast_progress').attr('aria-valuenow', percantage);
+            $('#broadcast_progress').css('width', percantage + '%');
             $('#b_check').css('visibility', 'visible');
+            $('#broadcast_progress').removeClass("progress-bar progress-bar-striped active");
+            $('#broadcast_progress').addClass(".progress-bar-success");
         }
 
         if (res.status.includes("bulk")) {
-            var percantage = Math.round((res.blk_current / res.blk_total) * 100)
+            percantage = Math.round((res.blk_current / res.blk_total) * 100)
             $('#bulk_progress').html(res.blk_status);
             $('#bulk_progress').attr('aria-valuenow', percantage);
             $('#bulk_progress').css('width', percantage + '%');
         }
-        if (res.blk_status) {
+        if (res.blk_status === true) {
             $('#bulk_progress').html(res.blk_status);
             $('#bulk_progress').attr('aria-valuenow', 100);
             $('#bulk_progress').css('width', '100%');
             $('#blk_check').css('visibility', 'visible');
+            $('#bulk_progress').removeClass("progress-bar progress-bar-striped active");
+            $('#bulk_progress').addClass(".progress-bar-success");
         }
 
 
         if (res.status.includes("finished")) {
             isFinished = true;
+            $('#otherinfo').html("Inport finished.");
         }
         return res;
     }
