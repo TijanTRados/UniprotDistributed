@@ -9,6 +9,7 @@ using System.Web;
 using RestSharp;
 using RestSharp.Extensions;
 using System.Threading;
+using Newtonsoft.Json;
 
 namespace UniprotDistributedSlave.Controllers
 {
@@ -114,16 +115,19 @@ namespace UniprotDistributedSlave.Controllers
         public void Bulkloader(Models.Task task)
         {
             string[] files = Directory.GetFiles(Program.myWorkingDirectory);
-            int counter = 0;
+            int counter = 1;
 
             if (files.Length == 0) return;
             else
             {
-                task.Status = "Bulk importing " + counter + " of " + files.Length;
+                task.total = files.Length;
 
                 Console.Write("Bulk file " + counter + " of " + files.Length + "\n");
                 foreach (string file in files)
                 {
+                    task.Status = "Bulk importing " + counter + " of " + files.Length;
+                    task.current = counter;
+
                     //Bulk insert it
                     Console.Write(ShellHelper.Bash("/opt/mssql-tools/bin/bcp " + Program.myMainTable +
                         " in " + file +
@@ -135,16 +139,16 @@ namespace UniprotDistributedSlave.Controllers
                         " -t '\\t' -r '\\n'"
                        ).ToString() + "\n");
                     //Remove it
-                    ShellHelper.Bash("echo tijan99 | sudo rm " + file);
+                    ShellHelper.Bash("rm " + file);
 
                     //Count
-                    task.bulkcount++;
                     counter++;
                 }
 
                 Console.Write("Bulk successfull loaded: " + counter + " files.");
 
-                task.Status = "Bulk finished.";
+                task.Status = "Done";
+                task.done = true;
                 Thread.Sleep(60000);
                 Program.taskList.Remove(task);
             }
@@ -157,10 +161,24 @@ namespace UniprotDistributedSlave.Controllers
         {
             if (Program.taskList.Count > 0)
             {
-                return Program.taskList[0].Status;
+                Models.Task task = Program.taskList[0];
+                if (task != null)
+                {
+                    return JsonConvert.SerializeObject(new
+                    {
+                        status = task.Status,
+                        current = task.current,
+                        total = task.total,
+                        done = task.done
+                    });
+                }
             }
-            else return "Bulk not running";
-            
+
+            return JsonConvert.SerializeObject(new
+            {
+                status = "no tasks running",
+                time = DateTime.Now
+            });
         }
     }
 }

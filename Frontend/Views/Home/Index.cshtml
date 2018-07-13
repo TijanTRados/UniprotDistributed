@@ -7,13 +7,12 @@
         <h2>Import To Database</h2>
 
         <div>Enter file path:</div>
-        <input class="form-control" type="text" name="NAME" id="FileName" />
+        <input class="form-control" type="text" name="NAME" id="FileName" value="/home/tag/uniprot/uniprot_trembl_archaea.csv"/>
         <button class=" btn btn-primary btn-lg btn-block" id="Load">Load</button>
         <hr/>
 
         <div>
-            <button class=" btn btn-primary" id="Info">Check Status</button>
-            <button class=" btn btn-primary" id="Checker">Run checker</button>
+            <button class=" btn btn-primary" id="Checker">Activate checker</button>
             <button class=" btn btn-primary" id="Slaves">Check Slaves</button>
             <button class=" btn btn-primary" id="Bulk">Check Bulk Status</button>
         </div>
@@ -22,7 +21,7 @@
         <div class="col-md-12">
             <h3>Info:</h3>
             <div id="output" class="col-md-12">
-                <table style="width:100%">
+                <table id="table" style="width:100%;visibility:collapse">
                     <tr >
                         <td style="vertical-align:top">Split</td>
                         <td style="vertical-align:top; width:90%">
@@ -67,7 +66,7 @@
                 </table>
                 
 
-                <div id="otherinfo"></div>
+                <div id="otherinfo" style="font-family:'Courier New'"></div>
             </div>
         </div>
 
@@ -77,6 +76,11 @@
 
 <script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
 <script>
+    $(document).ready(function () {
+        start();
+
+    })
+
     $('#Load').click(function () {
         $.ajax({
             url: '/Home/Load',
@@ -106,6 +110,7 @@
 
     $('#Checker').click(function () {
         //If this is finished or first time -> then start the thread
+        $('#table').css('visibility', 'visible');
         start();
     })
 
@@ -152,13 +157,13 @@
             $('#split_progress').attr('aria-valuenow', percantage);
             $('#split_progress').css('width', percantage + '%');
         }
-        if (res.s_status === true) {
+        if (res.splitDone == true) {
             $('#split_progress').html(res.s_status);
-            $('#split_progress').attr('aria-valuenow', percantage);
-            $('#split_progress').css('width', percantage + '%');
+            $('#split_progress').attr('aria-valuenow', 100);
+            $('#split_progress').css('width', '100%');
             $('#s_check').css('visibility', 'visible');
             $('#split_progress').removeClass("progress-bar progress-bar-striped active");
-            $('#split_progress').addClass(".progress-bar-success");
+            $('#split_progress').addClass("progress-bar progress-bar-success");
 
         }
 
@@ -168,13 +173,13 @@
             $('#broadcast_progress').attr('aria-valuenow', percantage);
             $('#broadcast_progress').css('width', percantage + '%');
         }
-        if (res.b_status === true) {
+        if (res.broadcastDone == true) {
             $('#broadcast_progress').html(res.b_status);
-            $('#broadcast_progress').attr('aria-valuenow', percantage);
-            $('#broadcast_progress').css('width', percantage + '%');
+            $('#broadcast_progress').attr('aria-valuenow', 100);
+            $('#broadcast_progress').css('width', '100%');
             $('#b_check').css('visibility', 'visible');
             $('#broadcast_progress').removeClass("progress-bar progress-bar-striped active");
-            $('#broadcast_progress').addClass(".progress-bar-success");
+            $('#broadcast_progress').addClass("progress-bar progress-bar-success");
         }
 
         if (res.status.includes("bulk")) {
@@ -183,13 +188,13 @@
             $('#bulk_progress').attr('aria-valuenow', percantage);
             $('#bulk_progress').css('width', percantage + '%');
         }
-        if (res.blk_status === true) {
+        if (res.bulkDone == true) {
             $('#bulk_progress').html(res.blk_status);
             $('#bulk_progress').attr('aria-valuenow', 100);
             $('#bulk_progress').css('width', '100%');
             $('#blk_check').css('visibility', 'visible');
             $('#bulk_progress').removeClass("progress-bar progress-bar-striped active");
-            $('#bulk_progress').addClass(".progress-bar-success");
+            $('#bulk_progress').addClass("progress-bar progress-bar-success");
         }
 
 

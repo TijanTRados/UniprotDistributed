@@ -132,11 +132,11 @@ namespace UniprotDistributedServer.Controllers
                         string result = readStream.ReadToEnd();
                         slaveInfo.Add(server.api_call + ": " + result);
                     }
-                    else slaveInfo.Add(server.api_call + " - Slave Not Running");
+                    else slaveInfo.Add(server.api_call + ": Slave Not Running");
                 }
                 catch (Exception)
                 {
-                    slaveInfo.Add(server.api_call + " - Slave Not Running");
+                    slaveInfo.Add(server.api_call + ": Slave Not Running");
                 }
             }
 
@@ -160,11 +160,11 @@ namespace UniprotDistributedServer.Controllers
                     string result = readStream.ReadToEnd();
                     return (slave + ": " + result);
                 }
-                else return (slave + ": - Error, Slave Not Running. Activate the slave and then Try activating the bulk load manually with /master/start_bulk?slave={host}:{port}");
+                else return (slave + ": Error, Slave Not Running. Activate the slave and then Try activating the bulk load manually with /master/start_bulk?slave={host}:{port}");
             }
             catch (Exception)
             {
-                return (slave + ": - Error, Slave Not Running. Activate the slave and then Try activating the bulk load manually with /master/start_bulk?slave={host}:{port}");
+                return (slave + ": Error, Slave Not Running. Activate the slave and then Try activating the bulk load manually with /master/start_bulk?slave={host}:{port}");
             }
         }
 
@@ -350,7 +350,7 @@ namespace UniprotDistributedServer.Controllers
             //Now it reads all the files from ~ workingdirectory/Run/
             string[] files = Directory.GetFiles(workingDirectory + "Run/");
 
-            int counter = 0;
+            int counter = 1;
             foreach (string file in files)
             {
                 Random r = new Random();
@@ -390,34 +390,75 @@ namespace UniprotDistributedServer.Controllers
 
 
             #region Bulk Insert Activation
-            ////Activating the bulk insert
-            //List<string> slaveInfo = new List<string>();
-            //foreach (Servers server in Program.Servers)
-            //{
-            //    HttpClient client = new HttpClient();
+            //Activating the bulk insert
+            List<string> slaveInfo = new List<string>();
+            foreach (Servers server in Program.Servers)
+            {
+                HttpClient client = new HttpClient();
 
-            //    try
-            //    {
-            //        HttpResponseMessage response = await client.GetAsync(server.api_call + "/slave/start_bulk");
-            //        if (response.IsSuccessStatusCode)
-            //        {
-            //            Stream receiveStream = await response.Content.ReadAsStreamAsync();
-            //            StreamReader readStream = new StreamReader(receiveStream, Encoding.UTF8);
-            //            string result = readStream.ReadToEnd();
-            //            slaveInfo.Add(server.api_call + " :" + result + ". Check it with /master/check_bulk_status");
-            //        }
-            //        else slaveInfo.Add(server.api_call + " - Error, Slave Not Running, Try activating it manually with /master/start_bulk?slave={host}:{port}");
-            //    }
-            //    catch (Exception)
-            //    {
-            //        slaveInfo.Add(server.api_call + " - - Error, Slave Not Running, Try activating it manually with /master/start_bulk?slave={host}:{port}");
-            //    }
-            //}
+                try
+                {
+                    HttpResponseMessage response = await client.GetAsync(server.api_call + "/slave/start_bulk");
+                    if (response.IsSuccessStatusCode)
+                    {
+                        Stream receiveStream = await response.Content.ReadAsStreamAsync();
+                        StreamReader readStream = new StreamReader(receiveStream, Encoding.UTF8);
+                        string result = readStream.ReadToEnd();
+                        slaveInfo.Add(server.api_call + " :" + result + ". Check it with /master/check_bulk_status");
+                    }
+                    else slaveInfo.Add(server.api_call + " - Error, Slave Not Running, Try activating it manually with /master/start_bulk?slave={host}:{port}");
+                }
+                catch (Exception)
+                {
+                    slaveInfo.Add(server.api_call + " - - Error, Slave Not Running, Try activating it manually with /master/start_bulk?slave={host}:{port}");
+                }
+            }
 
-            //task.Status = string.Join('\n', slaveInfo);
+            //Constantly repeat check! (Every 2 secs)
+            while (!task.bulkDone)
+            {
+                int sumcurrent = 0;
+                int sumtotal = 0;
+                string status = "";
+                bool done = true;
 
+                foreach(Servers server in Program.Servers)
+                {
+                    using (var client = new HttpClient())
+                    {
+                        try
+                        {
+                            HttpResponseMessage response = await client.GetAsync(server.api_call + "/slave/check_bulk");
+                            if (response.IsSuccessStatusCode)
+                            {
+                                Stream receiveStream = await response.Content.ReadAsStreamAsync();
+                                StreamReader readStream = new StreamReader(receiveStream, Encoding.UTF8);
+                                string result = readStream.ReadToEnd();
+                                var res = JsonConvert.DeserializeObject<BulkModel>(result);
+                                status += res.status + "/";
+                                sumcurrent += res.current;
+                                sumtotal += res.total;
+                                done = done && res.done;
+                            }
+                            status = "Check if the slave is running";
+                        }
+                        catch (Exception)
+                        {
+                            status = "Check if the slave is running";
+                        }
+                    }
+                }
+
+                task.blk_current = sumcurrent;
+                task.blk_total = sumtotal;
+                task.blk_status = "Bulk importing " + sumcurrent + " of " + sumtotal;
+                task.bulkDone = done;
+
+                Thread.Sleep(2000);
+            }
+
+            //Bulk done
             task.blk_status = "Done";
-            task.bulkDone = true;
 
             TimeStatistics.Add(DateTime.Now + ": Activating the bulk insertions: " + stopwatch.Elapsed);
             stopwatch.Stop();

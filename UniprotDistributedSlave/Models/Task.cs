@@ -8,22 +8,26 @@ namespace UniprotDistributedSlave.Models
 {
     public class Task
     {
-        public int guid { get; set; }
         public DateTime StartTime { get; set; }
         private string _status;
-        public int bulkcount;
+
+        public int current { get; set; }
+        public int total { get; set; }
         public Thread Thread { get; set; }
+        public bool done { get; set; }
 
         public Task()
         {
             StartTime = DateTime.Now;
-            Status = "Bulk started";
-            bulkcount = 0;
+            Status = "started";
+            current = 0;
+            total = 0;
+            done = false;
         }
 
         public string Status
         {
-            get { return _status; } set { _status = DateTime.Now + ": " + value; }
+            get { return _status; } set { _status = value; }
         }
     }
 }
