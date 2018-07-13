@@ -23,6 +23,8 @@ namespace UniprotDistributedSlave.Controllers
         [Route("get")]
         public string Get(string sql)
         {
+            string sqlx = sql.Replace("maintable", Program.myMainTable);
+
             BaseDataAccess DataBase = new BaseDataAccess(Program.myDatabaseConnectionString);
 
             List<DbParameter> parameterList = new List<DbParameter>();
@@ -31,7 +33,7 @@ namespace UniprotDistributedSlave.Controllers
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
 
-            using (DbDataReader dataReader = DataBase.ExecuteDataReader(sql, parameterList))
+            using (DbDataReader dataReader = DataBase.ExecuteDataReader(sqlx, parameterList))
             {
                 stopwatch.Stop();
                 if (dataReader != null && dataReader.HasRows)
