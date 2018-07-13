@@ -487,7 +487,7 @@ namespace UniprotDistributedServer.Controllers
                                 sumcurrent += res.current;
                                 sumtotal += res.total;
                                 done = done && res.done;
-                                details = res.details;
+                                details += "Server n: " + res.details;
                             }
                             status = "Check if the slave is running";
                         }
