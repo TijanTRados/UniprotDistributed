@@ -60,7 +60,6 @@ namespace UniprotDistributedSlave.Controllers
         public bool CheckWorkingDirectory()
         {
             string directory = Program.myWorkingDirectory;
-            Console.WriteLine(directory);
 
             if (Directory.Exists(directory))
             {
@@ -96,6 +95,7 @@ namespace UniprotDistributedSlave.Controllers
                     fileLines.RemoveRange(fileLines.Count - 3, 2);
 
                     System.IO.File.WriteAllText(Program.myWorkingDirectory + Request.Headers["file-name"], string.Join('\n', fileLines));
+                    Console.WriteLine($"Saved to " + Program.myWorkingDirectory + Request.Headers["file-name"]);
                     return $"Saved to " + Program.myWorkingDirectory + Request.Headers["file-name"];
                 }
                 catch (Exception ex)
@@ -192,9 +192,18 @@ namespace UniprotDistributedSlave.Controllers
         //Removes task from the list (when everything is done this should be called!
         public string Kill()
         {
-            Console.WriteLine(DateTime.Now + "Bulk task killed");
-            Program.taskList.RemoveAt(0);
-            return "Bulk task killed";
+            if (Program.taskList.Count() > 0)
+            {
+                Console.WriteLine(DateTime.Now + "Bulk task killed");
+                Program.taskList.RemoveAt(0);
+                return "Bulk task killed";
+            }
+
+            else
+            {
+                return "Bulk is not running";
+            }
+            
         }
 
         [HttpGet]
@@ -219,6 +228,7 @@ namespace UniprotDistributedSlave.Controllers
 
             return JsonConvert.SerializeObject(new
             {
+                done = true,
                 status = "no tasks running",
                 time = DateTime.Now
             });

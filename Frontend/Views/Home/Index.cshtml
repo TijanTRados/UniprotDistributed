@@ -16,6 +16,7 @@
             <button class=" btn btn-primary" id="Slaves">Check Slaves</button>
             <button class=" btn btn-primary" id="Bulk">Check Bulk Status</button>
             <button class=" btn btn-primary" id="ShowDetails">Show Details</button>
+            <button class=" btn btn-primary" id="Kill">Kill All Bulks</button>
         </div>
 
         <hr/>
@@ -86,6 +87,22 @@
         if ($('#detailsShow').css('visibility', 'visible'))
         $('#detailsShow').css('visibility', 'visible');
 
+    })
+
+    $('#Kill').click(function () {
+        $.ajax({
+            url: '/Home/Kill',
+            type: 'GET',
+            dataType: 'json',
+            success: function (response) {
+                if (response.success == true) {
+                    $('#otherinfo').html("Killed");
+                } else {
+                    $('#otherinfo').html("Something went wrong...");
+                }
+
+            }
+        });
     })
 
     $('#Load').click(function () {

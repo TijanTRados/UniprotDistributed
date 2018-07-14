@@ -294,6 +294,50 @@ namespace UniprotDistributedServer.Controllers
             }
         }
 
+        [HttpGet]
+        [Route("kill")]
+        public async Task<List<string>> KillTasks()
+        {
+            List<string> returnvalues = new List<string>();
+
+            foreach (Servers server in Program.Servers)
+            {
+                using (var client = new HttpClient())
+                {
+                    try
+                    {
+                        HttpResponseMessage response = await client.GetAsync(server.api_call + "/slave/kill_task");
+                        if (response.IsSuccessStatusCode)
+                        {
+                            Stream receiveStream = await response.Content.ReadAsStreamAsync();
+                            StreamReader readStream = new StreamReader(receiveStream, Encoding.UTF8);
+                            string result = readStream.ReadToEnd();
+                            returnvalues.Add(JsonConvert.SerializeObject(new
+                            {
+                                server = server.api_call,
+                                status = "result"
+                            }));
+                        }
+                        
+                        returnvalues.Add(JsonConvert.SerializeObject(new
+                        {
+                            server = server.api_call,
+                            status = "Check if the slave is running"
+                        }));
+                    }
+                    catch (Exception)
+                    {
+                        returnvalues.Add(JsonConvert.SerializeObject(new
+                        {
+                            server = server.api_call,
+                            status = "Check if the slave is running"
+                        }));
+                    }
+                }
+            }
+            return returnvalues;
+        }
+
         //Thread function that checks split info
         public void checkSplit(string workingDirectory, string sourceFile, Models.Task task)
         {
@@ -369,8 +413,8 @@ namespace UniprotDistributedServer.Controllers
             {
                 ShellHelper.Bash("rm -r " + workingDirectory + "Run/");
             }
-            ShellHelper.Bash("echo tijan99 | mkdir " + workingDirectory + "Run/");
-            string splitBash = "echo tijan99 | split -l 100000 --additional-suffix=.csv " + sourceFile + " " + workingDirectory + "Run/";
+            ShellHelper.Bash("mkdir " + workingDirectory + "Run/");
+            string splitBash = "split -l 100000 --additional-suffix=.csv " + sourceFile + " " + workingDirectory + "Run/";
             task.details = ShellHelper.Bash(splitBash);
 
             //Aborting split thread work after it's done
