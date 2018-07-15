@@ -40,14 +40,13 @@ namespace UniprotDistributedSlave.Controllers
 
             using (SqlDataReader datareader = DataBase.ExecuteSqlDataReader(sqlx))
             {
-                stopwatch.Stop();
-                Console.WriteLine(stopwatch.Elapsed);
-
                 var r = Serialize(datareader);
                 Console.WriteLine("Response: " + r);
                 returnvalue = JsonConvert.SerializeObject(r);
                 Console.WriteLine("Returning to app: " + returnvalue);
             }
+            stopwatch.Stop();
+            Console.WriteLine("TIME TO GET AND RETURN: " + stopwatch.Elapsed);
 
             return returnvalue;
         }

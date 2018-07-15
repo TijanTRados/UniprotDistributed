@@ -44,6 +44,8 @@ namespace UniprotDistributedServer.Controllers
         public async Task<string> Get(string sql)
         {
             List<Peptides> results = new List<Peptides>();
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
 
             foreach (Servers server in Program.Servers)
             {
@@ -55,8 +57,11 @@ namespace UniprotDistributedServer.Controllers
                 {
                     Console.WriteLine("Call: " + server.api_call + "/slave/get?sql=" + sql);
 
+                    Stopwatch asyncwait = new Stopwatch();
+                    asyncwait.Start();
                     HttpResponseMessage response = await client.GetAsync(server.api_call + "/slave/get?sql=" + sql);
-                    Console.WriteLine(response);
+                    asyncwait.Stop();
+                    Console.WriteLine("WAITING TIME FOR ANSWER: " + asyncwait.Elapsed);
                     if (response.IsSuccessStatusCode)
                     {
 
@@ -68,7 +73,7 @@ namespace UniprotDistributedServer.Controllers
                     }
                     else
                     {
-                        Console.WriteLine(DateTime.Now + ": " + response);
+                        Console.WriteLine("Status code is not SUCCESS");
                         temp.Add(new Peptides
                         {
                             acc = "",
@@ -95,10 +100,13 @@ namespace UniprotDistributedServer.Controllers
                     });
 
                 }
-
+                
                 results.AddRange(temp);
             }
+            stopwatch.Stop();
 
+            Console.WriteLine("Time for do all this: " + stopwatch.Elapsed);
+            Console.WriteLine("-----------------------------------------");
             return JsonConvert.SerializeObject(results, Formatting.Indented);
         }
 
