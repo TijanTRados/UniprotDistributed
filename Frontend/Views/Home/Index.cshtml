@@ -7,7 +7,7 @@
         <h2>Import To Database</h2>
 
         <div>Enter file path:</div>
-        <input class="form-control" type="text" name="NAME" id="FileName" value="/home/tag/uniprot/uniprot_trembl_human.csv"/>
+        <input class="form-control" type="text" name="NAME" id="FileName" value="/home/users/tag/uniprot2/uniprot_trembl_vertebrates.csv"/>
         <button class=" btn btn-primary btn-lg btn-block" id="Load">Load</button>
         <hr/>
 
@@ -233,7 +233,7 @@
 
         if (res.status.includes("finished")) {
             isFinished = true;
-            $('#otherinfo').html("<div>\"Import finished.\"<div></div><div>Time statistics:</div><div>Split: "+res.s_time+"</div><div>Broadcast: "+res.b_time+"</div><div>Bulk: "+res.blk_time+"</div></div>");
+            $('#otherinfo').html("<div>\"Import finished.\"<div></div><div>Time statistics:</div><div>Split: " + res.s_time + "</div><div>Splitted file size: " + res.s_total + "</div><div>Broadcast: " + res.b_time + "</div><div>Broadcasted files: " + res.b_total + "</div><div>Bulk: " + res.blk_time + "</div><div>Bulk loaded files: " + res.blk_total + "</div></div>");
         }
         return res;
     }

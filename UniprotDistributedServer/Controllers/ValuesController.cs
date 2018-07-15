@@ -341,24 +341,27 @@ namespace UniprotDistributedServer.Controllers
         //Thread function that checks split info
         public void checkSplit(string workingDirectory, string sourceFile, Models.Task task)
         {
-            string sourceSize = ShellHelper.Bash("du -h -k " + sourceFile).Split('\t')[0];
-            int sourceSizeGB = Int32.Parse(sourceSize)/1024;
-
-            string folderSize = ShellHelper.Bash("du -sh -k " + workingDirectory + "Run/").Split('\t')[0];
-            int folderSizeGB = Int32.Parse(folderSize)/1024;
+            string sourceSize, folderSize;
+            int sourceSizeGB, folderSizeGB;
 
             while (!task.splitDone)
             {
-                task.s_status = "Splitting file into pieces. Current size: " + folderSizeGB + "KB of " + sourceSizeGB + "KB";
-                task.s_current = folderSizeGB;
-                task.s_total = sourceSizeGB;
-                Thread.Sleep(2000);
+                try
+                {
+                    sourceSize = ShellHelper.Bash("du -h -k " + sourceFile).Split('\t')[0];
+                    sourceSizeGB = Int32.Parse(sourceSize) / 1024;
 
-                sourceSize = ShellHelper.Bash("du -h -k " + sourceFile).Split('\t')[0];
-                sourceSizeGB = Int32.Parse(sourceSize) / 1024;
+                    folderSize = ShellHelper.Bash("du -sh -k " + workingDirectory + "Run/").Split('\t')[0];
+                    folderSizeGB = Int32.Parse(folderSize) / 1024;
 
-                folderSize = ShellHelper.Bash("du -sh -k " + workingDirectory + "Run/").Split('\t')[0];
-                folderSizeGB = Int32.Parse(folderSize) / 1024;
+                    task.s_status = "Splitting file into pieces. Current size: " + folderSizeGB + "KB of " + sourceSizeGB + "KB";
+                    task.s_current = folderSizeGB;
+                    task.s_total = sourceSizeGB;
+                    Thread.Sleep(2000);
+                }
+                catch (Exception)
+                {
+                }
             }
         }
 
