@@ -33,6 +33,8 @@ namespace UniprotDistributedSlave.Controllers
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
 
+            Console.WriteLine(sqlx);
+
             using (DbDataReader dataReader = DataBase.ExecuteDataReader(sqlx, parameterList))
             {
                 stopwatch.Stop();
