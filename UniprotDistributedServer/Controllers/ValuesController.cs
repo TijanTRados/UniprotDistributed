@@ -53,7 +53,7 @@ namespace UniprotDistributedServer.Controllers
 
                 try
                 {
-                    HttpResponseMessage response = await client.GetAsync(DateTime.Now + ": " + server.api_call + "/slave/get?sql=" + sql);
+                    HttpResponseMessage response = await client.GetAsync(server.api_call + "/slave/get?sql=" + sql);
                     Console.WriteLine(response);
                     if (response.IsSuccessStatusCode)
                     {
