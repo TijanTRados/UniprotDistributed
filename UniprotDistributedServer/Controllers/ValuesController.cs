@@ -41,9 +41,11 @@ namespace UniprotDistributedServer.Controllers
         // GET api/values
         [HttpGet]
         [Route("get")]
-        public async Task<List<string>> Get(string sql)
+        public async Task<string> Get(string sql)
         {
+            string returnvalue = "NONE";
             List<string> results = new List<string>();
+            List<DataTable> resultTables = new List<DataTable>();
 
             foreach (Servers server in Program.Servers)
             {
@@ -55,21 +57,29 @@ namespace UniprotDistributedServer.Controllers
                     Console.WriteLine(response);
                     if (response.IsSuccessStatusCode)
                     {
-                        
+
                         Stream receiveStream = await response.Content.ReadAsStreamAsync();
                         StreamReader readStream = new StreamReader(receiveStream, Encoding.UTF8);
                         string result = readStream.ReadToEnd();
-                        results.Add(result);
+
+                        returnvalue = result;
+                        //resultTables.Add((DataTable)JsonConvert.DeserializeObject(result));
                     }
-                    else results.Add(server.api_call + ": " + response.StatusCode + " - " + response.Content);
+                    else
+                    {
+                        results.Add(server.api_call + ": " + response.StatusCode + " - " + response.Content);
+                        returnvalue = "Error";
+                    }
+
                 }
                 catch (Exception ex)
                 {
+                    returnvalue = "Error";
                     results.Add(server.api_call + ": " + ex.Message);
                 }
             }
 
-            return results;
+            return returnvalue;
         }
 
         [HttpGet]
