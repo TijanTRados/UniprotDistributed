@@ -59,11 +59,11 @@ namespace UniprotDistributedServer.Controllers
                         string result = readStream.ReadToEnd();
                         results.Add(result);
                     }
-                    else results.Add(server.api_call + ": Slave Not Running");
+                    else results.Add(server.api_call + ": " + response.StatusCode + " - " + response.Content);
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
-                    results.Add(server.api_call + ": Slave Not Running");
+                    results.Add(server.api_call + ": " + ex.Message);
                 }
             }
 

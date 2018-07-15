@@ -183,7 +183,7 @@
 
         if (res.status.includes("split")) {
             percantage = Math.round((res.s_current / res.s_total) * 100)
-            $('#split_progress').html(res.s_status);
+            $('#split_progress').html(res.s_status + " (" + percantage+"%)");
             $('#split_progress').attr('aria-valuenow', percantage);
             $('#split_progress').css('width', percantage + '%');
             $('#details').html(res.details);
@@ -200,7 +200,7 @@
 
         if (res.status.includes("broadcast")) {
             percantage = Math.round((res.b_current / res.b_total) * 100)
-            $('#broadcast_progress').html(res.b_status);
+            $('#broadcast_progress').html(res.b_status + " (" + percantage + "%)");
             $('#broadcast_progress').attr('aria-valuenow', percantage);
             $('#broadcast_progress').css('width', percantage + '%');
             $('#details').html(res.details);
@@ -216,7 +216,7 @@
 
         if (res.status.includes("bulk")) {
             percantage = Math.round((res.blk_current / res.blk_total) * 100)
-            $('#bulk_progress').html(res.blk_status);
+            $('#bulk_progress').html(res.blk_status + " (" + percantage + "%)");
             $('#bulk_progress').attr('aria-valuenow', percantage);
             $('#bulk_progress').css('width', percantage + '%');
             $('#details').html(res.details);

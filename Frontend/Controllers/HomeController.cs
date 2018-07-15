@@ -23,6 +23,32 @@ namespace Frontend.Controllers
         }
 
         [HttpGet]
+        public async Task<string> Get(string sql)
+        {
+            using (var client = new HttpClient())
+            {
+                try
+                {
+                    string sql2correct = sql.Replace(" ", "%20");
+
+                    HttpResponseMessage response = await client.GetAsync(SERVER + "/master/get?sql=" + sql2correct);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        Stream receiveStream = await response.Content.ReadAsStreamAsync();
+                        StreamReader readStream = new StreamReader(receiveStream, Encoding.UTF8);
+                        string result = readStream.ReadToEnd();
+                        return result;
+                    }
+                    else return "{ Check if the master server is running}";
+                }
+                catch (Exception)
+                {
+                    return "{Check if the master server is running}";
+                }
+            }
+        }
+
+        [HttpGet]
         public async Task<string> Load(string path)
         {
             using (var client = new HttpClient())
@@ -134,31 +160,6 @@ namespace Frontend.Controllers
                 catch (Exception)
                 {
                     return "Check if the master server is running";
-                }
-            }
-        }
-
-
-
-        public async Task<string> Get(string sql)
-        {
-            using (var client = new HttpClient())
-            {
-                try
-                {
-                    HttpResponseMessage response = await client.GetAsync(SERVER + "/master/get?sql=" + sql);
-                    if (response.IsSuccessStatusCode)
-                    {
-                        Stream receiveStream = await response.Content.ReadAsStreamAsync();
-                        StreamReader readStream = new StreamReader(receiveStream, Encoding.UTF8);
-                        string result = readStream.ReadToEnd();
-                        return result;
-                    }
-                    else return "{ Check if the master server is running}";
-                }
-                catch (Exception)
-                {
-                    return "{Check if the master server is running}";
                 }
             }
         }
