@@ -41,11 +41,9 @@ namespace UniprotDistributedServer.Controllers
         // GET api/values
         [HttpGet]
         [Route("get")]
-        public async Task<string> Get(string sql)
+        public async Task<IEnumerable<string>> Get(string sql)
         {
-            string returnvalue = "NONE";
             List<string> results = new List<string>();
-            List<DataTable> resultTables = new List<DataTable>();
 
             foreach (Servers server in Program.Servers)
             {
@@ -62,29 +60,21 @@ namespace UniprotDistributedServer.Controllers
                         StreamReader readStream = new StreamReader(receiveStream, Encoding.UTF8);
                         string result = readStream.ReadToEnd();
 
-                        returnvalue = result;
-                        resultTables.Add((DataTable)JsonConvert.DeserializeObject(result));
+                        results.Add(result);
                     }
                     else
                     {
                         results.Add(server.api_call + ": " + response.StatusCode + " - " + response.Content);
-                        returnvalue = "Error";
                     }
 
                 }
                 catch (Exception ex)
                 {
-                    returnvalue = "Error";
                     results.Add(server.api_call + ": " + ex.Message);
                 }
             }
 
-            foreach (DataTable t in resultTables)
-            {
-                returnvalue+= " table [0, mass]:  " + t.Rows[0]["mass"] + "     ";
-            }
-
-            return "Mass in tables = " + returnvalue;
+            return results;
         }
 
         [HttpGet]

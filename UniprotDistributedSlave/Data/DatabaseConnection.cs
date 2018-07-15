@@ -43,7 +43,7 @@ public class BaseDataAccess
     /// <param name="commandText"></param>
     /// <param name="commandType"></param>
     /// <returns></returns>
-    public DbCommand GetCommand(DbConnection connection, string commandText)
+    public SqlCommand GetCommand(DbConnection connection, string commandText)
     {
         SqlCommand command = new SqlCommand(commandText, connection as SqlConnection);
         command.CommandType = CommandType.Text;
@@ -188,6 +188,35 @@ public class BaseDataAccess
         catch (Exception ex)
         {
             LogException("Failed to GetDataReader for " + procedureName, ex, parameters);
+            throw;
+        }
+
+        return ds;
+    }
+
+    /// <summary>
+    /// ExecuteReader initializes connection, command and executes ExecuteReader method of command object. Provides a way of reading a forward-only stream of rows from a SQL Server database. We have explicitly omitted using block for connection as we need to return DataReader with open connection state. Now question raises that how will we handle connection close open, for this we have created DataReader with "CommandBehavior.CloseConnection", which means, connection will be closed as related DataReader is closed. Please refer to MSDN for more details about SqlCommand.ExecuteReader and SqlDataReader.
+    /// </summary>
+    /// <param name="procedureName"></param>
+    /// <param name="parameters"></param>
+    /// <param name="commandType"></param>
+    /// <returns></returns>
+    public SqlDataReader ExecuteSqlDataReader(string procedureName)
+    {
+        SqlDataReader ds;
+
+        try
+        {
+            SqlConnection connection = this.GetConnection();
+            {
+                SqlCommand cmd = this.GetCommand(connection, procedureName);
+
+                ds = cmd.ExecuteReader(CommandBehavior.CloseConnection);
+            }
+        }
+        catch (Exception ex)
+        {
+            LogException("Failed to GetDataReader for " + procedureName, ex, null);
             throw;
         }
 

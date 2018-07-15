@@ -25,6 +25,7 @@ namespace UniprotDistributedSlave.Controllers
         [Route("get")]
         public string Get(string sql)
         {
+            string returnvalue;
             string sqlx = sql.Replace("maintable", Program.myMainTable);
 
             BaseDataAccess DataBase = new BaseDataAccess(Program.myDatabaseConnectionString);
@@ -36,17 +37,37 @@ namespace UniprotDistributedSlave.Controllers
             stopwatch.Start();
 
             Console.WriteLine(sqlx);
-            string json;
 
-            using (DataSet dataset = DataBase.ExecuteFillDataSet(sqlx, parameterList))
+            using (SqlDataReader datareader = DataBase.ExecuteSqlDataReader(sqlx))
             {
                 stopwatch.Stop();
 
-                json = JsonConvert.SerializeObject(dataset.Tables[0], Formatting.Indented);
-
+                var r = Serialize(datareader);
+                returnvalue = JsonConvert.SerializeObject(r, Formatting.Indented);
             }
 
-            return json;
+            return returnvalue;
+        }
+
+        public IEnumerable<Dictionary<string, object>> Serialize(SqlDataReader reader)
+        {
+            var results = new List<Dictionary<string, object>>();
+            var cols = new List<string>();
+            for (var i = 0; i < reader.FieldCount; i++)
+                cols.Add(reader.GetName(i));
+
+            while (reader.Read())
+                results.Add(SerializeRow(cols, reader));
+
+            return results;
+        }
+        private Dictionary<string, object> SerializeRow(IEnumerable<string> cols,
+                                                        SqlDataReader reader)
+        {
+            var result = new Dictionary<string, object>();
+            foreach (var col in cols)
+                result.Add(col, reader[col]);
+            return result;
         }
 
         [HttpGet]
