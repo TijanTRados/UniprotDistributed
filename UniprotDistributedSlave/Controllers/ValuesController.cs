@@ -42,7 +42,12 @@ namespace UniprotDistributedSlave.Controllers
                 {
                     while (dataReader.Read())
                     {
-                        Result.Add(dataReader.ToString());
+                        List<string> row = new List<string>();
+                        for (int i = 0; i < dataReader.FieldCount; i++)
+                        {
+                            row.Add(dataReader[i].ToString());
+                        }
+                        Result.Add(JsonConvert.SerializeObject(row));
                     }
                 }
             }
