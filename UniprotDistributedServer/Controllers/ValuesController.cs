@@ -52,8 +52,10 @@ namespace UniprotDistributedServer.Controllers
                 try
                 {
                     HttpResponseMessage response = await client.GetAsync(server.api_call + "/slave/get?sql=" + sql);
+                    Console.WriteLine(response);
                     if (response.IsSuccessStatusCode)
                     {
+                        
                         Stream receiveStream = await response.Content.ReadAsStreamAsync();
                         StreamReader readStream = new StreamReader(receiveStream, Encoding.UTF8);
                         string result = readStream.ReadToEnd();

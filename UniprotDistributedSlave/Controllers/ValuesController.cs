@@ -42,7 +42,7 @@ namespace UniprotDistributedSlave.Controllers
                 {
                     while (dataReader.Read())
                     {
-                        Result.Add(dataReader[0].ToString());
+                        Result.Add(dataReader.ToString());
                     }
                 }
             }

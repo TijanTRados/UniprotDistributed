@@ -39,11 +39,11 @@ namespace Frontend.Controllers
                         string result = readStream.ReadToEnd();
                         return result;
                     }
-                    else return "{ Check if the master server is running}";
+                    else return "{ "+ response.StatusCode + " - " + response.Content +" }";
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
-                    return "{Check if the master server is running}";
+                    return "{ " + ex.Message+ " }";
                 }
             }
         }
