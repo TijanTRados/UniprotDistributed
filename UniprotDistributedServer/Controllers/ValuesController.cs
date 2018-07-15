@@ -41,7 +41,7 @@ namespace UniprotDistributedServer.Controllers
         // GET api/values
         [HttpGet]
         [Route("get")]
-        public async Task<IEnumerable<string>> Get(string sql)
+        public async Task<string> Get(string sql)
         {
             List<string> results = new List<string>();
 
@@ -74,7 +74,7 @@ namespace UniprotDistributedServer.Controllers
                 }
             }
 
-            return results;
+            return JsonConvert.SerializeObject( results);
         }
 
         [HttpGet]

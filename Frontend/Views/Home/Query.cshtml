@@ -59,6 +59,7 @@
             url: '/Home/Get',
             data: { sql: $('#FileName')[0].value },
             type: 'GET',
+            dataType: 'json',
             success: function (response) {
                 $('#otherinfo').html(response);
             }
