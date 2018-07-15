@@ -60,7 +60,7 @@ namespace UniprotDistributedServer.Controllers
                         StreamReader readStream = new StreamReader(receiveStream, Encoding.UTF8);
                         string result = readStream.ReadToEnd();
 
-                        results.Add(result);
+                        results.Add(server.api_call + ": " + result);
                     }
                     else
                     {
@@ -74,7 +74,7 @@ namespace UniprotDistributedServer.Controllers
                 }
             }
 
-            return JsonConvert.SerializeObject( results);
+            return JsonConvert.SerializeObject( results, Formatting.Indented);
         }
 
         [HttpGet]
