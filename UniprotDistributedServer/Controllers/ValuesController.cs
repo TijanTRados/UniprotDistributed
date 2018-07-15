@@ -63,7 +63,7 @@ namespace UniprotDistributedServer.Controllers
                         string result = readStream.ReadToEnd();
 
                         returnvalue = result;
-                        //resultTables.Add((DataTable)JsonConvert.DeserializeObject(result));
+                        resultTables.Add((DataTable)JsonConvert.DeserializeObject(result));
                     }
                     else
                     {
@@ -79,7 +79,12 @@ namespace UniprotDistributedServer.Controllers
                 }
             }
 
-            return returnvalue;
+            foreach (DataTable t in resultTables)
+            {
+                returnvalue+= " table [0, mass]:  " + t.Rows[0]["mass"] + "     ";
+            }
+
+            return "Mass in tables = " + returnvalue;
         }
 
         [HttpGet]
