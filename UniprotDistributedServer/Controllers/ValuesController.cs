@@ -43,11 +43,13 @@ namespace UniprotDistributedServer.Controllers
         [Route("get")]
         public async Task<string> Get(string sql)
         {
-            List<string> results = new List<string>();
+            List<Peptides> results = new List<Peptides>();
 
             foreach (Servers server in Program.Servers)
             {
                 HttpClient client = new HttpClient();
+
+                List<Peptides> temp = new List<Peptides>();
 
                 try
                 {
@@ -60,18 +62,20 @@ namespace UniprotDistributedServer.Controllers
                         StreamReader readStream = new StreamReader(receiveStream, Encoding.UTF8);
                         string result = readStream.ReadToEnd();
 
-                        results.Add("{\"" + server.api_call + "\": {" + result + "}");
+                        temp = JsonConvert.DeserializeObject<List<Peptides>>(result);
                     }
                     else
                     {
-                        results.Add(server.api_call + ": " + response.StatusCode + " - " + response.Content);
+                        temp = null;
                     }
 
                 }
                 catch (Exception ex)
                 {
-                    results.Add(server.api_call + ": " + ex.Message);
+                    temp = null;
                 }
+
+                results.AddRange(temp);
             }
 
             return JsonConvert.SerializeObject( results, Formatting.Indented);
