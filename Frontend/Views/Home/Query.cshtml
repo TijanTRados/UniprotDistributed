@@ -61,10 +61,10 @@
             url: '/Home/Get',
             data: { sql: $('#FileName')[0].value },
             type: 'GET',
+            dataType: 'json',
             success: function (response) {
                 $('#tablebody').html("");
-                responsex = JSON.parse(response);
-                responsex.forEach(function (res) {
+                response.forEach(function (res) {
                     $('#tablebody').add("<tr><td>"+res.mass+"</td><td>"+res.peptide+"</td><td>"+res.acc+"</td><td>"+res.protein+"</td><td>"+res.taxonomy+"</td><td>"+res.division+"</td></tr>");
                 })
 

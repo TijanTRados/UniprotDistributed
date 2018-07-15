@@ -44,7 +44,9 @@ namespace UniprotDistributedSlave.Controllers
                 Console.WriteLine(stopwatch.Elapsed);
 
                 var r = Serialize(datareader);
+                Console.WriteLine("Response: " + r);
                 returnvalue = JsonConvert.SerializeObject(r, Formatting.Indented);
+                Console.WriteLine("Returning to app: " + returnvalue);
             }
 
             return returnvalue;
