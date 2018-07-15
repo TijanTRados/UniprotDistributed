@@ -51,7 +51,7 @@ namespace UniprotDistributedServer.Controllers
 
                 try
                 {
-                    HttpResponseMessage response = await client.GetAsync(server.api_call + "/slave/get?sql=" + sql);
+                    HttpResponseMessage response = await client.GetAsync("server.api_call" + "/slave/get?sql=" + sql);
                     Console.WriteLine(response);
                     if (response.IsSuccessStatusCode)
                     {
@@ -60,7 +60,7 @@ namespace UniprotDistributedServer.Controllers
                         StreamReader readStream = new StreamReader(receiveStream, Encoding.UTF8);
                         string result = readStream.ReadToEnd();
 
-                        results.Add(server.api_call + ": " + result);
+                        results.Add("{\"" + server.api_call + "\": {" + result + "}");
                     }
                     else
                     {
