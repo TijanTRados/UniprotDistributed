@@ -53,7 +53,7 @@ namespace UniprotDistributedServer.Controllers
 
                 try
                 {
-                    HttpResponseMessage response = await client.GetAsync(server.api_call + "/slave/get?sql=" + sql);
+                    HttpResponseMessage response = await client.GetAsync(DateTime.Now + ": " + server.api_call + "/slave/get?sql=" + sql);
                     Console.WriteLine(response);
                     if (response.IsSuccessStatusCode)
                     {
@@ -66,13 +66,34 @@ namespace UniprotDistributedServer.Controllers
                     }
                     else
                     {
-                        temp = null;
+                        Console.WriteLine(DateTime.Now + ": " + response);
+                        temp.Add(new Peptides
+                        {
+                            id = 0,
+                            acc = "",
+                            division = "",
+                            peptide = server.api_call,
+                            mass = 0,
+                            protein = "ERROR",
+                            taxonomy = ""
+                        });
                     }
 
                 }
                 catch (Exception ex)
                 {
-                    temp = null;
+                    Console.WriteLine(DateTime.Now + ": " + ex.Message);
+                    temp.Add(new Peptides
+                    {
+                        id = 0,
+                        acc = "",
+                        division = "",
+                        peptide = server.api_call,
+                        mass = 0,
+                        protein = "ERROR",
+                        taxonomy = ""
+                    });
+
                 }
 
                 results.AddRange(temp);

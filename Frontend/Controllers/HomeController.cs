@@ -31,6 +31,8 @@ namespace Frontend.Controllers
                 {
                     string sql2correct = sql.Replace(" ", "%20");
 
+                    string dothis = SERVER + "/master/get?sql=" + sql2correct;
+
                     HttpResponseMessage response = await client.GetAsync(SERVER + "/master/get?sql=" + sql2correct);
                     if (response.IsSuccessStatusCode)
                     {
