@@ -12,6 +12,8 @@ using System.Threading;
 using Newtonsoft.Json;
 using System.Data.Common;
 using System.Diagnostics;
+using System.Data.SqlClient;
+using System.Data;
 
 namespace UniprotDistributedSlave.Controllers
 {
@@ -34,25 +36,17 @@ namespace UniprotDistributedSlave.Controllers
             stopwatch.Start();
 
             Console.WriteLine(sqlx);
+            string json;
 
-            using (DbDataReader dataReader = DataBase.ExecuteDataReader(sqlx, parameterList))
+            using (DataSet dataset = DataBase.ExecuteFillDataSet(sqlx, parameterList))
             {
                 stopwatch.Stop();
-                if (dataReader != null && dataReader.HasRows)
-                {
-                    while (dataReader.Read())
-                    {
-                        List<string> row = new List<string>();
-                        for (int i = 0; i < dataReader.FieldCount; i++)
-                        {
-                            row.Add(dataReader[i].ToString());
-                        }
-                        Result.Add(row);
-                    }
-                }
+
+                json = JsonConvert.SerializeObject(dataset.Tables[0], Formatting.Indented);
+
             }
 
-            return (JsonConvert.SerializeObject(Result));
+            return json;
         }
 
         [HttpGet]
