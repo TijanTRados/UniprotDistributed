@@ -28,7 +28,7 @@ namespace UniprotDistributedSlave.Controllers
             BaseDataAccess DataBase = new BaseDataAccess(Program.myDatabaseConnectionString);
 
             List<DbParameter> parameterList = new List<DbParameter>();
-            List<string> Result = new List<string>();
+            List<List<string>> Result = new List<List<string>>();
 
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
@@ -47,12 +47,12 @@ namespace UniprotDistributedSlave.Controllers
                         {
                             row.Add(dataReader[i].ToString());
                         }
-                        Result.Add(JsonConvert.SerializeObject(row));
+                        Result.Add(row);
                     }
                 }
             }
 
-            return JsonConvert.SerializeObject(Result);
+            return (JsonConvert.SerializeObject(Result));
         }
 
         [HttpGet]
