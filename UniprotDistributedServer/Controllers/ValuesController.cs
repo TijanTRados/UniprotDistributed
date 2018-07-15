@@ -361,6 +361,7 @@ namespace UniprotDistributedServer.Controllers
                 }
                 catch (Exception)
                 {
+                    Thread.Sleep(2000);
                 }
             }
         }
