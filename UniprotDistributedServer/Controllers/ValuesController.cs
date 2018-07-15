@@ -69,7 +69,6 @@ namespace UniprotDistributedServer.Controllers
                         Console.WriteLine(DateTime.Now + ": " + response);
                         temp.Add(new Peptides
                         {
-                            id = 0,
                             acc = "",
                             division = "",
                             peptide = server.api_call,
@@ -85,7 +84,6 @@ namespace UniprotDistributedServer.Controllers
                     Console.WriteLine(DateTime.Now + ": " + ex.Message);
                     temp.Add(new Peptides
                     {
-                        id = 0,
                         acc = "",
                         division = "",
                         peptide = server.api_call,

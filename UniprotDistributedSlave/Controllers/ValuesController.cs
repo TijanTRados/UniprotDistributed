@@ -41,6 +41,7 @@ namespace UniprotDistributedSlave.Controllers
             using (SqlDataReader datareader = DataBase.ExecuteSqlDataReader(sqlx))
             {
                 stopwatch.Stop();
+                Console.WriteLine(stopwatch.Elapsed);
 
                 var r = Serialize(datareader);
                 returnvalue = JsonConvert.SerializeObject(r, Formatting.Indented);
