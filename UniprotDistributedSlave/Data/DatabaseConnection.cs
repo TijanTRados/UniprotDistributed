@@ -210,6 +210,7 @@ public class BaseDataAccess
             SqlConnection connection = this.GetConnection();
             {
                 SqlCommand cmd = this.GetCommand(connection, procedureName);
+                cmd.CommandTimeout = 0;
 
                 ds = cmd.ExecuteReader(CommandBehavior.CloseConnection);
             }
