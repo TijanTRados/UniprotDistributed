@@ -78,7 +78,7 @@ namespace UniprotDistributedServer.Controllers
                 results.AddRange(temp);
             }
 
-            return JsonConvert.SerializeObject( results, Formatting.Indented);
+            return JsonConvert.SerializeObject(results, Formatting.Indented);
         }
 
         [HttpGet]
