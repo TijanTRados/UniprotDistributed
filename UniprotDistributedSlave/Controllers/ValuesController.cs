@@ -36,7 +36,7 @@ namespace UniprotDistributedSlave.Controllers
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
 
-            Console.WriteLine("\nNEW -----------------------------------------------------------------------------------------------------\n");
+            Console.WriteLine("\nNEW ---------------------------------------------------------------------------------" + Program.myApiCall + "\n");
             Console.WriteLine("SQL:\t" + sqlx);
 
             using (SqlDataReader datareader = DataBase.ExecuteSqlDataReader(sqlx))
