@@ -102,26 +102,67 @@ namespace UniprotDistributedServer.Controllers
             return result;
         }
 
+        [HttpGet]
+        [Route("get_columnstore")]
+        public string Get_columnstore(string sql)
+        {
+            List<Peptides> result = new List<Peptides>();
+            string returnvalue;
+
+            string sqlx = sql.Replace("maintable", "peptides");
+
+            Stopwatch stopwatch = new Stopwatch();
+            Console.WriteLine("\nNEW ---------------------------------------------------------------------------------CLASSIC ONE TABLE\n");
+            Console.WriteLine("SQL:\t" + sqlx);
+
+            stopwatch.Start();
+            SqlConnection connection = new SqlConnection("Data Source=proteinreader.bioinfo.pbf.hr,8758;Initial Catalog=prot;Integrated Security=False;User Id=tijan;Password=tijan99;MultipleActiveResultSets=True");
+            using (connection)
+            {
+                connection.Open();
+                using (SqlCommand command = new SqlCommand(sqlx, connection))
+                {
+
+                    command.CommandTimeout = 0;
+
+                    using (SqlDataReader datareader = command.ExecuteReader())
+                    {
+                        Console.WriteLine("TIME (ExecuteSqlDataReader):\t" + stopwatch.Elapsed);
+
+                        var r = Serialize(datareader);
+                        returnvalue = JsonConvert.SerializeObject(r);
+
+                        Console.WriteLine("TIME (Serializer):\t" + stopwatch.Elapsed);
+                    }
+                }
+                connection.Close();
+            }
+
+            result = JsonConvert.DeserializeObject<List<Peptides>>(returnvalue);
+
+            return JsonConvert.SerializeObject(result, Formatting.Indented);
+        }
+
         // GET api/values
         [HttpGet]
         [Route("get")]
         public async Task<string> Get(string sql)
         {
             List<Peptides> combined = new List<Peptides>();
-            List<Peptides>[] results = new List<Peptides>[1];
+            List<Peptides>[] results = new List<Peptides>[6];
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
 
             Console.WriteLine("\nNEW GET ------------------------------------------------------------------------------------------\n");
 
             var task1 = getter(Program.Servers[0], sql, 1);
-            //var task2 = getter(Program.Servers[1], sql, 2);
-            //var task3 = getter(Program.Servers[2], sql, 3);
-            //var task4 = getter(Program.Servers[3], sql, 4);
-            //var task5 = getter(Program.Servers[4], sql, 5);
-            //var task6 = getter(Program.Servers[5], sql, 6);
+            var task2 = getter(Program.Servers[1], sql, 2);
+            var task3 = getter(Program.Servers[2], sql, 3);
+            var task4 = getter(Program.Servers[3], sql, 4);
+            var task5 = getter(Program.Servers[4], sql, 5);
+            var task6 = getter(Program.Servers[5], sql, 6);
 
-            results = await System.Threading.Tasks.Task.WhenAll(task1);
+            results = await System.Threading.Tasks.Task.WhenAll(task1, task2, task3, task4, task5, task6);
 
             //Combine all results to one
             foreach(List<Peptides> list in results)
