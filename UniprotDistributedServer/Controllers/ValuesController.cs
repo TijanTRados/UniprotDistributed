@@ -70,7 +70,7 @@ namespace UniprotDistributedServer.Controllers
 
             stopwatch.Stop();
             Console.WriteLine("\nTIME FOR ALL OF THE WORK (PARALLEL): " + stopwatch.Elapsed);
-            Console.WriteLine("-----------------------------------------");
+            Console.WriteLine("------------------------------------------------------------------------------------------------------");
             return JsonConvert.SerializeObject(combined, Formatting.Indented);
         }
 

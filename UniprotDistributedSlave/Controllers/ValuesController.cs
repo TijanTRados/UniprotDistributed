@@ -36,18 +36,18 @@ namespace UniprotDistributedSlave.Controllers
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
 
-            Console.WriteLine(sqlx);
+            Console.WriteLine("\nNEW -----------------------------------------------------------------------------------------------------\n");
+            Console.WriteLine("SQL:\t" + sqlx);
 
             using (SqlDataReader datareader = DataBase.ExecuteSqlDataReader(sqlx))
             {
                 var r = Serialize(datareader);
-                Console.WriteLine("Response: " + r);
                 returnvalue = JsonConvert.SerializeObject(r);
-                Console.WriteLine("Returning to app: " + returnvalue);
+                Console.WriteLine("RESPONSE:\t" + returnvalue + "\n");
             }
             stopwatch.Stop();
-            Console.WriteLine("TIME TO GET AND RETURN: " + stopwatch.Elapsed);
-
+            Console.WriteLine("TIME:\t" + stopwatch.Elapsed);
+            Console.WriteLine("----------------------------------------------------------------------------------------------------------------");
             return returnvalue;
         }
 
