@@ -47,14 +47,14 @@ namespace UniprotDistributedServer.Controllers
             List<Peptides> result = new List<Peptides>();
             string returnvalue;
 
-            string sqlx = sql.Replace("maintable", "peptides_row");
+            string sqlx = sql.Replace("maintable", "peptides");
 
             Stopwatch stopwatch = new Stopwatch();
             Console.WriteLine("\nNEW ---------------------------------------------------------------------------------CLASSIC ONE TABLE\n");
             Console.WriteLine("SQL:\t" + sqlx);
 
             stopwatch.Start();
-            SqlConnection connection = new SqlConnection("Data Source=proteinreader.bioinfo.pbf.hr,8758;Initial Catalog=prot;Integrated Security=False;User Id=tijan;Password=tijan99;MultipleActiveResultSets=True");
+            SqlConnection connection = new SqlConnection("Data Source=proteinreader.bioinfo.pbf.hr,8758;Initial Catalog=prot1;Integrated Security=False;User Id=tijan;Password=tijan99;MultipleActiveResultSets=True");
             using (connection)
             {
                 connection.Open();
