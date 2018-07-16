@@ -39,9 +39,10 @@ namespace UniprotDistributedSlave.Controllers
             SqlConnection connection = new SqlConnection(Program.myDatabaseConnectionString);
             using (connection)
             {
-                using(SqlCommand command = new SqlCommand(sql, connection))
+                connection.Open();
+                using (SqlCommand command = new SqlCommand(sqlx, connection))
                 {
-                    connection.Open();
+                    
                     command.CommandTimeout = 0;
 
                     using (SqlDataReader datareader = command.ExecuteReader())
@@ -53,8 +54,8 @@ namespace UniprotDistributedSlave.Controllers
 
                         Console.WriteLine("TIME (Serializer):\t" + stopwatch.Elapsed);
                     }
-                    connection.Close();
                 }
+                connection.Close();
             }
 
             stopwatch.Stop();
