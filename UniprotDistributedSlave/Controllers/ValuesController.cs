@@ -28,8 +28,6 @@ namespace UniprotDistributedSlave.Controllers
             string returnvalue;
             string sqlx = sql.Replace("maintable", Program.myMainTable);
 
-            BaseDataAccess DataBase = new BaseDataAccess(Program.myDatabaseConnectionString);
-
             List<DbParameter> parameterList = new List<DbParameter>();
             List<List<string>> Result = new List<List<string>>();
 
@@ -38,18 +36,29 @@ namespace UniprotDistributedSlave.Controllers
             Console.WriteLine("SQL:\t" + sqlx);
 
             stopwatch.Start();
-            using (SqlDataReader datareader = DataBase.ExecuteSqlDataReader(sqlx))
+            SqlConnection connection = new SqlConnection(Program.myDatabaseConnectionString);
+            using (connection)
             {
-                Console.WriteLine("TIME (ExecuteSqlDataReader):\t" + stopwatch.Elapsed);
+                using(SqlCommand command = new SqlCommand(sql, connection))
+                {
+                    connection.Open();
+                    command.CommandTimeout = 0;
 
-                var r = Serialize(datareader);
-                returnvalue = JsonConvert.SerializeObject(r);
+                    using (SqlDataReader datareader = command.ExecuteReader())
+                    {
+                        Console.WriteLine("TIME (ExecuteSqlDataReader):\t" + stopwatch.Elapsed);
 
-                Console.WriteLine("TIME (Serializer):\t" + stopwatch.Elapsed);
+                        var r = Serialize(datareader);
+                        returnvalue = JsonConvert.SerializeObject(r);
+
+                        Console.WriteLine("TIME (Serializer):\t" + stopwatch.Elapsed);
+                    }
+                    connection.Close();
+                }
             }
 
             stopwatch.Stop();
-            Console.WriteLine("TIME (End):\t" + stopwatch.Elapsed);
+            Console.WriteLine("TIME FIN(Dispose and End):\t" + stopwatch.Elapsed);
             Console.WriteLine("RESPONSE:\t" + returnvalue + "\n");
             Console.WriteLine("----------------------------------------------------------------------------------------------------------------");
             return returnvalue;
