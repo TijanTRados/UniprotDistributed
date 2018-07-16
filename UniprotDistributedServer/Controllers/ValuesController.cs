@@ -16,6 +16,7 @@ using Microsoft.Extensions.Configuration;
 using RestSharp;
 using UniprotDistributedServer.Models;
 using Newtonsoft.Json;
+using System.Collections.Concurrent;
 
 namespace UniprotDistributedServer.Controllers
 {
@@ -43,52 +44,66 @@ namespace UniprotDistributedServer.Controllers
         [Route("get")]
         public async Task<string> Get(string sql)
         {
-            List<Peptides> results = new List<Peptides>();
+            //HARDCODED
+            List<Peptides> combined = new List<Peptides>();
+            List<Peptides>[] results = new List<Peptides>[6];
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
 
-            foreach (Servers server in Program.Servers)
+            Console.WriteLine("\nNEW GET ------------------------------------------------------------------------------------------\n");
+
+            //HARDCODED
+            var task1 = getter(Program.Servers[0], sql, 1);
+            var task2 = getter(Program.Servers[1], sql, 2);
+            var task3 = getter(Program.Servers[2], sql, 3);
+            var task4 = getter(Program.Servers[3], sql, 4);
+            var task5 = getter(Program.Servers[4], sql, 5);
+            var task6 = getter(Program.Servers[5], sql, 6);
+
+            results = await System.Threading.Tasks.Task.WhenAll(task1, task2, task3, task4, task5, task6);
+
+            //Combine all results to one
+            foreach(List<Peptides> list in results)
             {
-                HttpClient client = new HttpClient();
+                combined.AddRange(list);
+            }
 
-                List<Peptides> temp = new List<Peptides>();
+            stopwatch.Stop();
+            Console.WriteLine("\nTIME FOR ALL OF THE WORK (PARALLEL): " + stopwatch.Elapsed);
+            Console.WriteLine("-----------------------------------------");
+            return JsonConvert.SerializeObject(combined, Formatting.Indented);
+        }
 
-                try
+        //Parallel task
+        public async Task<List<Peptides>> getter(Servers server, string sql, int id)
+        {
+            HttpClient client = new HttpClient();
+            client.Timeout = Timeout.InfiniteTimeSpan;
+
+            List<Peptides> temp = new List<Peptides>();
+
+            try
+            {
+                Console.WriteLine(id + "| CALL:\t" + server.api_call + "/slave/get?sql=" + sql);
+
+                Stopwatch asyncwait = new Stopwatch();
+                asyncwait.Start();
+                HttpResponseMessage response = await client.GetAsync(server.api_call + "/slave/get?sql=" + sql);
+                asyncwait.Stop();
+
+                Console.WriteLine(id + "| WAITING:\t" + asyncwait.Elapsed);
+                if (response.IsSuccessStatusCode)
                 {
-                    Console.WriteLine("Call: " + server.api_call + "/slave/get?sql=" + sql);
 
-                    Stopwatch asyncwait = new Stopwatch();
-                    asyncwait.Start();
-                    HttpResponseMessage response = await client.GetAsync(server.api_call + "/slave/get?sql=" + sql);
-                    asyncwait.Stop();
-                    Console.WriteLine("WAITING TIME FOR ANSWER: " + asyncwait.Elapsed);
-                    if (response.IsSuccessStatusCode)
-                    {
+                    Stream receiveStream = await response.Content.ReadAsStreamAsync();
+                    StreamReader readStream = new StreamReader(receiveStream, Encoding.UTF8);
+                    string result = readStream.ReadToEnd();
 
-                        Stream receiveStream = await response.Content.ReadAsStreamAsync();
-                        StreamReader readStream = new StreamReader(receiveStream, Encoding.UTF8);
-                        string result = readStream.ReadToEnd();
-
-                        temp = JsonConvert.DeserializeObject<List<Peptides>>(result);
-                    }
-                    else
-                    {
-                        Console.WriteLine("Status code is not SUCCESS");
-                        temp.Add(new Peptides
-                        {
-                            acc = "",
-                            division = "",
-                            peptide = server.api_call,
-                            mass = 0,
-                            protein = "ERROR",
-                            taxonomy = ""
-                        });
-                    }
-
+                    temp = JsonConvert.DeserializeObject<List<Peptides>>(result);
                 }
-                catch (Exception ex)
+                else
                 {
-                    Console.WriteLine(DateTime.Now + ": " + ex.Message);
+                    Console.WriteLine(id + "| INFO:\tStatus code is " + response.StatusCode);
                     temp.Add(new Peptides
                     {
                         acc = "",
@@ -98,16 +113,24 @@ namespace UniprotDistributedServer.Controllers
                         protein = "ERROR",
                         taxonomy = ""
                     });
-
                 }
-                
-                results.AddRange(temp);
-            }
-            stopwatch.Stop();
 
-            Console.WriteLine("Time for do all this: " + stopwatch.Elapsed);
-            Console.WriteLine("-----------------------------------------");
-            return JsonConvert.SerializeObject(results, Formatting.Indented);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(DateTime.Now + ": " + ex.Message);
+                temp.Add(new Peptides
+                {
+                    acc = "",
+                    division = "",
+                    peptide = server.api_call,
+                    mass = 0,
+                    protein = "ERROR",
+                    taxonomy = ""
+                });
+
+            }
+            return temp;
         }
 
         [HttpGet]

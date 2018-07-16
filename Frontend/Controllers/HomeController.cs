@@ -8,6 +8,7 @@ using Frontend.Models;
 using System.Net.Http;
 using System.IO;
 using System.Text;
+using System.Threading;
 
 namespace Frontend.Controllers
 {
@@ -25,8 +26,9 @@ namespace Frontend.Controllers
         [HttpGet]
         public async Task<string> Get(string sql)
         {
-            using (var client = new HttpClient())
+            using (HttpClient client = new HttpClient())
             {
+                client.Timeout = Timeout.InfiniteTimeSpan;
                 try
                 {
                     string sql2correct = sql.Replace(" ", "%20");
