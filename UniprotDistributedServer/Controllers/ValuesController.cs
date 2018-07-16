@@ -17,6 +17,7 @@ using RestSharp;
 using UniprotDistributedServer.Models;
 using Newtonsoft.Json;
 using System.Collections.Concurrent;
+using System.Data.SqlClient;
 
 namespace UniprotDistributedServer.Controllers
 {
@@ -37,6 +38,68 @@ namespace UniprotDistributedServer.Controllers
         public bool Availability()
         {
             return true;
+        }
+
+        [HttpGet]
+        [Route("get_classic")]
+        public string Get_classic(string sql)
+        {
+            List<Peptides> result = new List<Peptides>();
+            string returnvalue;
+
+            string sqlx = sql.Replace("maintable", "peptides_row");
+
+            Stopwatch stopwatch = new Stopwatch();
+            Console.WriteLine("\nNEW ---------------------------------------------------------------------------------CLASSIC ONE TABLE\n");
+            Console.WriteLine("SQL:\t" + sqlx);
+
+            stopwatch.Start();
+            SqlConnection connection = new SqlConnection("Data Source=proteinreader.bioinfo.pbf.hr,8758;Initial Catalog=prot;Integrated Security=False;User Id=tijan;Password=tijan99;MultipleActiveResultSets=True");
+            using (connection)
+            {
+                connection.Open();
+                using (SqlCommand command = new SqlCommand(sqlx, connection))
+                {
+
+                    command.CommandTimeout = 0;
+
+                    using (SqlDataReader datareader = command.ExecuteReader())
+                    {
+                        Console.WriteLine("TIME (ExecuteSqlDataReader):\t" + stopwatch.Elapsed);
+
+                        var r = Serialize(datareader);
+                        returnvalue = JsonConvert.SerializeObject(r);
+
+                        Console.WriteLine("TIME (Serializer):\t" + stopwatch.Elapsed);
+                    }
+                }
+                connection.Close();
+            }
+
+            result = JsonConvert.DeserializeObject<List<Peptides>>(returnvalue);
+
+            return JsonConvert.SerializeObject(result, Formatting.Indented);
+        }
+
+        public IEnumerable<Dictionary<string, object>> Serialize(SqlDataReader reader)
+        {
+            var results = new List<Dictionary<string, object>>();
+            var cols = new List<string>();
+            for (var i = 0; i < reader.FieldCount; i++)
+                cols.Add(reader.GetName(i));
+
+            while (reader.Read())
+                results.Add(SerializeRow(cols, reader));
+
+            return results;
+        }
+        private Dictionary<string, object> SerializeRow(IEnumerable<string> cols,
+                                                        SqlDataReader reader)
+        {
+            var result = new Dictionary<string, object>();
+            foreach (var col in cols)
+                result.Add(col, reader[col]);
+            return result;
         }
 
         // GET api/values

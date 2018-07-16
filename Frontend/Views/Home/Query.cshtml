@@ -27,7 +27,7 @@
             </div>
 
             <div>
-                <input class="form-control" type="text" rows="5" name="NAME" id="FileName" value="select mass, p.peptide, r.acc, r.name as protein, t.name as taxonomy, d.name as division from maintable p join proteins r on p.acc = r.acc join taxonomy t on p.tax_id = t.tax_id join division d on p.div_id = d.id where p.id = 2" placeholder="Value" />
+                <input class="form-control" type="text" rows="5" name="NAME" id="FileName" value="select mass, p.peptide, r.acc, r.name as protein, t.name as taxonomy, d.name as division from maintable p join proteins r on p.acc = r.acc join taxonomy t on p.tax_id = t.tax_id join division d on p.div_id = d.id where p.id between 100 and 200" placeholder="Value" />
             </div>
 
             <button class=" btn btn-primary" id="run">Run</button>
@@ -36,7 +36,7 @@
         <hr />
 
         <div>
-            <table class="table table-striped" id="table">
+            <table id="table">
                 <thead>
                     <tr>
                         <th scope="col">Mass</th>
@@ -47,7 +47,7 @@
                         <th scope="col">Division</th>
                     </tr>
                 </thead>
-                <tbody id="tablebody"></tbody>
+                <tbody></tbody>
             </table>
         </div>
 
@@ -58,8 +58,17 @@
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<script src="http://code.jquery.com/jquery-1.11.2.min.js"></script>
+<script src="~/js/jquery.simplePagination.js"></script>
 
 <script>
+    $("#table").simplePagination({
+        perPage: 10,
+        currentPage: 2,
+        previousButtonClass: "btn btn-default btn-xs",
+        nextButtonClass: "btn btn-default btn-xs"
+    });
+
     $('#run').click(function () {
         $('#overlay').show();
         $.ajax({
@@ -90,6 +99,9 @@
                 //})
                 $('#overlay').hide();
                 $('#otherinfo').html(response);
+
+                
+
             }
         });
 
