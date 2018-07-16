@@ -108,20 +108,20 @@ namespace UniprotDistributedServer.Controllers
         public async Task<string> Get(string sql)
         {
             List<Peptides> combined = new List<Peptides>();
-            List<Peptides>[] results = new List<Peptides>[6];
+            List<Peptides>[] results = new List<Peptides>[1];
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
 
             Console.WriteLine("\nNEW GET ------------------------------------------------------------------------------------------\n");
 
             var task1 = getter(Program.Servers[0], sql, 1);
-            var task2 = getter(Program.Servers[1], sql, 2);
-            var task3 = getter(Program.Servers[2], sql, 3);
-            var task4 = getter(Program.Servers[3], sql, 4);
-            var task5 = getter(Program.Servers[4], sql, 5);
-            var task6 = getter(Program.Servers[5], sql, 6);
+            //var task2 = getter(Program.Servers[1], sql, 2);
+            //var task3 = getter(Program.Servers[2], sql, 3);
+            //var task4 = getter(Program.Servers[3], sql, 4);
+            //var task5 = getter(Program.Servers[4], sql, 5);
+            //var task6 = getter(Program.Servers[5], sql, 6);
 
-            results = await System.Threading.Tasks.Task.WhenAll(task1, task2, task3, task4, task5, task6);
+            results = await System.Threading.Tasks.Task.WhenAll(task1);
 
             //Combine all results to one
             foreach(List<Peptides> list in results)
