@@ -34,19 +34,23 @@ namespace UniprotDistributedSlave.Controllers
             List<List<string>> Result = new List<List<string>>();
 
             Stopwatch stopwatch = new Stopwatch();
-            stopwatch.Start();
-
             Console.WriteLine("\nNEW ---------------------------------------------------------------------------------" + Program.myApiCall + "\n");
             Console.WriteLine("SQL:\t" + sqlx);
 
+            stopwatch.Start();
             using (SqlDataReader datareader = DataBase.ExecuteSqlDataReader(sqlx))
             {
+                Console.WriteLine("TIME (ExecuteSqlDataReader):\t" + stopwatch.Elapsed);
+
                 var r = Serialize(datareader);
                 returnvalue = JsonConvert.SerializeObject(r);
-                Console.WriteLine("RESPONSE:\t" + returnvalue + "\n");
+
+                Console.WriteLine("TIME (Serializer):\t" + stopwatch.Elapsed);
             }
+
             stopwatch.Stop();
-            Console.WriteLine("TIME:\t" + stopwatch.Elapsed);
+            Console.WriteLine("TIME (End):\t" + stopwatch.Elapsed);
+            Console.WriteLine("RESPONSE:\t" + returnvalue + "\n");
             Console.WriteLine("----------------------------------------------------------------------------------------------------------------");
             return returnvalue;
         }
