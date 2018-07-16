@@ -60,7 +60,6 @@ namespace UniprotDistributedSlave.Controllers
 
             stopwatch.Stop();
             Console.WriteLine("TIME FIN(Dispose and End):\t" + stopwatch.Elapsed);
-            Console.WriteLine("RESPONSE:\t" + returnvalue + "\n");
             Console.WriteLine("----------------------------------------------------------------------------------------------------------------");
             return returnvalue;
         }
