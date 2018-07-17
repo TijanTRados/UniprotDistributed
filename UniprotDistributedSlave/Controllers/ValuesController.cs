@@ -53,13 +53,13 @@ namespace UniprotDistributedSlave.Controllers
                     {
 
                         Console.WriteLine("TIME (ExecuteSqlDataReader):\t" + stopwatch.Elapsed);
-                        string time = stopwatch.Elapsed.ToString();
+                        string time = stopwatch.Elapsed.ToString("mm\\:ss\\,ff");
 
                         var r = Serialize(datareader);
                         returnvalue = JsonConvert.SerializeObject(r, Formatting.Indented);
 
                         Console.WriteLine("TIME (Serializer):\t" + stopwatch.Elapsed);
-                        time += "\t" + stopwatch.Elapsed.ToString();
+                        time += "\t" + stopwatch.Elapsed.ToString("mm\\:ss\\,ff");
                         times.Add(time);
                     }
                 }

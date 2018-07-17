@@ -66,12 +66,12 @@ namespace UniprotDistributedServer.Controllers
 
                     using (SqlDataReader datareader = command.ExecuteReader())
                     {
-                        string time = stopwatch.Elapsed.ToString();
+                        string time = stopwatch.Elapsed.ToString("mm\\:ss\\,ff");
                         Console.WriteLine("TIME (ExecuteSqlDataReader):\t" + stopwatch.Elapsed);
 
                         var r = Serialize(datareader);
                         returnvalue = JsonConvert.SerializeObject(r);
-                        time += "\t" + stopwatch.Elapsed.ToString();
+                        time += "\t" + stopwatch.Elapsed.ToString("mm\\:ss\\,ff");
                         Console.WriteLine("TIME (Serializer):\t" + stopwatch.Elapsed);
                         times.Add(time);
                     }
@@ -143,13 +143,13 @@ namespace UniprotDistributedServer.Controllers
                     using (SqlDataReader datareader = command.ExecuteReader())
                     {
 
-                        string time = stopwatch.Elapsed.ToString();
+                        string time = stopwatch.Elapsed.ToString("mm\\:ss\\,ff");
                         //Console.WriteLine("TIME (ExecuteSqlDataReader):\t" + stopwatch.Elapsed);
 
                         var r = Serialize(datareader);
                         returnvalue = JsonConvert.SerializeObject(r);
 
-                        time += "\t" + stopwatch.Elapsed.ToString();
+                        time += "\t" + stopwatch.Elapsed.ToString("mm\\:ss\\,ff");
                         //Console.WriteLine("TIME (Serializer):\t" + stopwatch.Elapsed);
                         times.Add(time);
 
