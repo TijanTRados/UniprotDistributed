@@ -69,8 +69,8 @@ namespace UniprotDistributedServer.Controllers
 
                         var r = Serialize(datareader);
                         returnvalue = JsonConvert.SerializeObject(r);
-
                         Console.WriteLine("TIME (Serializer):\t" + stopwatch.Elapsed);
+                        Console.WriteLine("COUNT:\t" + datareader.FieldCount);
                     }
                 }
                 connection.Close();

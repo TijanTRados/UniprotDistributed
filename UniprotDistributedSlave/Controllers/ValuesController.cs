@@ -14,6 +14,7 @@ using System.Data.Common;
 using System.Diagnostics;
 using System.Data.SqlClient;
 using System.Data;
+using Microsoft.AspNetCore.Authentication;
 
 namespace UniprotDistributedSlave.Controllers
 {
@@ -37,6 +38,8 @@ namespace UniprotDistributedSlave.Controllers
 
             stopwatch.Start();
             SqlConnection connection = new SqlConnection(Program.myDatabaseConnectionString);
+            Stream buffer = new MemoryStream();
+
             using (connection)
             {
                 connection.Open();
@@ -45,12 +48,13 @@ namespace UniprotDistributedSlave.Controllers
                     
                     command.CommandTimeout = 0;
 
-                    using (SqlDataReader datareader = command.ExecuteReader())
+                    using (var datareader = command.ExecuteReader())
                     {
                         Console.WriteLine("TIME (ExecuteSqlDataReader):\t" + stopwatch.Elapsed);
 
                         var r = Serialize(datareader);
                         returnvalue = JsonConvert.SerializeObject(r);
+                        Console.WriteLine("COUNT:\t" + datareader.FieldCount);
 
                         Console.WriteLine("TIME (Serializer):\t" + stopwatch.Elapsed);
                     }
