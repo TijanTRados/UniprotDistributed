@@ -31,6 +31,7 @@ namespace UniprotDistributedSlave.Controllers
 
             List<DbParameter> parameterList = new List<DbParameter>();
             List<List<string>> Result = new List<List<string>>();
+            List<string> times = new List<string>();
 
             Stopwatch stopwatch = new Stopwatch();
             Console.WriteLine("\nNEW ---------------------------------------------------------------------------------" + Program.myApiCall + "\n");
@@ -50,13 +51,15 @@ namespace UniprotDistributedSlave.Controllers
 
                     using (var datareader = command.ExecuteReader())
                     {
+
                         Console.WriteLine("TIME (ExecuteSqlDataReader):\t" + stopwatch.Elapsed);
+                        string time = stopwatch.Elapsed.ToString();
 
                         var r = Serialize(datareader);
-                        returnvalue = JsonConvert.SerializeObject(r);
-                        Console.WriteLine("COUNT:\t" + datareader.FieldCount);
+                        returnvalue = JsonConvert.SerializeObject(r, Formatting.Indented);
 
                         Console.WriteLine("TIME (Serializer):\t" + stopwatch.Elapsed);
+                        time += "\t" + stopwatch.Elapsed.ToString();
                     }
                 }
                 connection.Close();
@@ -65,6 +68,15 @@ namespace UniprotDistributedSlave.Controllers
             stopwatch.Stop();
             Console.WriteLine("TIME FIN(Dispose and End):\t" + stopwatch.Elapsed);
             Console.WriteLine("----------------------------------------------------------------------------------------------------------------");
+
+            using (StreamWriter sw = System.IO.File.AppendText("TIMES_slave" + Program.mySlaveId+".txt"))
+            {
+                foreach (string time in times)
+                {
+                    //Logging the output
+                    sw.WriteLine(time);
+                }
+            }
             return returnvalue;
         }
 

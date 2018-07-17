@@ -46,12 +46,13 @@ namespace UniprotDistributedServer.Controllers
         {
             List<Peptides> result = new List<Peptides>();
             string returnvalue;
+            List<string> times = new List<string>();
 
             string sqlx = sql.Replace("maintable", "peptides_row");
 
             Stopwatch stopwatch = new Stopwatch();
-            Console.WriteLine("\nNEW ---------------------------------------------------------------------------------CLASSIC ONE TABLE\n");
-            Console.WriteLine("SQL:\t" + sqlx);
+            //Console.WriteLine("\nNEW ---------------------------------------------------------------------------------CLASSIC ONE TABLE\n");
+            //Console.WriteLine("SQL:\t" + sqlx);
 
             stopwatch.Start();
             SqlConnection connection = new SqlConnection("Data Source=proteinreader.bioinfo.pbf.hr,8758;Initial Catalog=prot;Integrated Security=False;User Id=tijan;Password=tijan99;MultipleActiveResultSets=True");
@@ -65,18 +66,28 @@ namespace UniprotDistributedServer.Controllers
 
                     using (SqlDataReader datareader = command.ExecuteReader())
                     {
+                        string time = stopwatch.Elapsed.ToString();
                         Console.WriteLine("TIME (ExecuteSqlDataReader):\t" + stopwatch.Elapsed);
 
                         var r = Serialize(datareader);
                         returnvalue = JsonConvert.SerializeObject(r);
+                        time += "\t" + stopwatch.Elapsed.ToString();
                         Console.WriteLine("TIME (Serializer):\t" + stopwatch.Elapsed);
-                        Console.WriteLine("COUNT:\t" + datareader.FieldCount);
                     }
                 }
                 connection.Close();
             }
 
             result = JsonConvert.DeserializeObject<List<Peptides>>(returnvalue);
+
+            using (StreamWriter sw = System.IO.File.AppendText("TIMES_classic.txt"))
+            {
+                foreach (string time in times)
+                {
+                    //Logging the output
+                    sw.WriteLine(time);
+                }
+            }
 
             return JsonConvert.SerializeObject(result, Formatting.Indented);
         }
@@ -108,12 +119,15 @@ namespace UniprotDistributedServer.Controllers
         {
             List<Peptides> result = new List<Peptides>();
             string returnvalue;
+            List<string> times = new List<string>();
 
             string sqlx = sql.Replace("maintable", "peptides");
 
             Stopwatch stopwatch = new Stopwatch();
-            Console.WriteLine("\nNEW ---------------------------------------------------------------------------------CLASSIC ONE TABLE\n");
+            Console.WriteLine("\nNEW ---------------------------------------------------------------------------------COLUMNSTORE\n");
             Console.WriteLine("SQL:\t" + sqlx);
+
+
 
             stopwatch.Start();
             SqlConnection connection = new SqlConnection("Data Source=proteinreader.bioinfo.pbf.hr,8758;Initial Catalog=prot;Integrated Security=False;User Id=tijan;Password=tijan99;MultipleActiveResultSets=True");
@@ -127,18 +141,32 @@ namespace UniprotDistributedServer.Controllers
 
                     using (SqlDataReader datareader = command.ExecuteReader())
                     {
-                        Console.WriteLine("TIME (ExecuteSqlDataReader):\t" + stopwatch.Elapsed);
+
+                        string time = stopwatch.Elapsed.ToString();
+                        //Console.WriteLine("TIME (ExecuteSqlDataReader):\t" + stopwatch.Elapsed);
 
                         var r = Serialize(datareader);
                         returnvalue = JsonConvert.SerializeObject(r);
 
-                        Console.WriteLine("TIME (Serializer):\t" + stopwatch.Elapsed);
+                        time += "\t" + stopwatch.Elapsed.ToString();
+                        //Console.WriteLine("TIME (Serializer):\t" + stopwatch.Elapsed);
+
                     }
                 }
                 connection.Close();
             }
 
             result = JsonConvert.DeserializeObject<List<Peptides>>(returnvalue);
+
+
+            using (StreamWriter sw = System.IO.File.AppendText("TIMES_columnstore.txt"))
+            { 
+                foreach (string time in times)
+                {
+                    //Logging the output
+                    sw.WriteLine(time);
+                }
+            }
 
             return JsonConvert.SerializeObject(result, Formatting.Indented);
         }
@@ -150,6 +178,7 @@ namespace UniprotDistributedServer.Controllers
         {
             List<Peptides> combined = new List<Peptides>();
             List<Peptides>[] results = new List<Peptides>[2];
+
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
 
@@ -164,6 +193,11 @@ namespace UniprotDistributedServer.Controllers
             foreach(List<Peptides> list in results)
             {
                 combined.AddRange(list);
+            }
+
+            using (StreamWriter sw = System.IO.File.AppendText("TIMES_distributed.txt"))
+            {
+                sw.WriteLine(stopwatch.Elapsed);
             }
 
             stopwatch.Stop();
