@@ -73,6 +73,7 @@ namespace UniprotDistributedServer.Controllers
                         returnvalue = JsonConvert.SerializeObject(r);
                         time += "\t" + stopwatch.Elapsed.ToString();
                         Console.WriteLine("TIME (Serializer):\t" + stopwatch.Elapsed);
+                        times.Add(time);
                     }
                 }
                 connection.Close();
@@ -150,6 +151,7 @@ namespace UniprotDistributedServer.Controllers
 
                         time += "\t" + stopwatch.Elapsed.ToString();
                         //Console.WriteLine("TIME (Serializer):\t" + stopwatch.Elapsed);
+                        times.Add(time);
 
                     }
                 }

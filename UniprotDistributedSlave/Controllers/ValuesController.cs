@@ -60,6 +60,7 @@ namespace UniprotDistributedSlave.Controllers
 
                         Console.WriteLine("TIME (Serializer):\t" + stopwatch.Elapsed);
                         time += "\t" + stopwatch.Elapsed.ToString();
+                        times.Add(time);
                     }
                 }
                 connection.Close();
