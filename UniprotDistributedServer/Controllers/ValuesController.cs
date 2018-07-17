@@ -199,7 +199,7 @@ namespace UniprotDistributedServer.Controllers
 
             using (StreamWriter sw = System.IO.File.AppendText("TIMES_distributed.txt"))
             {
-                sw.WriteLine(stopwatch.Elapsed);
+                sw.WriteLine(stopwatch.Elapsed.ToString("mm\\:ss\\.ff"));
             }
 
             stopwatch.Stop();
