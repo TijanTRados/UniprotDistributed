@@ -11,32 +11,68 @@
     </div>
 
     <div class="col-md-12">
-        <div>
+
+        <div id="radio">
+            <form action="">
+                <input type="radio" id="1" name="gender" value="get"> Distributed<br>
+                <input type="radio" id="2" name="gender" value="get_classic"> Classic One Database<br>
+                <input type="radio" id="3" name="gender" value="get_columnstore"> Columnstore
+            </form>
+        </div>
+        <hr />
+
+        <div class="row">
             <div class="dropdown">
                 <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">
-                    SQL
+                    Mass in range
                     <span class="caret"></span>
                 </button>
                 <ul class="dropdown-menu">
-                    <li><a href="#">SQL</a></li>
-                    <li><a href="#">Mass</a></li>
-                    <li><a href="#">Accession</a></li>
-                    <li><a href="#">Taxonomy</a></li>
-                    <li><a href="#">Division</a></li>
+                    <li><a id="mass_click">Mass</a></li>
+                    <li><a id="div_click">Division</a></li>
                 </ul>
             </div>
-
-            <div>
-                <input class="form-control" type="text" rows="5" name="NAME" id="FileName" value="select mass, p.peptide, r.acc, r.name as protein, t.name as taxonomy, d.name as division from maintable p join proteins r on p.acc = r.acc join taxonomy t on p.tax_id = t.tax_id join division d on p.div_id = d.id where p.id between 100 and 200" placeholder="Value" />
-            </div>
-
-            <button class=" btn btn-primary" id="run">Run</button>
         </div>
 
+        <div class="row">
+            <div id="mass_div" style="display:block">
+                <div class="col-md-2">
+                    <input class="form-control" type="text" rows="5" name="NAME" id="Massmin" value="500" placeholder="Value" />
+                </div>
+                <div class="col-md-2">
+                    <input class="form-control" type="text" rows="5" name="NAME" id="Massmax" value="500.2" placeholder="Value" />
+                </div>
+                <button class=" btn btn-primary" id="run">Run</button>
+            </div>
+        </div>
+
+
+        <div class="row" id="div_div" style="display:none">
+            <div>
+                <div class="dropdown">
+                    <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">
+                        Choose taxonomy
+                        <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a id="">Bacteria</a></li>
+                        <li><a>Mammals</a></li>
+                        <li><a>Plants</a></li>
+                        <li><a>Rodents</a></li>
+                        <li><a>Unassigned</a></li>
+                        <li><a>Viruses</a></li>
+                        <li><a>Vertebrates</a></li>
+                        <li><a>Archaea</a></li>
+                        <li><a>Fungi</a></li>
+                        <li><a>Human</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
         <hr />
 
-        <div>
-            <table id="table">
+        <div class="table-responsive">
+            <table id="table" class="table">
                 <thead>
                     <tr>
                         <th scope="col">Mass</th>
@@ -58,22 +94,34 @@
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-<script src="http://code.jquery.com/jquery-1.11.2.min.js"></script>
-<script src="~/js/jquery.simplePagination.js"></script>
+@*<script src="http://code.jquery.com/jquery-1.11.2.min.js"></script>
+<script src="~/js/jquery.simplePagination.js"></script>*@
 
 <script>
-    $("#table").simplePagination({
-        perPage: 10,
-        currentPage: 2,
-        previousButtonClass: "btn btn-default btn-xs",
-        nextButtonClass: "btn btn-default btn-xs"
-    });
+    //$("#table").simplePagination({
+    //    perPage: 10,
+    //    currentPage: 2,
+    //    previousButtonClass: "btn btn-default btn-xs",
+    //    nextButtonClass: "btn btn-default btn-xs"
+    //});
 
     $('#run').click(function () {
         $('#overlay').show();
+
+        if (document.getElementById('1').checked) {
+            rate_value = document.getElementById('1').value;
+        }
+        if (document.getElementById('2').checked) {
+            rate_value = document.getElementById('1').value;
+        }
+        if (document.getElementById('3').checked) {
+            rate_value = document.getElementById('1').value;
+        }
+
         $.ajax({
-            url: '/Home/Get',
-            data: { sql: $('#FileName')[0].value },
+            url: '/Home/' + rate_value,
+            data: {
+                sql: "select mass, p.peptide, r.acc, r.name as protein, t.name as taxonomy, d.name as division from maintable p join proteins r on p.acc = r.acc join taxonomy t on p.tax_id = t.tax_id join division d on p.div_id = d.id where mass between " + $('#Massmin')[0].value + " and " + $('#Massmax')[0].value },
             type: 'GET',
             dataType: 'json',
             success: function (response) {
@@ -99,9 +147,10 @@
                 //})
                 $('#overlay').hide();
                 $('#otherinfo').html(response);
-
+            },
+            error: function (response) {
+                $('#overlay').hide();
                 
-
             }
         });
 

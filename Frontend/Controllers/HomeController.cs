@@ -12,6 +12,7 @@ using System.Threading;
 
 namespace Frontend.Controllers
 {
+
     public class HomeController : Controller
     {
 
@@ -24,6 +25,7 @@ namespace Frontend.Controllers
         }
 
         [HttpGet]
+        [Route("/Home/get")]
         public async Task<string> Get(string sql)
         {
             using (HttpClient client = new HttpClient())
@@ -48,6 +50,66 @@ namespace Frontend.Controllers
                 catch (Exception ex)
                 {
                     return "{ " + ex.Message+ " }";
+                }
+            }
+        }
+
+        [HttpGet]
+        [Route("/Home/get_classic")]
+        public async Task<string> get_classic(string sql)
+        {
+            using (HttpClient client = new HttpClient())
+            {
+                client.Timeout = Timeout.InfiniteTimeSpan;
+                try
+                {
+                    string sql2correct = sql.Replace(" ", "%20");
+
+                    string dothis = SERVER + "/master/get_classic?sql=" + sql2correct;
+
+                    HttpResponseMessage response = await client.GetAsync(SERVER + "/master/get_classic?sql=" + sql2correct);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        Stream receiveStream = await response.Content.ReadAsStreamAsync();
+                        StreamReader readStream = new StreamReader(receiveStream, Encoding.UTF8);
+                        string result = readStream.ReadToEnd();
+                        return result;
+                    }
+                    else return "{ " + response.StatusCode + " - " + response.Content + " }";
+                }
+                catch (Exception ex)
+                {
+                    return "{ " + ex.Message + " }";
+                }
+            }
+        }
+
+        [HttpGet]
+        [Route("/Home/get_columnstore")]
+        public async Task<string> get_columnstore(string sql)
+        {
+            using (HttpClient client = new HttpClient())
+            {
+                client.Timeout = Timeout.InfiniteTimeSpan;
+                try
+                {
+                    string sql2correct = sql.Replace(" ", "%20");
+
+                    string dothis = SERVER + "/master/get_columnstore?sql=" + sql2correct;
+
+                    HttpResponseMessage response = await client.GetAsync(SERVER + "/master/get_columnstore?sql=" + sql2correct);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        Stream receiveStream = await response.Content.ReadAsStreamAsync();
+                        StreamReader readStream = new StreamReader(receiveStream, Encoding.UTF8);
+                        string result = readStream.ReadToEnd();
+                        return result;
+                    }
+                    else return "{ " + response.StatusCode + " - " + response.Content + " }";
+                }
+                catch (Exception ex)
+                {
+                    return "{ " + ex.Message + " }";
                 }
             }
         }
